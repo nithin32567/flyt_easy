@@ -52,10 +52,10 @@ const FlightListing = () => {
   const clientId = localStorage.getItem('clientId');
   const token = localStorage.getItem('token');
   const tui = localStorage.getItem('search-tui');
-
+  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
   const getPricer = async () => {
 
-    const response = await fetch('http://localhost:3000/api/getPricer', {
+    const response = await fetch(`${baseUrl}/api/getPricer`, {
       method: 'POST',
       body: JSON.stringify({}),
       headers: {
@@ -71,7 +71,7 @@ const FlightListing = () => {
   const getSmartPrice = async (flight) => {
     console.log(flight, 'flight');
   
-    const response = await fetch('http://localhost:3000/api/smartPrice', {
+    const response = await fetch(`${baseUrl}/api/smartPrice`, {
       method: 'POST',
       body: JSON.stringify(
         {

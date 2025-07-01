@@ -6,11 +6,14 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   
+
+  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
     setError('');
     try {
-      const response = await fetch('http://localhost:3000/api/signature', {
+      const response = await fetch(`${baseUrl}/api/signature`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clientId, clientPassword: password })

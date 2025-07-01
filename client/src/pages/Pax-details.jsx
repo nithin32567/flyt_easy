@@ -6,7 +6,7 @@ const PaxDetails = () => {
   const navigate = useNavigate();
   const flight = location.state?.flight;
   const pricerData = location.state?.pricerData;
-  
+  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
   const [contact, setContact] = useState({ phone: '', email: '' });
   const [adults, setAdults] = useState([]);
   const [children, setChildren] = useState([]);
@@ -96,7 +96,7 @@ const PaxDetails = () => {
 
     try {
       // Call bookFlight API to create Razorpay order
-      const response = await fetch('http://localhost:3000/api/bookFlight', {
+      const response = await fetch(`${baseUrl}/api/bookFlight`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ const PaxDetails = () => {
         handler: async function (response) {
           try {
             // Verify payment on backend
-            const verifyResponse = await fetch('http://localhost:3000/api/verifyPayment', {
+            const verifyResponse = await fetch(`${baseUrl}/api/verifyPayment`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

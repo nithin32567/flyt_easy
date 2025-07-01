@@ -141,6 +141,7 @@ const SearchForm = () => {
   const [infants, setInfants] = useState(0);
   const navigate = useNavigate();
 
+  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
   const token = localStorage.getItem('token');
   useEffect(() => {
   
@@ -155,7 +156,7 @@ const SearchForm = () => {
 
   async function fetchAirports() {
     try {
-      const response = await fetch('http://localhost:3000/api/airport', {
+      const response = await fetch(`${baseUrl}/api/airport`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -195,7 +196,7 @@ const SearchForm = () => {
       ]
     };
     try {
-      const response = await fetch('http://localhost:3000/api/flight/express-search', {
+      const response = await fetch(`${baseUrl}/api/flight/express-search`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -206,7 +207,7 @@ const SearchForm = () => {
       const data = await response.json();
       if (data.success && data.data?.TUI) {
         // Call getExpSearch with TUI
-        const expSearchRes = await fetch('http://localhost:3000/api/flight/get/getExpSearch', {
+        const expSearchRes = await fetch(`${baseUrl}/api/flight/get/getExpSearch`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

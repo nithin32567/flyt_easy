@@ -44,7 +44,7 @@ const OneWayReview = () => {
 
   const smartPrice = JSON.parse(localStorage.getItem('smartPrice'));
   const clientId = localStorage.getItem('clientId');
-
+  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
   async function getPricer() {
     if (!smartPrice?.TUI || !clientId) {
       console.error('Missing TUI or ClientID');
@@ -54,7 +54,7 @@ const OneWayReview = () => {
 
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/api/getPricer`, {
+        const response = await fetch(`${baseUrl}/api/getPricer`, {
         method: 'POST',
         body: JSON.stringify({
           ClientID: clientId,
