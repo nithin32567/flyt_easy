@@ -54,7 +54,7 @@ const OneWayReview = () => {
 
     try {
       setLoading(true);
-        const response = await fetch(`${baseUrl}/api/getPricer`, {
+      const response = await fetch(`${baseUrl}/api/getPricer`, {
         method: 'POST',
         body: JSON.stringify({
           ClientID: clientId,
@@ -65,17 +65,35 @@ const OneWayReview = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
+      
       const data = await response.json();
-      console.log(data, 'pricer data');
-      setPricerData(data);
+      console.log('getPricer response:', data);
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch pricer data');
+      }
+      
+      if (!data.success) {
+        throw new Error(data.message || 'No pricer data available');
+      }
+      
+      // Use data.data if the response is wrapped, otherwise use data directly
+      const pricerData = data.data || data;
+      setPricerData(pricerData);
+      
       // Store pricer data in localStorage for persistence
-      localStorage.setItem('pricerData', JSON.stringify(data));
+      localStorage.setItem('pricerData', JSON.stringify(pricerData));
+      
     } catch (error) {
       console.error('Error fetching pricer data:', error);
       // Try to get from localStorage if API fails
       const storedPricerData = localStorage.getItem('pricerData');
       if (storedPricerData) {
-        setPricerData(JSON.parse(storedPricerData));
+        try {
+          setPricerData(JSON.parse(storedPricerData));
+        } catch (parseError) {
+          console.error('Error parsing stored pricer data:', parseError);
+        }
       }
     } finally {
       setLoading(false);

@@ -17,7 +17,7 @@ export const expressSearchFlights = async (req, res) => {
       Parameters,
       ClientID,
     } = req.body;
-    console.log(req.body, "body==========================================24");
+    console.log(req.body, "body==========================================24 express search");
 
     if (!req.clientId) {
       return res.status(401).json({

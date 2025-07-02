@@ -57,10 +57,14 @@ const FlightListing = () => {
 
     const response = await fetch(`${baseUrl}/api/getPricer`, {
       method: 'POST',
-      body: JSON.stringify({}),
+      body: JSON.stringify({
+        TUI: tui,
+        clientID: clientId,
+      }),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
+
       }
     });
     const data = await response.json();
@@ -68,6 +72,8 @@ const FlightListing = () => {
     return data;
   }
 
+  const searchPayload = JSON.parse(localStorage.getItem('search-payload'));
+  console.log(searchPayload, 'searchPayload=========================');
   const getSmartPrice = async (flight) => {
     console.log(flight, 'flight');
   
@@ -79,10 +85,10 @@ const FlightListing = () => {
           index: flight.Index,
           orderID: 1,
           TUI: tui,
-          mode: "AS",
+          mode: searchPayload.Mode,
           options: "A",
-          source: "SF",
-          tripType: "ON",
+          source: searchPayload.Source,
+          tripType: searchPayload.FareType,
           clientID: clientId
         }
       ),
@@ -95,6 +101,7 @@ const FlightListing = () => {
     console.log(data, 'data');
     // no ddata .success field
     if(data.success){
+      
       console.log('inside the success', data);
       localStorage.setItem('smartPrice', JSON.stringify(data.data));
 

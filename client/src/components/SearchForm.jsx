@@ -169,6 +169,8 @@ const SearchForm = () => {
     }
   }
 
+  console.log(activeTab, 'activeTab=========================', returnDate,'returnDate=========================');
+
 
  async function handleExpressSearch(e) {
     e.preventDefault();
@@ -185,12 +187,13 @@ const SearchForm = () => {
       Source: 'CF',
       Mode: 'AS',
       ClientID: clientId,
-      FareType: 'ON',
+      FareType: activeTab === 0 ? 'ON' : 'RT',
       Trips: [
         {
           From: from.Code,
           To: to.Code,
           OnwardDate: departure,
+          ReturnDate: activeTab === 1 ? returnDate : '',
           TUI: ''
         }
       ]

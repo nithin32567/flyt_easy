@@ -24,6 +24,7 @@ export const getSmartPrice = async (req, res) => {
           Index: index,
           OrderID: orderID,
           TUI: TUI,
+          
         },
       ],
       ClientID: clientID,

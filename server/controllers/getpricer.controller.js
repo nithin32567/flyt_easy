@@ -1,7 +1,7 @@
 export const getPricer = async (req, res) => {
   console.log(req.body, 'req.body');
 
-  const clientId = req.body.ClientID;
+  const clientId = req.body.clientID;
   const TUI = req.body.TUI;
   const token = req.headers.authorization;
 
