@@ -153,7 +153,7 @@ const SearchForm = () => {
     fetchAirports();
   }, []);
 
-
+// fetching the airports from the backend
   async function fetchAirports() {
     try {
       const response = await fetch(`${baseUrl}/api/airport`, {
@@ -169,11 +169,12 @@ const SearchForm = () => {
     }
   }
 
-  console.log(activeTab, 'activeTab=========================', returnDate,'returnDate=========================');
+
 
 
  async function handleExpressSearch(e) {
     e.preventDefault();
+    
     if (!from || !to || !departure) {
       alert('Please select From, To, and Departure Date');
       return;
@@ -209,6 +210,7 @@ const SearchForm = () => {
       });
       const data = await response.json();
       if (data.success && data.data?.TUI) {
+        console.log("success and caling the getExpSearch================== 212")
         // Call getExpSearch with TUI
         const expSearchRes = await fetch(`${baseUrl}/api/flight/get/getExpSearch`, {
           method: 'POST',

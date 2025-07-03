@@ -19,7 +19,7 @@ const Login = () => {
         body: JSON.stringify({ clientId, clientPassword: password })
       });
       const data = await response.json();
-      console.log(data,'from the backend=========================');
+      // console.log(data,'from the backend=========================');
       
       if (data.success && data.token) {
         localStorage.setItem('token', data.token);
@@ -32,7 +32,8 @@ const Login = () => {
           body: JSON.stringify({ ClientID: data.ClientID, TUI: data.TUI })
         });
         const data2 = await response.json();
-        console.log(data2, 'from the backend=========================');
+        localStorage.setItem('websetting', JSON.stringify(data2));
+        // console.log(data2, 'from the backend=========================');
 
         navigate('/search');
         

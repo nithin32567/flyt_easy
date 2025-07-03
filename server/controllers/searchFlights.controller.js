@@ -4,6 +4,7 @@ import axios from "axios";
 export const expressSearchFlights = async (req, res) => {
   console.log('callingggg ===============================5 express search');
 
+
   try {
     const {
       ADT,
@@ -17,7 +18,7 @@ export const expressSearchFlights = async (req, res) => {
       Parameters,
       ClientID,
     } = req.body;
-    console.log(req.body, "body==========================================24 express search");
+    console.log(req.body, "body==========================================24 express search paylod from backend");
 
     if (!req.clientId) {
       return res.status(401).json({
