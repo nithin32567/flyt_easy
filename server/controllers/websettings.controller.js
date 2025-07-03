@@ -16,6 +16,7 @@ export const getWebSettings = async (req, res) => {
       payload,
       {
         headers: { "Content-Type": "application/json" },
+        
       }
     );
 

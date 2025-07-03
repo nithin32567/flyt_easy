@@ -25,7 +25,17 @@ const Login = () => {
         localStorage.setItem('token', data.token);
         localStorage.setItem('clientId', data.ClientID);
         localStorage.setItem('tokenTimestamp', Date.now());
+
+        const response=await fetch(`${baseUrl}/api/websetting`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ClientID: data.ClientID, TUI: data.TUI })
+        });
+        const data2 = await response.json();
+        console.log(data2, 'from the backend=========================');
+
         navigate('/search');
+        
       } else {
         setError(data.message || 'Login failed');
       }

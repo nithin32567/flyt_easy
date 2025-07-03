@@ -24,6 +24,7 @@ app.use(
   })
 );
 
+console.log(path.resolve(__dirname, "../client/dist"));
 
 app.use(express.static(path.resolve(__dirname, '../client','dist')))
 

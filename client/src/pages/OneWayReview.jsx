@@ -19,7 +19,7 @@ const OneWayReview = () => {
 
   // Get flight data from location.state or localStorage
   useEffect(() => {
-    const flightFromState = location.state?.flightData;
+    const flightFromState = location.state?.flightData;   
     const flightFromStorage = localStorage.getItem('selectedFlight');
     
     if (flightFromState) {
@@ -42,6 +42,8 @@ const OneWayReview = () => {
     }
   }, [flight]);
 
+  const TUI=localStorage.getItem('TUI');
+
   const smartPrice = JSON.parse(localStorage.getItem('smartPrice'));
   const clientId = localStorage.getItem('clientId');
   const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
@@ -58,7 +60,7 @@ const OneWayReview = () => {
         method: 'POST',
         body: JSON.stringify({
           ClientID: clientId,
-          TUI: smartPrice.TUI
+          TUI: TUI
         }),
         headers: {
           'Content-Type': 'application/json',
