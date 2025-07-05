@@ -199,6 +199,7 @@ const SearchForm = () => {
         }
       ]
     };
+    localStorage.setItem("searchPayload", JSON.stringify(payload));
     try {
       const response = await fetch(`${baseUrl}/api/flight/express-search`, {
         method: 'POST',

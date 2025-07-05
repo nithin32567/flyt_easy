@@ -1,27 +1,28 @@
-export const getPricer = async (req, res) => {
-  console.log(req.body, 'req.body');
+export const getPricer = async (TUI, token) => {
+  console.log("______________________________________________________________________________ get pricer")
 
-  const clientId = req.body.clientID;
-  const TUI = req.body.TUI;
-  const token = req.headers.authorization;
 
+  // console.log(TUI, 'TUI get pricer controller*****************');
+  // console.log(token, 'token get pricer controller*****************');
   try {
-    const response = await fetch(`https://b2bapiflights.benzyinfotech.com/flights/GetSPricer`, {
+    const response = await fetch(`https://b2bapiflights.benzyinfotech.com/Flights/GetSPricer`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token.split(' ')[1]}`
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({
-        ClientID: clientId,
-        TUI: TUI
+      body: JSON.stringify({ 
+        TUI
       })
     });
+
+
+    console.log(response, 'response get pricer controller*****************');
     const data = await response.json();
-    console.log(data, 'data');
-    res.status(response.status).json(data);
+    console.log(data, '=================  ******************data get pricer controller');
+    return data;
   } catch (error) {
-    console.log(error, 'error');
-    res.status(500).json({ message: 'Internal server error' });
+    console.log(error, 'error get pricer controller*****************');
+    return null;
   }
 };

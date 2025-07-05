@@ -3,7 +3,7 @@ import axios from "axios";
 export const generateToken = async (req, res) => {
   try {
     const { clientId, clientPassword } = req.body;
-    console.log(clientId, clientPassword, "clientId, clientPassword");
+    console.log(clientId, clientPassword, "clientId, clientPassword");  
     if (!clientId || !clientPassword) {
       return res.status(400).json({
         success: false,

@@ -1,38 +1,35 @@
 import axios from "axios";
+import { getPricer } from "./getpricer.controller.js";
 
 export const getSmartPrice = async (req, res) => {
+  // console.log("______________________________________________________________________________ get smart price")
   try {
-    const {
-      amount,
-      index,
-      orderID,
-      TUI,
-      mode,
-      options,
-      source,
-      tripType,
-      clientID,
-    } = req.body;
-    console.log(amount, index, orderID, TUI, mode, options, source, tripType, clientID, 'req.body');
 
-    console.log(req.body, 'req.body');
+
+
+    // console.log(req.body, 'req.body');
 
     const payload = {
       Trips: [
         {
-          Amount: amount,
-          Index: index,
-          OrderID: orderID,
-          TUI: TUI,
-          
+          Amount: req.body.Trips[0].Amount, 
+          Index: req.body.Trips[0].Index,
+          OrderID: req.body.Trips[0].OrderID,
+          TUI: req.body.Trips[0].TUI,
+
         },
       ],
-      ClientID: clientID,
-      Mode: mode,
-      Options: options,
-      Source: source,
-      TripType: tripType,
+      ClientID: req.body.ClientID,
+      Mode: req.body.Mode,
+      Options: req.body.Options,
+      Source: req.body.Source,
+      TripType: req.body.TripType,
     };
+
+
+    // console.log(payload, 'before submit')
+
+    console.log(payload, 'payload');
 
     const smartPricerResponse = await axios.post(
       `${process.env.FLIGHT_URL}/flights/SmartPricer`,
@@ -45,12 +42,22 @@ export const getSmartPrice = async (req, res) => {
       }
     );
     console.log(smartPricerResponse.data, 'smartPricerResponse');
+    // console.log(smartPricerResponse.data, 'smartPricerResponse');
+    const smartPriceTUI = smartPricerResponse.data.TUI;
+    // console.log(smartPriceTUI, 'smartPriceTUI');
+
+    const pricerData = await getPricer(smartPriceTUI, req.headers.authorization?.split(" ")[1])
+    // console.log(pricerData, 'pricerData inside smart price controller__________________________________________________');
 
     return res.status(200).json({
       success: true,
       message: "SmartPricer executed successfully",
-      data: smartPricerResponse.data,
+      data: {
+        smartPricerResponse: smartPricerResponse.data,
+        pricerData: pricerData,
+      },
     });
+
   } catch (error) {
     console.error("SmartPricer Error:", error?.response?.data || error);
     return res.status(500).json({

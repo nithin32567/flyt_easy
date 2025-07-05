@@ -17,7 +17,7 @@ export const bookFlight = async (req, res) => {
             notes: notes || {}
         });
 
-        console.log('Razorpay order created:', order.id);
+        // console.log('Razorpay order created:', order.id);
         
         res.status(200).json({ 
             success: true,

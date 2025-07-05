@@ -44,6 +44,9 @@ const timeRanges = [
   { start: 18, end: 24 },
 ];
 
+const smartPrice=localStorage.getItem('smartPrice');
+const smartPriceTui=smartPrice?.TUI;
+
 const FlightListing = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -51,47 +54,66 @@ const FlightListing = () => {
   const [filters, setFilters] = useState({});
   const clientId = localStorage.getItem('clientId');
   const token = localStorage.getItem('token');
-  const tui = localStorage.getItem('search-tui');
+  const TUI = localStorage.getItem('search-tui');
   const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
-  const getPricer = async () => {
+  // const getPricer = async (smartPriceTui  ) => {
 
-    const response = await fetch(`${baseUrl}/api/getPricer`, {
-      method: 'POST',
-      body: JSON.stringify({
-        TUI: tui,
-        clientID: clientId,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+  // try {
+  //   const response = await fetch(`${baseUrl}/api/getPricer`, {  
+  //     method: 'POST',
+  //     body: JSON.stringify({
+  //       TUI: smartPriceTui,
+  //     }),
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': `Bearer ${localStorage.getItem('token')}`,
 
-      }
-    });
-    const data = await response.json();
-    console.log(data, 'data');
-    return data;
-  }
+  //     }
+  //   });
+  //   const data = await response.json();
+  //   console.log(data, 'data');
+  //   return data;
+  // } catch (error) {
+  //   console.log(error, 'error');
+  //   return null;
+  // }
+  // }
 
-  const searchPayload = JSON.parse(localStorage.getItem('search-payload'));
+  const searchPayload = JSON.parse(localStorage.getItem('searchPayload'));
   console.log(searchPayload, 'searchPayload=========================');
+
+
+
+  const searchTui=localStorage.getItem('search-tui');
+  // const clientId=localStorage.getItem('clientId');
+
+
+
+  // smart price api call ==================================================
   const getSmartPrice = async (flight) => {
     console.log(flight, 'flight');
+
+    const payload={
+      Trips:[
+       {
+        Amount:flight.GrossFare,
+        Index:flight.Index,
+        OrderID:1,
+        TUI:searchTui
+       }
+      ],
+      ClientID:clientId,
+      Mode:searchPayload.Mode,
+      Options:"A",
+      Source:searchPayload.Source,
+      TripType:searchPayload.FareType,
+
+
+    }
   
     const response = await fetch(`${baseUrl}/api/smartPrice`, {
       method: 'POST',
-      body: JSON.stringify(
-        {
-          amount: flight.GrossFare,
-          index: flight.Index,
-          orderID: 1,
-          TUI: tui,
-          mode: searchPayload.Mode,
-          options: "A",
-          source: searchPayload.Source,
-          tripType: searchPayload.FareType,
-          clientID: clientId
-        }
-      ),
+      body: JSON.stringify(payload),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -100,16 +122,17 @@ const FlightListing = () => {
     const data = await response.json();
     console.log(data, 'data');
     // no ddata .success field
-    if(data.success){
-      
-      console.log('inside the success', data);
-      localStorage.setItem('smartPrice', JSON.stringify(data.data));
+    // if(data.success){
+    //   console.log(data.data.TUI, 'data.data.TUI');
+    //   console.log('inside the success', data);
+    //   localStorage.setItem('smartPrice', JSON.stringify(data.data));
+     
 
-      const pricerData = await getPricer();
-      console.log(pricerData, 'pricerData');
-      navigate('/one-way-review', { state: { flightData: flight, pricerData: pricerData } });
+    //   // const pricerData = await getPricer(data.data.TUI);
+    //   // console.log(pricerData, 'pricerData');
+    //   // navigate('/one-way-review', { state: { flightData: flight, pricerData: pricerData } });
 
-    }
+    // }
     console.log(data, 'SmartPrice response');
   }
 

@@ -21,7 +21,7 @@ export const authenticateToken = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.decode(token);
-    console.log(decoded, "decoded=========================");
+    // console.log(decoded, "decoded========================="); 
     req.clientId = decoded.clientId;
     req.agentCode = decoded.agentCode;
     req.agentInfo = decoded.AgentInfo;
@@ -31,15 +31,15 @@ export const authenticateToken = (req, res, next) => {
     req.nbf = decoded.nbf;
     req.token = token;
 
-    console.log(req.headers, "req.headers=========================");
+    // console.log(req.headers, "req.headers=========================");
 
-    console.log(req.clientId, "req.clientId=========================");
-    console.log(req.agentCode, "req.agentCode=========================");
-    console.log(req.agentInfo, "req.agentInfo=========================");
-    console.log(req.unique_name, "req.unique_name=========================");
-    console.log(req.pwd, "req.pwd=========================");
-    console.log(req.BrowserKey, "req.BrowserKey=========================");
-    console.log(req.nbf, "req.nbf=========================");
+    // console.log(req.clientId, "req.clientId=========================");
+    // console.log(req.agentCode, "req.agentCode=========================");
+    // console.log(req.agentInfo, "req.agentInfo=========================");
+    // console.log(req.unique_name, "req.unique_name=========================");
+    //  console.log(req.pwd, "req.pwd=========================");
+    // console.log(req.BrowserKey, "req.BrowserKey=========================");
+    // console.log(req.nbf, "req.nbf=========================");
     next();
   } catch (error) {
     console.log(error);

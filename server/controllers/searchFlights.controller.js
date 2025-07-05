@@ -2,7 +2,7 @@
 import axios from "axios";
 
 export const expressSearchFlights = async (req, res) => {
-  console.log('callingggg ===============================5 express search');
+  // console.log('callingggg ===============================5 express search');
 
 
   try {
@@ -18,7 +18,7 @@ export const expressSearchFlights = async (req, res) => {
       Parameters,
       ClientID,
     } = req.body;
-    console.log(req.body, "body==========================================24 express search paylod from backend");
+    // console.log(req.body, "body==========================================24 express search paylod from backend");
 
     if (!req.clientId) {
       return res.status(401).json({
@@ -48,7 +48,7 @@ export const expressSearchFlights = async (req, res) => {
       },
     };
 
-    console.log('Final payload:', payload);
+    // console.log('Final payload:', payload);
     // console.log('Upstream URL:', `${process.env.FLIGHT_URL}${process.env.EXPRESS_SEARCH_PATH}`);
     // console.log('Headers: @@@@@@@@@@@@@@@@@@@@@@@@@@@@', {
     //   Authorization: `Bearer ${req.token}`,
@@ -58,7 +58,7 @@ export const expressSearchFlights = async (req, res) => {
 
 
 
-    console.log('calling hits=======================================================58');
+    // console.log('calling hits=======================================================58');
 
 
     const response = await fetch(
@@ -73,7 +73,7 @@ export const expressSearchFlights = async (req, res) => {
       },
     );
     const data = await response.json();
-    console.log(data, "response.data======================================78");
+    // console.log(data, "response.data======================================78");
 
     return res.status(200).json({
       success: true,
@@ -104,15 +104,15 @@ export const expressSearchFlights = async (req, res) => {
 };
 
 export const getExpSearchFlights = async (req, res) => {
-  console.log('callingggg ===============================5 get exp search');
+  // console.log('callingggg ===============================5 get exp search');
 
   const { TUI } = req.body;
-  console.log(TUI, "TUI======================");
+  // console.log(TUI, "TUI======================");
 
   const payload = {
     TUI: TUI,
   };
-  console.log(TUI, "TUI ================================================ 113 getExpSearch");
+  // console.log(TUI, "TUI ================================================ 113 getExpSearch");
 
   try {
     const response = await fetch(
@@ -127,7 +127,7 @@ export const getExpSearchFlights = async (req, res) => {
       },
     );
     const data = await response.json();
-    console.log(data, "data");
+    //  console.log(data, "data");
     return res.status(200).json({
       success: true,
       message: "ExpressSearch Results Retrieved",
