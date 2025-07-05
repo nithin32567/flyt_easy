@@ -5,8 +5,16 @@ export const getPricer = async (req, res) => {
   const TUI = req.body.TUI;
   const token = req.headers.authorization;
 
+  console.log("=============================================== get pricer controller")
+
+  console.log(clientId, 'clientId');
+  console.log(TUI, 'TUI');
+  // console.log(token, 'token');
+
+  console.log("=============================================== get pricer controller")
+
   try {
-    const response = await fetch(`https://b2bapiflights.benzyinfotech.com/flights/GetSPricer`, {
+    const response = await fetch(`https://b2bapiflights.benzyinfotech.com/Flights/GetSPricer`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -17,8 +25,10 @@ export const getPricer = async (req, res) => {
         TUI: TUI
       })
     });
+    console.log("=============================================== get pricer controller response")
     const data = await response.json();
     console.log(data, 'data');
+    console.log("=============================================== get pricer controller response")
     res.status(response.status).json(data);
   } catch (error) {
     console.log(error, 'error');

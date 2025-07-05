@@ -19,6 +19,7 @@ const App = () => {
         <Route path="/pax-details" element={<PaxDetails />} />
         <Route path="/luggage" element={<Luggage />} />
         <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+        <Route path="/hotels" element={<Hotels />} />
       </Routes>
     </BrowserRouter>
   )

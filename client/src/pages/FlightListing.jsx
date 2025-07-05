@@ -53,12 +53,12 @@ const FlightListing = () => {
   const token = localStorage.getItem('token');
   const tui = localStorage.getItem('search-tui');
   const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
-  const getPricer = async () => {
+  const getPricer = async (smartPriceTUI) => {
 
     const response = await fetch(`${baseUrl}/api/getPricer`, {
       method: 'POST',
       body: JSON.stringify({
-        TUI: tui,
+        TUI: smartPriceTUI,
         clientID: clientId,
       }),
       headers: {
@@ -72,11 +72,12 @@ const FlightListing = () => {
     return data;
   }
 
-  const searchPayload = JSON.parse(localStorage.getItem('search-payload'));
+  const searchPayload = JSON.parse(localStorage.getItem('searchPayload'));
   console.log(searchPayload, 'searchPayload=========================');
   const getSmartPrice = async (flight) => {
+    console.log('getSmartPrice functioncalled =============78');
     console.log(flight, 'flight');
-  
+
     const response = await fetch(`${baseUrl}/api/smartPrice`, {
       method: 'POST',
       body: JSON.stringify(
@@ -98,14 +99,15 @@ const FlightListing = () => {
       }
     });
     const data = await response.json();
-    console.log(data, 'data');
+    console.log(data, 'data after the smart price from backend');
+    const smartPriceTUI=data.data.TUI
     // no ddata .success field
-    if(data.success){
-      
+    if (data.success) {
+
       console.log('inside the success', data);
       localStorage.setItem('smartPrice', JSON.stringify(data.data));
 
-      const pricerData = await getPricer();
+      const pricerData = await getPricer(smartPriceTUI);
       console.log(pricerData, 'pricerData');
       navigate('/one-way-review', { state: { flightData: flight, pricerData: pricerData } });
 

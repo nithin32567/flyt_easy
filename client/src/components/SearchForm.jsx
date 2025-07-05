@@ -224,7 +224,9 @@ const SearchForm = () => {
         console.log(expSearchData, 'GetExpSearch Response');
         if (expSearchData.success && expSearchData.data?.Trips?.[0]?.Journey) {
           localStorage.setItem('search-tui', expSearchData.data.TUI);
+          localStorage.setItem('searchPayload', JSON.stringify(payload));
           navigate('/flight-listing', { state: { flights: expSearchData.data.Trips[0].Journey } });
+
         }
       }
     } catch (error) {
