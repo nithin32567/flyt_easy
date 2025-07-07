@@ -6,7 +6,7 @@ const tabs = ["One Way", "Round Trip", "Multi City"];
 // Dummy airport data for UI scaffolding
 
 
-const AirportModal = ({ open, onClose, onSelect, label  , airports }) => {
+const AirportModal = ({ open, onClose, onSelect, label, airports }) => {
   const [search, setSearch] = useState('');
   const filtered = airports.filter(a =>
     a.CityName.toLowerCase().includes(search.toLowerCase()) ||
@@ -134,17 +134,18 @@ const SearchForm = () => {
   const [travellers, setTravellers] = useState(1);
   const [travelClass, setTravelClass] = useState("Economy");
   const [modal, setModal] = useState(null); // 'from' or 'to' or null
-  const [airports, setAirports] = useState([]); 
+  const [airports, setAirports] = useState([]);
   const [travellerModalOpen, setTravellerModalOpen] = useState(false);
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
 
   const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
   const token = localStorage.getItem('token');
   useEffect(() => {
-  
+
     if (!token) {
       navigate('/login');
     }
@@ -153,7 +154,7 @@ const SearchForm = () => {
     fetchAirports();
   }, []);
 
-// fetching the airports from the backend
+  // fetching the airports from the backend
   async function fetchAirports() {
     try {
       const response = await fetch(`${baseUrl}/api/airport`, {
@@ -172,13 +173,15 @@ const SearchForm = () => {
 
 
 
- async function handleExpressSearch(e) {
+  async function handleExpressSearch(e) {
     e.preventDefault();
-    
+
     if (!from || !to || !departure) {
       alert('Please select From, To, and Departure Date');
       return;
     }
+    
+    setIsSearching(true);
     const clientId = localStorage.getItem('clientId');
     const payload = {
       ADT: adults,
@@ -197,7 +200,15 @@ const SearchForm = () => {
           ReturnDate: activeTab === 1 ? returnDate : '',
           TUI: ''
         }
-      ]
+      ],
+      Parameters: {
+        Airlines: '',
+        GroupType: '',
+        Refundable: '',
+        IsDirect: false,
+        IsStudentFare: false,
+        IsNearbyAirport: false
+      }
     };
     try {
       const response = await fetch(`${baseUrl}/api/flight/express-search`, {
@@ -209,28 +220,79 @@ const SearchForm = () => {
         body: JSON.stringify(payload)
       });
       const data = await response.json();
+      console.log(data, "data from the backend========================= 220", data.data.TUI, 'express search data tui');
       if (data.success && data.data?.TUI) {
-        console.log("success and caling the getExpSearch================== 212")
-        // Call getExpSearch with TUI
-        const expSearchRes = await fetch(`${baseUrl}/api/flight/get/getExpSearch`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ TUI: data.data.TUI })
-        });
-        const expSearchData = await expSearchRes.json();
-        console.log(expSearchData, 'GetExpSearch Response');
-        if (expSearchData.success && expSearchData.data?.Trips?.[0]?.Journey) {
-          localStorage.setItem('search-tui', expSearchData.data.TUI);
-          localStorage.setItem('searchPayload', JSON.stringify(payload));
-          navigate('/flight-listing', { state: { flights: expSearchData.data.Trips[0].Journey } });
-
-        }
+        console.log("success and calling the getExpSearch================== 212 ", data.data.TUI, 'submitting the tui to the backend')
+        
+        // Poll GetExpSearch until Complete is true or timeout
+        const pollGetExpSearch = async () => {
+          const startTime = Date.now();
+          const timeout = 50000; // 50 seconds timeout
+          const pollInterval = 2000; // Poll every 2 seconds
+          
+          while (Date.now() - startTime < timeout) {
+            try {
+              const payload = {
+                TUI: data.data.TUI,
+                ClientID: clientId
+              }
+              
+              const expSearchRes = await fetch(`${baseUrl}/api/flight/get/getExpSearch`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+              });
+              
+              const expSearchData = await expSearchRes.json();
+              console.log(expSearchData, 'GetExpSearch Response');
+              
+              if (expSearchData.success) {
+                // Check if the search is complete
+                if (expSearchData.data?.Completed === 'True') {
+                  console.log('Search completed successfully');
+                  if (expSearchData.data?.Trips?.[0]?.Journey) {
+                    localStorage.setItem('search-tui', expSearchData.data.TUI);
+                    localStorage.setItem('searchPayload', JSON.stringify(payload));
+                    navigate('/flight-listing', { state: { flights: expSearchData.data.Trips[0].Journey } });
+                    return;
+                  } else {
+                    console.error('No flights found in completed search');
+                    alert('No flights found for your search criteria.');
+                    return;
+                  }
+                } else {
+                  console.log('Search still in progress, polling again...');
+                  // Wait before next poll
+                  await new Promise(resolve => setTimeout(resolve, pollInterval));
+                }
+              } else {
+                console.error('GetExpSearch failed:', expSearchData);
+                alert('Search failed. Please try again.');
+                return;
+              }
+            } catch (error) {
+              console.error('Error polling GetExpSearch:', error);
+              alert('Search failed. Please try again.');
+              return;
+            }
+          }
+          
+          // Timeout reached
+          console.error('Search timeout - 50 seconds exceeded');
+          alert('Search is taking longer than expected. Please try again.');
+        };
+        
+        // Start polling
+        await pollGetExpSearch();
       }
     } catch (error) {
-      console.log(error, 'error from the backend=========================');
+      console.error('Error from the backend:', error);
+      alert('Search failed. Please try again.');
+    } finally {
+      setIsSearching(false);
     }
   }
   return (
@@ -302,7 +364,17 @@ const SearchForm = () => {
             {`${adults + children + infants} Traveller${adults + children + infants > 1 ? 's' : ''} | ${travelClass}`}
           </div>
         </div>
-        <button type="submit" className="w-full bg-blue-800 text-white py-2 rounded font-semibold hover:bg-blue-900 transition-colors">Search</button>
+        <button 
+          type="submit" 
+          disabled={isSearching}
+          className={`w-full text-white py-2 rounded font-semibold transition-colors ${
+            isSearching 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-blue-800 hover:bg-blue-900'
+          }`}
+        >
+          {isSearching ? 'Searching...' : 'Search'}
+        </button>
       </form>
       <AirportModal
         open={modal === 'from'}

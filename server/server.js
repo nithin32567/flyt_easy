@@ -2,7 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import indexRoutes from "./routes/index.routes.js";
-import hotelRoutes from "./routes/hotel.routes.js";
 import razorpayRoutes from "./routes/razorpay.routes.js";
 import cors from "cors";
 import morgan from "morgan";
@@ -19,7 +18,7 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: "*",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -33,7 +32,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", indexRoutes);
-app.use("/api/hotel", hotelRoutes);
+// app.use("/api/hotel", hotelRoutes);
 app.use("/api", razorpayRoutes);
 
 // const PORT = process.env.PORT || 5000;

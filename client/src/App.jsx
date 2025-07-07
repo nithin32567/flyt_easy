@@ -6,7 +6,9 @@ import FlightListing from './pages/FlightListing'
 import OneWayReview from './pages/OneWayReview'
 import PaxDetails from './pages/Pax-details'
 import Luggage from './components/Luggage'
+import Hotels from './pages/Hotels/Home'
 import BookingConfirmation from './pages/BookingConfirmation'
+import CreateItenary from './pages/CreateItenary'
 
 const App = () => {
   return (
@@ -19,6 +21,8 @@ const App = () => {
         <Route path="/pax-details" element={<PaxDetails />} />
         <Route path="/luggage" element={<Luggage />} />
         <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+
+        <Route path="/create-itenary" element={<CreateItenary />} />
         <Route path="/hotels" element={<Hotels />} />
       </Routes>
     </BrowserRouter>

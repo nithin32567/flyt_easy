@@ -106,42 +106,64 @@ export const expressSearchFlights = async (req, res) => {
 export const getExpSearchFlights = async (req, res) => {
   console.log('callingggg ===============================5 get exp search');
 
-  const { TUI } = req.body;
-  console.log(TUI, "TUI======================");
+  const { TUI, ClientID } = req.body;
+  console.log(TUI, ClientID,  "TUI======================");
 
+  const token = req.headers.authorization;
+console.log(token, "token +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
   const payload = {
-    TUI: TUI,
+    ClientID: ClientID,
+    TUI: TUI
   };
-  console.log(TUI, "TUI ================================================ 113 getExpSearch");
+  // console.log(TUI, clientId, "TUI ================================================ 113 getExpSearch");
+  console.log(payload, "payload +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
   try {
+    console.log('Making request to GetExpSearch API...');
     const response = await fetch(
       "https://b2bapiflights.benzyinfotech.com/flights/GetExpSearch",
       {
         body: JSON.stringify(payload),  
         method: "POST",
         headers: {
-          Authorization: `Bearer ${req.token}`,
+          Authorization: `Bearer ${token.split(" ")[1]}`,
           "Content-Type": "application/json",
         },
       },
     );
+    
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
+    
     const data = await response.json();
-    console.log(data, "data");
+    console.log(data, "data from GetExpSearch API");
+    console.log('Completed field:', data?.Completed);
+    
+    if (!response.ok) {
+      console.error('API returned error status:', response.status);
+      return res.status(response.status).json({
+        success: false,
+        message: "GetExpSearch API returned error",
+        error: data,
+        status: response.status
+      });
+    }
+    
     return res.status(200).json({
       success: true,
       message: "ExpressSearch Results Retrieved",
       data: data,
     });
   } catch (error) {
-    console.error(
-      "ExpressSearch Error:",
-      error?.response?.data || error.message
-    );
+    console.error('=== GETEXPSEARCH API ERROR ===');
+    console.error('Error:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
     return res.status(500).json({
       success: false,
       message: "ExpressSearch failed",
-      error: error?.response?.data || error.message,
+      error: error.message,
     });
   }
 };
