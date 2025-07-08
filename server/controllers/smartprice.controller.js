@@ -25,7 +25,7 @@ export const getSmartPrice = async (req, res) => {
 
     console.log(payload, 'before submit ================================================ smart price payload')
 
-//  send response all the functions completed using se
+    //  send response all the functions completed using se
 
 
     const smartPricerResponse = await axios.post(
@@ -46,14 +46,23 @@ export const getSmartPrice = async (req, res) => {
     const pricerData = await getPricer(smartPriceTUI, req.headers.authorization?.split(" ")[1])
     // console.log(pricerData, 'pricerData inside smart price controller__________________________________________________');
 
-    return res.status(200).json({
-      success: true,
-      message: "SmartPricer executed successfully",
-      data: {
-        smartPricerResponse: smartPricerResponse.data,
-        pricerData: pricerData,
-      },
-    });
+    if (pricerData) {
+      return res.status(200).json({
+        success: true,
+        message: "SmartPricer executed successfully",
+        data: {
+          smartPricerResponse: smartPricerResponse.data,
+          pricerData: pricerData,
+          // pricerData: pricerData,  
+        },
+      });
+    } else {
+      return res.status(200).json({
+        success: false,
+        message: "Failed to execute SmartPricer",
+        error: "Failed to execute SmartPricer",
+      });
+    }
 
   } catch (error) {
     console.error("SmartPricer Error:", error?.response?.data || error);

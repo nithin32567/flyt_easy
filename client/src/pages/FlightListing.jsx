@@ -113,40 +113,13 @@ const FlightListing = () => {
     });
     const data = await response.json();
     console.log(data, 'SmartPrice response');
-    
-    if (data.Code === "200") {
-      console.log('SmartPrice successful, calling getPricer...');
-      localStorage.setItem('smartPrice', JSON.stringify(data));
-      
-      // Call getPricer with the TUI from smartPrice response
-      const pricerResponse = await fetch(`${baseUrl}/api/getPricer`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ TUI: data.TUI })
-      });
-      
-      const pricerData = await pricerResponse.json();
-      console.log(pricerData, 'Pricer response');
-      
-      if (pricerData.Code === "200") {
-        // Navigate to review page with both flight and pricer data
-        navigate('/one-way-review', { 
-          state: { 
-            flightData: flight, 
-            pricerData: pricerData,
-            smartPriceData: data 
-          } 
-        });
-      } else {
-        console.error('GetPricer failed:', pricerData);
-        alert('Failed to get pricing details. Please try again.');
-      }
+    if (data.success) {
+      console.log("success                                              ================================")
+      localStorage.setItem("oneWayReviewData", JSON.stringify(data.data.pricerData))
+      navigate('/one-way-review')
     } else {
-      console.error('SmartPrice failed:', data);
-      alert('Failed to process pricing. Please try again.');
+      console.log("failed                                              ================================")
+      alert("Failed to execute SmartPricer")
     }
   }
 
