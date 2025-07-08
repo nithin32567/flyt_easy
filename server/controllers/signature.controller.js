@@ -3,7 +3,7 @@ import axios from "axios";
 export const generateToken = async (req, res) => {
   try {
     const { clientId, clientPassword } = req.body;
-    console.log(clientId, clientPassword, "clientId, clientPassword");  
+    console.log(clientId, clientPassword, "clientId, clientPassword");
     if (!clientId || !clientPassword) {
       return res.status(400).json({
         success: false,
@@ -33,12 +33,12 @@ export const generateToken = async (req, res) => {
     };
     console.log(payload, "payload");
 
-const response = await fetch(process.env.SIGNATURE_API, {
-  method: "POST",
-  body: JSON.stringify(payload),
-  headers: { "Content-Type": "application/json" },
-});
-const data = await response.json();
+    const response = await fetch(process.env.SIGNATURE_API, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
     console.log(data, "response after gettting the api  ");
     const token = data?.Token;
     console.log(token, "token");
@@ -51,7 +51,7 @@ const data = await response.json();
     return res.status(200).json({
       success: true,
       token: token,
-      ClientID:data?.ClientID,
+      ClientID: data?.ClientID,
       message: "Token generated successfully",
     });
   } catch (err) {

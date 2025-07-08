@@ -44,8 +44,8 @@ const timeRanges = [
   { start: 18, end: 24 },
 ];
 
-const smartPrice=localStorage.getItem('smartPrice');
-const smartPriceTui=smartPrice?.TUI;
+// const smartPrice=localStorage.getItem('smartPrice');
+
 
 const FlightListing = () => {
   const location = useLocation();
@@ -56,35 +56,14 @@ const FlightListing = () => {
   const token = localStorage.getItem('token');
   const TUI = localStorage.getItem('search-tui');
   const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
-  // const getPricer = async (smartPriceTui  ) => {
 
-  // try {
-  //   const response = await fetch(`${baseUrl}/api/getPricer`, {  
-  //     method: 'POST',
-  //     body: JSON.stringify({
-  //       TUI: smartPriceTui,
-  //     }),
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': `Bearer ${localStorage.getItem('token')}`,
-
-  //     }
-  //   });
-  //   const data = await response.json();
-  //   console.log(data, 'data');
-  //   return data;
-  // } catch (error) {
-  //   console.log(error, 'error');
-  //   return null;
-  // }
-  // }
 
   const searchPayload = JSON.parse(localStorage.getItem('searchPayload'));
   console.log(searchPayload, 'searchPayload=========================');
 
 
 
-  const searchTui=localStorage.getItem('search-tui');
+  // const searchTui=localStorage.getItem('search-tui');
   // const clientId=localStorage.getItem('clientId');
 
 
@@ -92,25 +71,38 @@ const FlightListing = () => {
   // smart price api call ==================================================
   const getSmartPrice = async (flight) => {
     console.log(flight, 'flight');
+    const searchTUI = localStorage.getItem('getExpSearchTUI')
+    console.log(searchTUI, 'getExpSearchTUI before sending to smart price');
 
-    const payload={
-      Trips:[
-       {
-        Amount:flight.GrossFare,
-        Index:flight.Index,
-        OrderID:1,
-        TUI:searchTui
-       }
-      ],
-      ClientID:clientId,
-      Mode:searchPayload.Mode,
-      Options:"A",
-      Source:searchPayload.Source,
-      TripType:searchPayload.FareType,
+    const payload = {
+      // Trips:[
+      //  {
+      //   Amount:flight.GrossFare,
+      //   Index:flight.Index,
+      //   OrderID:1,
+      //   TUI:searchTui
+      //  }
+      // ],
+      // ClientID:clientId,
+      // Mode:searchPayload.Mode,
+      // Options:"A",`
+      // Source:searchPayload.Source,
+      // TripType:searchPayload.FareType,
+      //send as plane
+      Amount: flight.GrossFare,
+      Index: flight.Index,
+      OrderID: 1,
+      TUI: searchTUI,
+      ClientID: "",
+      Mode: "AS",
+      Options: "A",
+      Source: "SF",
+      TripType: "ON",
+
 
 
     }
-  
+
     const response = await fetch(`${baseUrl}/api/smartPrice`, {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -120,20 +112,42 @@ const FlightListing = () => {
       }
     });
     const data = await response.json();
-    console.log(data, 'data');
-    // no ddata .success field
-    // if(data.success){
-    //   console.log(data.data.TUI, 'data.data.TUI');
-    //   console.log('inside the success', data);
-    //   localStorage.setItem('smartPrice', JSON.stringify(data.data));
-     
-
-    //   // const pricerData = await getPricer(data.data.TUI);
-    //   // console.log(pricerData, 'pricerData');
-    //   // navigate('/one-way-review', { state: { flightData: flight, pricerData: pricerData } });
-
-    // }
     console.log(data, 'SmartPrice response');
+    
+    if (data.Code === "200") {
+      console.log('SmartPrice successful, calling getPricer...');
+      localStorage.setItem('smartPrice', JSON.stringify(data));
+      
+      // Call getPricer with the TUI from smartPrice response
+      const pricerResponse = await fetch(`${baseUrl}/api/getPricer`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ TUI: data.TUI })
+      });
+      
+      const pricerData = await pricerResponse.json();
+      console.log(pricerData, 'Pricer response');
+      
+      if (pricerData.Code === "200") {
+        // Navigate to review page with both flight and pricer data
+        navigate('/one-way-review', { 
+          state: { 
+            flightData: flight, 
+            pricerData: pricerData,
+            smartPriceData: data 
+          } 
+        });
+      } else {
+        console.error('GetPricer failed:', pricerData);
+        alert('Failed to get pricing details. Please try again.');
+      }
+    } else {
+      console.error('SmartPrice failed:', data);
+      alert('Failed to process pricing. Please try again.');
+    }
   }
 
   useEffect(() => {
@@ -213,7 +227,7 @@ const FlightListing = () => {
                 <span className="text-xl font-bold text-blue-700">₹{flight.GrossFare || 'N/A'}</span>
                 <button
                   onClick={() => {
-                    localStorage.setItem('flight-data', JSON.stringify(flight));
+                    // localStorage.setItem('flight-data', JSON.stringify(flight));
                     getSmartPrice(flight);
                   }}
                   className="mt-2 bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-900 transition-colors"

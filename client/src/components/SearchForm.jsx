@@ -139,6 +139,7 @@ const SearchForm = () => {
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
 
   const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
@@ -163,7 +164,7 @@ const SearchForm = () => {
       });
       const data = await response.json();
       setAirports(data);
-      console.log(data, 'from the backend=========================');
+      // console.log(data, 'from the backend=========================');
     } catch (error) {
       console.error('Error fetching airports:', error);
     }
@@ -179,6 +180,8 @@ const SearchForm = () => {
       alert('Please select From, To, and Departure Date');
       return;
     }
+    
+    setIsSearching(true);
     const clientId = localStorage.getItem('clientId');
     const payload = {
       ADT: adults,
@@ -189,6 +192,10 @@ const SearchForm = () => {
       Mode: 'AS',
       ClientID: clientId,
       FareType: activeTab === 0 ? 'ON' : 'RT',
+      IsMultipleCarrier:false,
+      IsRefundable:false,
+      preferedAirlines:null,
+      TUI:"",
       Trips: [
         {
           From: from.Code,
@@ -200,6 +207,7 @@ const SearchForm = () => {
       ]
     };
     localStorage.setItem("searchPayload", JSON.stringify(payload));
+    // console.log(payload, "payload to searchPayload local storage");
     try {
       const response = await fetch(`${baseUrl}/api/flight/express-search`, {
         method: 'POST',
@@ -210,26 +218,74 @@ const SearchForm = () => {
         body: JSON.stringify(payload)
       });
       const data = await response.json();
+      console.log(data, "data from the backend========================= 221")
+      localStorage.setItem("expressSearchTUI", data.TUI)
       if (data.success && data.data?.TUI) {
-        console.log("success and caling the getExpSearch================== 212")
-        // Call getExpSearch with TUI
-        const expSearchRes = await fetch(`${baseUrl}/api/flight/get/getExpSearch`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ TUI: data.data.TUI })
-        });
-        const expSearchData = await expSearchRes.json();
-        console.log(expSearchData, 'GetExpSearch Response');
-        if (expSearchData.success && expSearchData.data?.Trips?.[0]?.Journey) {
-          localStorage.setItem('search-tui', expSearchData.data.TUI);
-          navigate('/flight-listing', { state: { flights: expSearchData.data.Trips[0].Journey } });
-        }
+        console.log("success and calling the getExpSearch================== 212")
+        
+        // Poll GetExpSearch until Completed is 'True' or timeout
+        const pollGetExpSearch = async () => {
+          const startTime = Date.now();
+          const timeout = 50000; // 50 seconds timeout
+          const pollInterval = 2000; // Poll every 2 seconds
+          
+          while (Date.now() - startTime < timeout) {
+            try {
+              const expSearchRes = await fetch(`${baseUrl}/api/flight/get/getExpSearch`, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ TUI: data.data.TUI })
+              });
+              
+              const expSearchData = await expSearchRes.json();
+              console.log(expSearchData, 'GetExpSearch Response');
+              
+              if (expSearchData.success) {
+                // Check if the search is complete
+                if (expSearchData.data?.Completed === 'True') {
+                  console.log('Search completed successfully');
+                  localStorage.setItem("getExpSearchTUI", expSearchData.data.TUI)
+                  if (expSearchData.data?.Trips?.[0]?.Journey) {
+                    // localStorage.setItem('search-tui', expSearchData.data.TUI);
+                    navigate('/flight-listing', { state: { flights: expSearchData.data.Trips[0].Journey } });
+                    return;
+                  } else {
+                    console.error('No flights found in completed search');
+                    alert('No flights found for your search criteria.');
+                    return;
+                  }
+                } else {
+                  console.log('Search still in progress (Completed: False), polling again...');
+                  // Wait before next poll
+                  await new Promise(resolve => setTimeout(resolve, pollInterval));
+                }
+              } else {
+                console.error('GetExpSearch failed:', expSearchData);
+                alert('Search failed. Please try again.');
+                return;
+              }
+            } catch (error) {
+              console.error('Error polling GetExpSearch:', error);
+              alert('Search failed. Please try again.');
+              return;
+            }
+          }
+          
+          // Timeout reached
+          console.error('Search timeout - 50 seconds exceeded');
+          alert('Search is taking longer than expected. Please try again.');
+        };
+        
+        // Start polling
+        await pollGetExpSearch();
       }
     } catch (error) {
       console.log(error, 'error from the backend=========================');
+    } finally {
+      setIsSearching(false);
     }
   }
   return (
@@ -301,7 +357,17 @@ const SearchForm = () => {
             {`${adults + children + infants} Traveller${adults + children + infants > 1 ? 's' : ''} | ${travelClass}`}
           </div>
         </div>
-        <button type="submit" className="w-full bg-blue-800 text-white py-2 rounded font-semibold hover:bg-blue-900 transition-colors">Search</button>
+        <button 
+          type="submit" 
+          disabled={isSearching}
+          className={`w-full text-white py-2 rounded font-semibold transition-colors ${
+            isSearching 
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-blue-800 hover:bg-blue-900'
+          }`}
+        >
+          {isSearching ? 'Searching...' : 'Search'}
+        </button>
       </form>
       <AirportModal
         open={modal === 'from'}

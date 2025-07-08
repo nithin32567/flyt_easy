@@ -17,6 +17,10 @@ export const expressSearchFlights = async (req, res) => {
       Trips,
       Parameters,
       ClientID,
+      IsMultipleCarrier,
+      IsRefundable,
+      preferedAirlines,
+      TUI,
     } = req.body;
     // console.log(req.body, "body==========================================24 express search paylod from backend");
 
@@ -32,11 +36,16 @@ export const expressSearchFlights = async (req, res) => {
       ADT: Number(ADT),
       CHD: Number(CHD),
       INF: Number(INF),
-      Cabin,
+      SecType: "",
+      Cabin: Cabin || "E",
       Source: Source || "CF",
       Mode: Mode || "AS",
       ClientID: ClientID,
       FareType: FareType || "ON",
+      IsMultipleCarrier:IsMultipleCarrier || false,
+      IsRefundable:IsRefundable || false,
+      preferedAirlines:preferedAirlines || null,
+      TUI:TUI || "",
       Trips,
       Parameters: {
         Airlines: Parameters?.Airlines || "",
@@ -45,24 +54,15 @@ export const expressSearchFlights = async (req, res) => {
         IsDirect: Parameters?.IsDirect || false,
         IsStudentFare: Parameters?.IsStudentFare || false,
         IsNearbyAirport: Parameters?.IsNearbyAirport || false,
+        IsExtendedSearch: Parameters?.IsExtendedSearch || false,
       },
     };
 
-    // console.log('Final payload:', payload);
-    // console.log('Upstream URL:', `${process.env.FLIGHT_URL}${process.env.EXPRESS_SEARCH_PATH}`);
-    // console.log('Headers: @@@@@@@@@@@@@@@@@@@@@@@@@@@@', {
-    //   Authorization: `Bearer ${req.token}`,
-    //   ClientID: req.clientId,
-    //   "Content-Type": "application/json",
-    // });
-
-
-
-    // console.log('calling hits=======================================================58');
+    console.log('Final payload:', payload ,"express search payload=======================");
 
 
     const response = await fetch(
-      "https://b2bapiflights.benzyinfotech.com/Flights/ExpressSearch" ,
+      "https://b2bapiflights.benzyinfotech.com/flights/ExpressSearch" ,
       {
         body: JSON.stringify(payload),
         method: "POST",
@@ -74,11 +74,12 @@ export const expressSearchFlights = async (req, res) => {
     );
     const data = await response.json();
     // console.log(data, "response.data======================================78");
-
+console.log(data.TUI, "data.TUI=======================inside the express search")
     return res.status(200).json({
       success: true,
       message: "Express Search Results Retrieved",
-      data: data
+      data: data,
+      TUI:data.TUI
     });
   } catch (error) {
     console.error('=== UPSTREAM API ERROR ===');
@@ -107,7 +108,7 @@ export const getExpSearchFlights = async (req, res) => {
   // console.log('callingggg ===============================5 get exp search');
 
   const { TUI } = req.body;
-  // console.log(TUI, "TUI======================");
+  console.log(TUI, "TUI====================== getExpSearchFlights controller=======================");
 
   const payload = {
     TUI: TUI,
@@ -127,7 +128,7 @@ export const getExpSearchFlights = async (req, res) => {
       },
     );
     const data = await response.json();
-    //  console.log(data, "data");
+     console.log(data, "data GETTTTTTTTTTTTTTTTT EXPPPPPPPPPPPPPPPPPPP SEARCH CHECK COMPLETED");
     return res.status(200).json({
       success: true,
       message: "ExpressSearch Results Retrieved",
