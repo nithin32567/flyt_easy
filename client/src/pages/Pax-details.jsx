@@ -104,57 +104,58 @@ const PaxDetails = () => {
   const createItineraryAndPayment = async (e) => {
     e.preventDefault();
   
-    // Basic field validation
-    if (!ContactInfo.FName || !ContactInfo.LName || !ContactInfo.Mobile || !ContactInfo.Email) {
-      alert('Please fill in all required fields (First Name, Last Name, Mobile, Email)');
-      return;
-    }
+    // // Basic field validation
+    // if (!ContactInfo.FName || !ContactInfo.LName || !ContactInfo.Mobile || !ContactInfo.Email) {
+    //   alert('Please fill in all required fields (First Name, Last Name, Mobile, Email)');
+    //   return;
+    // }
   
-    if (Travellers.length === 0) {
-      alert('Please add at least one traveller');
-      return;
-    }
+    // if (Travellers.length === 0) {
+    //   alert('Please add at least one traveller');
+    //   return;
+    // }
   
-    setIsProcessing(true);
+    // setIsProcessing(true);
   
     try {
       // Trigger Razorpay immediately
       initiateRazorpayPayment();
   
-      // Fire itinerary creation in the background (non-blocking)
-      const itineraryData = {
-        TUI: oneWayReviewData.TUI,
-        ContactInfo,
-        Travellers,
-        NetAmount: oneWayReviewData.NetAmount || 0,
-        SSRAmount: 0,
-        CrossSellAmount: 0,
-        CrossSell: [],
-        PLP: [],
-        SSR: [],
-        ClientID: localStorage.getItem('clientId') || '',
-        DeviceID: '',
-        AppVersion: '',
-      };
+      // // Fire itinerary creation in the background (non-blocking)
+      // const itineraryData = {
+      //   TUI: oneWayReviewData.TUI,
+      //   ContactInfo,
+      //   Travellers,
+      //   NetAmount: oneWayReviewData.NetAmount || 0,
+      //   SSRAmount: 0,
+      //   CrossSellAmount: 0,
+      //   CrossSell: [],
+      //   PLP: [],
+      //   SSR: [],
+      //   ClientID: localStorage.getItem('clientId') || '',
+      //   DeviceID: '',
+      //   AppVersion: '',
+      // };
   
-      fetch(`http://localhost:3000/api/create-itinerary`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify(itineraryData),
-      })
-        .then(res => res.json())
-        .then(data => {
-          console.log("Itinerary background created:", data);
-          // Optionally store or notify here
-        })
-        .catch(err => {
-          console.error("Itinerary background creation failed:", err);
-          // Optional: Retry logic or queueing
-        });
+      // fetch(`http://localhost:3000/api/create-itinerary`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': `${localStorage.getItem('token')}`,
+      //   },
+      //   body: JSON.stringify(itineraryData),
+      // })
+      //   .then(res => res.json())
+      //   .then(data => {
+      //     console.log("Itinerary background created:", data);
+      //     // Optionally store or notify here
+      //   })
+      //   .catch(err => {
+      //     console.error("Itinerary background creation failed:", err);
+      //     // Optional: Retry logic or queueing
+      //   });
   
+
     } catch (error) {
       console.error('Payment flow error:', error);
       navigate('/payment-error', {
@@ -185,6 +186,8 @@ const PaxDetails = () => {
     e.preventDefault();
     console.log(ContactInfo, '================================= contactData');
     console.log(Travellers, '================================= travellerData');
+    localStorage.setItem('contactInfo', JSON.stringify(ContactInfo));
+    localStorage.setItem('travellers', JSON.stringify(Travellers));
   };
 
 
