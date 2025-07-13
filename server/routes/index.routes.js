@@ -6,6 +6,7 @@ import airportRoutes from "./airport.routes.js";
 import smartPriceRoutes from "./smartPrice.routes.js";
 import getPricerRoutes from "./getPricer.routes.js";
 import razorpayRoutes from "./razorpay.routes.js";
+import createItineraryRoutes from "./createItinerary.routes.js";
 const router = express.Router();
 
     router.use("/flight", flightRoutes);
@@ -15,4 +16,5 @@ router.use("/airport", airportRoutes);
 router.use("/smartPrice", smartPriceRoutes);
 router.use("/getPricer", getPricerRoutes);
 router.use('/razorpay', razorpayRoutes);
+router.use('/create-itinerary', createItineraryRoutes);
 export default router;

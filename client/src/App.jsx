@@ -7,6 +7,8 @@ import OneWayReview from './pages/OneWayReview'
 import PaxDetails from './pages/Pax-details'
 import Luggage from './components/Luggage'
 import BookingConfirmation from './pages/BookingConfirmation'
+import PaymentError from './pages/PaymentError'
+import PaymentSuccess from './pages/PaymentSuccess'
 
 const App = () => {
   return (
@@ -19,6 +21,8 @@ const App = () => {
         <Route path="/pax-details" element={<PaxDetails />} />
         <Route path="/luggage" element={<Luggage />} />
         <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+        <Route path="/payment-error" element={<PaymentError />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
       </Routes>
     </BrowserRouter>
   )

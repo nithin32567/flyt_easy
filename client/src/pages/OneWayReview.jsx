@@ -331,7 +331,7 @@ const OneWayReview = () => {
       <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow-lg flex items-center justify-between px-8 py-4 z-50">
         <div className="text-lg font-bold">
           Total Amount<br />
-          <span className="text-2xl text-blue-900">₹{flightInfo.GrossAmount?.toLocaleString() || '--'}</span>
+          <span className="text-2xl text-blue-900">₹{flightInfo.NetAmount?.toLocaleString() || '--'}</span>
         </div>
         <button
           onClick={() => navigate('/pax-details', { state: { flightInfo } })}
