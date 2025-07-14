@@ -63,6 +63,7 @@ const HotelDetails = () => {
   const [hotel, setHotel] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isPaying, setIsPaying] = useState(false);
+  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
 
   localStorage.setItem("selectedRoom", JSON.stringify(selectedRoom));
 
@@ -74,7 +75,7 @@ const HotelDetails = () => {
   ) => {
     console.log(amount, currency, receipt, notes);
     try {
-      const response = await fetch("http://localhost:3000/api/razorpay/hotelBooking", {
+      const response = await fetch(`${baseUrl}/api/razorpay/hotelBooking`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -109,7 +110,7 @@ const HotelDetails = () => {
       image: "/your_logo.png",
       order_id: order.id,
       handler: async function (response) {
-        const verifyResponse = await fetch("http://localhost:3000/api/razorpay/verifyPayment", {
+        const verifyResponse = await fetch(`${baseUrl}/api/razorpay/verifyPayment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

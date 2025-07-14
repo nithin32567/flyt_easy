@@ -29,12 +29,12 @@ const PaxDetails = () => {
   const [showModal, setShowModal] = useState(false);
   const [Travellers, setTravellers] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
-
+  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
   // --- End State Definitions ---
 
   const initiateRazorpayPayment = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/razorpay/bookFlight", {
+      const response = await fetch(`${baseUrl}/api/razorpay/bookFlight`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +70,7 @@ const PaxDetails = () => {
       image: "/your_logo.png",
       order_id: order.id,
       handler: async function (response) {
-        const verifyResponse = await fetch("http://localhost:3000/api/razorpay/verifyPayment", {
+          const verifyResponse = await fetch(`${baseUrl}/api/razorpay/verifyPayment`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
