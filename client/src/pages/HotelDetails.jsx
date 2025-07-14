@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const hotelLocation=JSON.parse(localStorage.getItem('oneWayReviewData'));
-console.log(hotelLocation.ToName);
 const oneWayReviewData=JSON.parse(localStorage.getItem('oneWayReviewData'));
 console.log(oneWayReviewData);
 

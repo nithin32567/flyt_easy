@@ -2,48 +2,47 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const hotelLocation=JSON.parse(localStorage.getItem('oneWayReviewData'));
-console.log(hotelLocation.ToName);
 
 const mockHotels = [
   {
     id: '1',
     name: 'Grand Palace Hotel',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName || 'Mumbai',
     shortDescription: 'Luxury hotel with pool, spa, and city views.',
     image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: '2',
     name: 'Seaside Resort',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName || 'Mumbai',
     shortDescription: 'Beachfront resort with private beach and water sports.',
     image: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: '3',
     name: 'Mountain Retreat',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName || 'Mumbai',
     shortDescription: 'Cozy retreat in the mountains with scenic views.',
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: '4',
     name: 'Mountain Retreat',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName || 'Mumbai',
     shortDescription: 'Cozy retreat in the mountains with scenic views.',
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: '5',
     name: 'Mountain Retreat',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName || 'Mumbai',
     shortDescription: 'Cozy retreat in the mountains with scenic views.',
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
   },
   {
     id: '6',
     name: 'Mountain Retreat',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName || 'Mumbai',
     shortDescription: 'Cozy retreat in the mountains with scenic views.',
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
   },
