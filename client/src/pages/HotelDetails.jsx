@@ -168,14 +168,14 @@ const HotelDetails = () => {
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
-      <img src={hotel.image} alt={hotel.name} className="w-full h-56 object-cover rounded mb-6" />
-      <h1 className="text-2xl font-bold mb-2">{hotel.name}</h1>
-      <p className="text-gray-600 mb-2">{hotel.location}</p>
-      <p className="mb-4">{hotel.description}</p>
+      <img src={hotel?.image} alt={hotel?.name} className="w-full h-56 object-cover rounded mb-6" />
+      <h1 className="text-2xl font-bold mb-2">{hotel?.name}</h1>
+      <p className="text-gray-600 mb-2">{hotel?.location}</p>
+      <p className="mb-4">{hotel?.description}</p>
       <div className="mb-4">
         <h2 className="font-semibold mb-1">Facilities:</h2>
         <ul className="flex flex-wrap gap-2">
-          {hotel.facilities.map(fac => (
+          {hotel?.facilities.map(fac => (
             <li key={fac} className="bg-blue-100 text-blue-800 px-3 py-1 rounded text-sm">{fac}</li>
           ))}
         </ul>
@@ -183,7 +183,7 @@ const HotelDetails = () => {
       <div className="mb-6">
         <h2 className="font-semibold mb-2">Rooms:</h2>
         <div className="grid gap-4">
-          {hotel.rooms.map(room => (
+          {hotel?.rooms.map(room => (
             <div key={room.type} className={`border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between ${selectedRoom?.type === room.type ? 'border-blue-700' : 'border-gray-200'}`}>
               <div>
                 <div className="font-medium">{room.type}</div>

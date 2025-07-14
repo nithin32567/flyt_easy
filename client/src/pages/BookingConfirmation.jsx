@@ -54,19 +54,19 @@ const BookingConfirmation = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-500">From</p>
-                <p className="font-medium">{bookingData.flightInfo.FromName?.split('|')[0]}</p>
+                <p className="font-medium">{bookingData?.flightInfo?.FromName?.split('|')[0]}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">To</p>
-                <p className="font-medium">{bookingData.flightInfo.ToName?.split('|')[0]}</p>
+                <p className="font-medium">{bookingData?.flightInfo?.ToName?.split('|')[0]}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Date</p>
-                <p className="font-medium">{bookingData.flightInfo.OnwardDate}</p>
+                <p className="font-medium">{bookingData?.flightInfo?.OnwardDate}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Amount Paid</p>
-                <p className="font-medium text-green-600">₹{bookingData.amount?.toLocaleString()}</p>
+                <p className="font-medium text-green-600">₹{bookingData?.amount?.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -77,15 +77,15 @@ const BookingConfirmation = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-500">Payment ID</p>
-                <p className="font-medium text-sm">{bookingData.paymentId}</p>
+                <p className="font-medium text-sm">{bookingData?.paymentId}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Order ID</p>
-                <p className="font-medium text-sm">{bookingData.orderId}</p>
+                <p className="font-medium text-sm">{bookingData?.orderId}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Itinerary ID</p>
-                <p className="font-medium text-sm">{bookingData.itineraryId}</p>
+                <p className="font-medium text-sm">{bookingData?.itineraryId}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Status</p>

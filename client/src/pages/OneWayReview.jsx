@@ -29,10 +29,10 @@ const OneWayReview = () => {
         <div className="bg-blue-900 text-white rounded-t-lg px-6 py-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="font-bold text-xl">
-              {flightInfo.FromName?.split('|')[0]} → {flightInfo.ToName?.split('|')[0]}
+              {flightInfo?.FromName?.split('|')[0]} → {flightInfo?.ToName?.split('|')[0]}
             </div>
             <div className="text-sm mt-2 md:mt-0">
-              {flightInfo.OnwardDate} | {flightInfo.FareType === 'ON' ? 'One Way' : 'Round Trip'}
+              {flightInfo?.OnwardDate} | {flightInfo?.FareType === 'ON' ? 'One Way' : 'Round Trip'}
             </div>
           </div>
         </div>
@@ -44,19 +44,19 @@ const OneWayReview = () => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-bold text-gray-700 mb-2">Route Information</h3>
               <div className="space-y-2 text-sm">
-                <div><span className="font-semibold">From:</span> {flightInfo.FromName}</div>
-                <div><span className="font-semibold">To:</span> {flightInfo.ToName}</div>
-                <div><span className="font-semibold">From Code:</span> {flightInfo.From}</div>
-                <div><span className="font-semibold">To Code:</span> {flightInfo.To}</div>
+                <div><span className="font-semibold">From:</span> {flightInfo?.FromName}</div>
+                <div><span className="font-semibold">To:</span> {flightInfo?.ToName}</div>
+                <div><span className="font-semibold">From Code:</span> {flightInfo?.From}</div>
+                <div><span className="font-semibold">To Code:</span> {flightInfo?.To}</div>
               </div>
             </div>
 
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-bold text-gray-700 mb-2">Travel Details</h3>
               <div className="space-y-2 text-sm">
-                <div><span className="font-semibold">Departure Date:</span> {flightInfo.OnwardDate}</div>
-                {flightInfo.ReturnDate && (
-                  <div><span className="font-semibold">Return Date:</span> {flightInfo.ReturnDate}</div>
+                <div><span className="font-semibold">Departure Date:</span> {flightInfo?.OnwardDate}</div>
+                {flightInfo?.ReturnDate && (
+                  <div><span className="font-semibold">Return Date:</span> {flightInfo?.ReturnDate}</div>
                 )}
                 <div><span className="font-semibold">Trip Type:</span> {flightInfo.FareType === 'ON' ? 'One Way' : 'Round Trip'}</div>
                 <div><span className="font-semibold">Source:</span> {flightInfo.Source}</div>
@@ -66,10 +66,10 @@ const OneWayReview = () => {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="font-bold text-gray-700 mb-2">Passenger Count</h3>
               <div className="space-y-2 text-sm">
-                <div><span className="font-semibold">Adults:</span> {flightInfo.ADT}</div>
-                <div><span className="font-semibold">Children:</span> {flightInfo.CHD}</div>
-                <div><span className="font-semibold">Infants:</span> {flightInfo.INF}</div>
-                <div><span className="font-semibold">Youth:</span> {flightInfo.YTH || 0}</div>
+                <div><span className="font-semibold">Adults:</span> {flightInfo?.ADT}</div>
+                <div><span className="font-semibold">Children:</span> {flightInfo?.CHD}</div>
+                <div><span className="font-semibold">Infants:</span> {flightInfo?.INF}</div>
+                <div><span className="font-semibold">Youth:</span> {flightInfo?.YTH || 0}</div>
               </div>
             </div>
           </div>
@@ -79,32 +79,32 @@ const OneWayReview = () => {
             <h3 className="font-bold text-blue-900 text-lg mb-4">Pricing Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-900">₹{flightInfo.GrossAmount?.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-blue-900">₹{flightInfo?.GrossAmount?.toLocaleString()}</div>
                 <div className="text-sm text-gray-600">Gross Amount</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">₹{flightInfo.NetAmount?.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-green-600">₹{flightInfo?.NetAmount?.toLocaleString()}</div>
                 <div className="text-sm text-gray-600">Net Amount</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-semibold text-gray-700">₹{flightInfo.InsPremium?.toLocaleString() || '0'}</div>
+                <div className="text-lg font-semibold text-gray-700">₹{flightInfo?.InsPremium?.toLocaleString() || '0'}</div>
                 <div className="text-sm text-gray-600">Insurance Premium</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-semibold text-gray-700">{flightInfo.CurrencyCode}</div>
+                <div className="text-lg font-semibold text-gray-700">{flightInfo?.CurrencyCode}</div>
                 <div className="text-sm text-gray-600">Currency</div>
               </div>
             </div>
           </div>
 
           {/* Trip Details */}
-          {flightInfo.Trips && flightInfo.Trips.length > 0 && (
+          {flightInfo?.Trips && flightInfo?.Trips?.length > 0 && (
             <div className="mb-8">
               <h3 className="font-bold text-gray-700 text-lg mb-4">Trip Information</h3>
-              {flightInfo.Trips.map((trip, tripIndex) => (
+              {flightInfo?.Trips?.map((trip, tripIndex) => (
                 <div key={tripIndex} className="bg-gray-50 p-4 rounded-lg mb-4">
                   <h4 className="font-semibold text-blue-900 mb-3">Trip {tripIndex + 1}</h4>
-                  {trip.Journey && trip.Journey.map((journey, journeyIndex) => (
+                  {trip?.Journey && trip?.Journey?.map((journey, journeyIndex) => (
                     <div key={journeyIndex} className="border-l-4 border-blue-500 pl-4 mb-4">
                       {/* Journey Basic Info */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
@@ -138,34 +138,34 @@ const OneWayReview = () => {
                       </div>
 
                       {/* Segments Information */}
-                      {journey.Segments && journey.Segments.length > 0 && (
+                      {journey?.Segments && journey?.Segments?.length > 0 && (
                         <div className="mt-4">
                           <h5 className="font-semibold text-gray-700 mb-3">Flight Segments</h5>
-                          {journey.Segments.map((segment, segmentIndex) => (
+                          {journey?.Segments?.map((segment, segmentIndex) => (
                             <div key={segmentIndex} className="bg-white p-3 rounded border mb-3">
                               <div className="font-medium text-sm text-blue-800 mb-2">
                                 Segment {segmentIndex + 1}
                               </div>
                               
                               {/* Flight Details */}
-                              {segment.Flight && (
+                              {segment?.Flight && (
                                 <div className="space-y-3 mb-3">
                                   {/* Basic Flight Info */}
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                    <div><span className="font-semibold">Airline:</span> {segment.Flight.Airline}</div>
-                                    <div><span className="font-semibold">Flight No:</span> {segment.Flight.FlightNo}</div>
-                                    <div><span className="font-semibold">FUID:</span> {segment.Flight.FUID}</div>
-                                    <div><span className="font-semibold">Duration:</span> {segment.Flight.Duration}</div>
+                                    <div><span className="font-semibold">Airline:</span> {segment?.Flight?.Airline}</div>
+                                    <div><span className="font-semibold">Flight No:</span> {segment?.Flight?.FlightNo}</div>
+                                    <div><span className="font-semibold">FUID:</span> {segment?.Flight?.FUID}</div>
+                                    <div><span className="font-semibold">Duration:</span> {segment?.Flight?.Duration}</div>
                                   </div>
 
                                   {/* Departure Details */}
                                   <div className="bg-blue-50 p-2 rounded">
                                     <div className="font-medium text-xs text-blue-800 mb-1">Departure</div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                                      <div><span className="font-semibold">Time:</span> {segment.Flight.DepartureTime}</div>
-                                      <div><span className="font-semibold">Airport:</span> {segment.Flight.DepAirportName}</div>
-                                      <div><span className="font-semibold">Code:</span> {segment.Flight.DepartureCode}</div>
-                                      <div><span className="font-semibold">Terminal:</span> {segment.Flight.DepartureTerminal}</div>
+                                      <div><span className="font-semibold">Time:</span> {segment?.Flight?.DepartureTime}</div>
+                                      <div><span className="font-semibold">Airport:</span> {segment?.Flight?.DepAirportName}</div>
+                                      <div><span className="font-semibold">Code:</span> {segment?.Flight?.DepartureCode}</div>
+                                      <div><span className="font-semibold">Terminal:</span> {segment?.Flight?.DepartureTerminal}</div>
                                     </div>
                                   </div>
 
@@ -173,54 +173,54 @@ const OneWayReview = () => {
                                   <div className="bg-green-50 p-2 rounded">
                                     <div className="font-medium text-xs text-green-800 mb-1">Arrival</div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                                      <div><span className="font-semibold">Time:</span> {segment.Flight.ArrivalTime}</div>
-                                      <div><span className="font-semibold">Airport:</span> {segment.Flight.ArrAirportName}</div>
-                                      <div><span className="font-semibold">Code:</span> {segment.Flight.ArrivalCode}</div>
-                                      <div><span className="font-semibold">Terminal:</span> {segment.Flight.ArrivalTerminal}</div>
+                                      <div><span className="font-semibold">Time:</span> {segment?.Flight?.ArrivalTime}</div>
+                                      <div><span className="font-semibold">Airport:</span> {segment?.Flight?.ArrAirportName}</div>
+                                      <div><span className="font-semibold">Code:</span> {segment?.Flight?.ArrivalCode}</div>
+                                      <div><span className="font-semibold">Terminal:</span> {segment?.Flight?.ArrivalTerminal}</div>
                                     </div>
                                   </div>
 
                                   {/* Aircraft & Equipment */}
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                    <div><span className="font-semibold">Aircraft:</span> {segment.Flight.AirCraft}</div>
-                                    <div><span className="font-semibold">Equipment Type:</span> {segment.Flight.EquipmentType}</div>
-                                    <div><span className="font-semibold">Carbon Emissions:</span> {segment.Flight.CarbonEmissions}</div>
-                                    <div><span className="font-semibold">Hops:</span> {segment.Flight.Hops || 'N/A'}</div>
+                                    <div><span className="font-semibold">Aircraft:</span> {segment?.Flight?.AirCraft}</div>
+                                    <div><span className="font-semibold">Equipment Type:</span> {segment?.Flight?.EquipmentType}</div>
+                                    <div><span className="font-semibold">Carbon Emissions:</span> {segment?.Flight?.CarbonEmissions}</div>
+                                    <div><span className="font-semibold">Hops:</span> {segment?.Flight?.Hops || 'N/A'}</div>
                                   </div>
 
                                   {/* Airline Codes */}
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                                    <div><span className="font-semibold">VAC:</span> {segment.Flight.VAC}</div>
-                                    <div><span className="font-semibold">MAC:</span> {segment.Flight.MAC}</div>
-                                    <div><span className="font-semibold">OAC:</span> {segment.Flight.OAC}</div>
+                                    <div><span className="font-semibold">VAC:</span> {segment?.Flight?.VAC}</div>
+                                    <div><span className="font-semibold">MAC:</span> {segment?.Flight?.MAC}</div>
+                                    <div><span className="font-semibold">OAC:</span> {segment?.Flight?.OAC}</div>
                                   </div>
 
                                   {/* Fare & Booking Details */}
                                   <div className="bg-gray-50 p-2 rounded">
                                     <div className="font-medium text-xs text-gray-700 mb-1">Fare & Booking Details</div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                                      <div><span className="font-semibold">Fare Class:</span> {segment.Flight.FareClass}</div>
-                                      <div><span className="font-semibold">Cabin:</span> {segment.Flight.Cabin}</div>
-                                      <div><span className="font-semibold">RBD:</span> {segment.Flight.RBD}</div>
-                                      <div><span className="font-semibold">FBC:</span> {segment.Flight.FBC}</div>
-                                      <div><span className="font-semibold">FC Begin:</span> {segment.Flight.FCBegin || 'N/A'}</div>
-                                      <div><span className="font-semibold">FC End:</span> {segment.Flight.FCEnd || 'N/A'}</div>
-                                      <div><span className="font-semibold">Refundable:</span> {segment.Flight.Refundable === 'Y' ? 'Yes' : 'No'}</div>
-                                      <div><span className="font-semibold">Available Seats:</span> {segment.Flight.Seats}</div>
+                                      <div><span className="font-semibold">Fare Class:</span> {segment?.Flight?.FareClass}</div>
+                                      <div><span className="font-semibold">Cabin:</span> {segment?.Flight?.Cabin}</div>
+                                      <div><span className="font-semibold">RBD:</span> {segment?.Flight?.RBD}</div>
+                                      <div><span className="font-semibold">FBC:</span> {segment?.Flight?.FBC}</div>
+                                      <div><span className="font-semibold">FC Begin:</span> {segment?.Flight?.FCBegin || 'N/A'}</div>
+                                      <div><span className="font-semibold">FC End:</span> {segment?.Flight?.FCEnd || 'N/A'}</div>
+                                      <div><span className="font-semibold">Refundable:</span> {segment?.Flight?.Refundable === 'Y' ? 'Yes' : 'No'}</div>
+                                      <div><span className="font-semibold">Available Seats:</span> {segment?.Flight?.Seats}</div>
                                     </div>
                                   </div>
 
                                   {/* Additional Info */}
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                                    <div><span className="font-semibold">Brand ID:</span> {segment.Flight.BrandID || 'N/A'}</div>
-                                    <div><span className="font-semibold">Farelink:</span> {segment.Flight.Farelink || 'N/A'}</div>
-                                    <div><span className="font-semibold">Amenities:</span> {segment.Flight.Amenities || 'N/A'}</div>
+                                    <div><span className="font-semibold">Brand ID:</span> {segment?.Flight?.BrandID || 'N/A'}</div>
+                                    <div><span className="font-semibold">Farelink:</span> {segment?.Flight?.Farelink || 'N/A'}</div>
+                                    <div><span className="font-semibold">Amenities:</span> {segment?.Flight?.Amenities || 'N/A'}</div>
                                   </div>
                                 </div>
                               )}
 
                               {/* Fares Information */}
-                              {segment.Fares && (
+                              {segment?.Fares && (
                                 <div className="bg-gray-100 p-3 rounded">
                                   <div className="font-medium text-sm text-gray-700 mb-2">Fare Breakdown</div>
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">

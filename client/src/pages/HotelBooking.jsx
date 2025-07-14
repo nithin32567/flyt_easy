@@ -66,13 +66,13 @@ const HotelBooking = () => {
       <h1 className="text-2xl font-bold mb-6">Available Hotels</h1>
       <div className="grid gap-6">
         {hotels.map(hotel => (
-          <div key={hotel.id} className="bg-white rounded shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+          <div key={hotel?.id} className="bg-white rounded shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
-              <img src={hotel.image} alt={hotel.name} className="w-24 h-24 object-cover rounded" />
+              <img src={hotel?.image} alt={hotel?.name} className="w-24 h-24 object-cover rounded" />
               <div>
-                <h2 className="text-lg font-semibold">{hotel.name}</h2>
-                <p className="text-gray-600">{hotel.location}</p>
-                <p className="text-sm text-gray-500">{hotel.shortDescription}</p>
+                <h2 className="text-lg font-semibold">{hotel?.name}</h2>
+                <p className="text-gray-600">{hotel?.location}</p>
+                <p className="text-sm text-gray-500">{hotel?.shortDescription}</p>
               </div>
             </div>
             <button
