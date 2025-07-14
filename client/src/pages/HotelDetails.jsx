@@ -10,7 +10,7 @@ const mockHotelDetails = {
   '1': {
     id: '1',
     name: 'Grand Palace Hotel',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName,
     description: 'A luxury hotel in the heart of Mumbai with world-class amenities.',
     image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80',
     facilities: ['Pool', 'Spa', 'Free WiFi', 'Gym', 'Restaurant', 'Bar'],
@@ -22,7 +22,7 @@ const mockHotelDetails = {
   '2': {
     id: '2',
     name: 'Seaside Resort',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName,
     description: 'Beachfront resort with private beach, water sports, and more.',
     image: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80',
     facilities: ['Private Beach', 'Water Sports', 'Free Breakfast', 'Pool', 'Bar'],
@@ -34,7 +34,7 @@ const mockHotelDetails = {
   '3': {
     id: '3',
     name: 'Mountain Retreat',
-    location: hotelLocation.ToName,
+    location: hotelLocation?.ToName,
     description: 'Cozy retreat in the mountains with breathtaking views.',
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&q=80',
     facilities: ['Mountain View', 'Bonfire', 'Free WiFi', 'Restaurant'],
@@ -46,7 +46,7 @@ const mockHotelDetails = {
   '4': {
     id: '4',
     name: 'Mountain Retreat',
-    location: hotelLocation.FromName,
+    location: hotelLocation?.FromName,
     description: 'Cozy retreat in the mountains with breathtaking views.',
     image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=600&q=80',
     facilities: ['Mountain View', 'Bonfire', 'Free WiFi', 'Restaurant'],
