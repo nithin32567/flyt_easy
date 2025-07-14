@@ -9,6 +9,9 @@ import Luggage from './components/Luggage'
 import BookingConfirmation from './pages/BookingConfirmation'
 import PaymentError from './pages/PaymentError'
 import PaymentSuccess from './pages/PaymentSuccess'
+import HotelBooking from './pages/HotelBooking'
+import HotelDetails from './pages/HotelDetails'
+import HotelPaymentSuccess from './pages/HotelPaymentSuccess'
 
 const App = () => {
   return (
@@ -23,6 +26,9 @@ const App = () => {
         <Route path="/booking-confirmation" element={<BookingConfirmation />} />
         <Route path="/payment-error" element={<PaymentError />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/hotel-booking" element={<HotelBooking />} />
+        <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
+        <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
       </Routes>
     </BrowserRouter>
   )

@@ -169,7 +169,7 @@ const PaymentSuccess = () => {
                         Share Receipt
                     </button>
                     <button
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/hotel-booking')}
                         className="flex-1 bg-blue-900 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-800 transition-colors"
                     >
                         Book Hotel
