@@ -17,20 +17,32 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan("dev"));
 
-app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  })
-);
+
+
+const allowedOrigins = [
+  "http://localhost:5173",  // Vite frontend
+  "http://147.93.18.244:5173", // If accessed via IP
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed from this origin"));
+    }
+  },
+  credentials: true,
+}));
 
 // console.log(path.resolve(__dirname, "../client/dist"));
 
-app.use(express.static(path.resolve(__dirname, '../client', 'dist')))
+app.use(express.static(path.resolve(__dirname, "../client/dist")));
 
-app.get("/", (req, res) => {
+app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/dist/index.html"));
 });
+
 
 app.use("/api", indexRoutes);
 app.use("/api/hotel", hotelRoutes);
