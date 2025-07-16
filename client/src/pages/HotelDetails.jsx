@@ -62,7 +62,7 @@ const HotelDetails = () => {
   const [hotel, setHotel] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isPaying, setIsPaying] = useState(false);
-  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
+  const baseUrl = import.meta.env.VITE_BASE_URL 
 
   localStorage.setItem("selectedRoom", JSON.stringify(selectedRoom));
 

@@ -8,7 +8,7 @@ const luggageOptions = [
   { weight: 20, price: 22000, icon: 'work' },
   { weight: 30, price: 33000, icon: 'luggage' },
 ];
-const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
+const baseUrl = import.meta.env.VITE_BASE_URL
 const Luggage = () => {
   const navigate = useNavigate();
   const location = useLocation();

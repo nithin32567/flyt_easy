@@ -55,7 +55,7 @@ const FlightListing = () => {
   const clientId = localStorage.getItem('clientId');
   const token = localStorage.getItem('token');
   const TUI = localStorage.getItem('search-tui');
-  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
+  const baseUrl = import.meta.env.VITE_BASE_URL 
 
 
   const searchPayload = JSON.parse(localStorage.getItem('searchPayload'));

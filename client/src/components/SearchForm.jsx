@@ -142,7 +142,7 @@ const SearchForm = () => {
   const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
 
-  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
+  const baseUrl = import.meta.env.VITE_BASE_URL 
   const token = localStorage.getItem('token');
   useEffect(() => {
   

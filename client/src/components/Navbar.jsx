@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Navbar = () => {
-  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
+  const baseUrl = import.meta.env.VITE_BASE_URL 
   return (
     <nav className="flex items-center justify-between bg-white shadow px-4 py-2">
       <button className="text-2xl mr-2 focus:outline-none">

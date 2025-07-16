@@ -5,11 +5,11 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  
 
-  const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
+
+  const baseUrl = import.meta.env.VITE_BASE_URL
   const handleSubmit = async (e) => {
-    
+
     e.preventDefault();
     setError('');
     try {
@@ -20,13 +20,13 @@ const Login = () => {
       });
       const data = await response.json();
       // console.log(data,'from the backend=========================');
-      
+
       if (data.success && data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('clientId', data.ClientID);
         localStorage.setItem('tokenTimestamp', Date.now());
 
-        const response=await fetch(`${baseUrl}/api/websetting`, {
+        const response = await fetch(`${baseUrl}/api/websetting`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ClientID: data.ClientID, TUI: data.TUI })
@@ -36,7 +36,7 @@ const Login = () => {
         // console.log(data2, 'from the backend=========================');
 
         navigate('/search');
-        
+
       } else {
         setError(data.message || 'Login failed');
       }
