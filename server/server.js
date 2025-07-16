@@ -20,8 +20,8 @@ app.use(morgan("dev"));
 
 
 const allowedOrigins = [
-  "http://localhost:5173",  // Vite frontend
-  "http://147.93.18.244:5173", // If accessed via IP
+  "http://localhost:5173",
+  "http://147.93.18.244:5173",
 ];
 
 app.use(cors({
@@ -39,9 +39,7 @@ app.use(cors({
 
 app.use(express.static(path.resolve(__dirname, "../client/dist")));
 
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../client/dist/index.html"));
-});
+
 
 
 app.use("/api", indexRoutes);
