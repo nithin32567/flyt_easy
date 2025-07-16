@@ -6,8 +6,10 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  console.log(import.meta.env, 'import.meta.env');
 
-  const baseUrl = import.meta.env.VITE_BASE_URL
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+  console.log(baseUrl, 'baseUrl');
   const handleSubmit = async (e) => {
 
     e.preventDefault();
