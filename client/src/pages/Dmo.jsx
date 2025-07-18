@@ -1,30 +1,10 @@
 import React from 'react'
 import flightIcon from '../assets/img/flight-icon.png'
 import hotelIcon from '../assets/img/hotel-booking.png'
-import banner01 from '../assets/img/banner-01.jpg'  
+import banner01 from '../assets/img/banner-01.jpg'
 import topdestinations from '../assets/img/topdestinations.jpg'
-import redefineTravel from '../assets/img/redefine-travel.jpg'
-import indigo from '../assets/img/indigo.jpg'
-import flydubai from '../assets/img/flydubai.jpg'
-import airarabia from '../assets/img/airarabia.jpg'
-import spicejet from '../assets/img/spicejet.jpg'
-import ethihad from '../assets/img/ethihad.jpg'
-import saudiArabiaAirlines from '../assets/img/saudi-arabia-airlines.jpg'
-import malaysia from '../assets/img/malaysia.jpg'
-import airindia from '../assets/img/iarindia.jpg'
-import thai from '../assets/img/thai.jpg'
-import emirates from '../assets/img/emirates.jpg'
-import singaporeAirlines from '../assets/img/singapore-airlines.jpg'
-import pia from '../assets/img/pia.jpg'
-import gulfAir from '../assets/img/gulf-air.jpg'
-import googleplay from '../assets/img/googleplay.png'
-import appstore from '../assets/img/appstore.png'
-import qrCode from '../assets/img/qr-code.jpg'
-import whyChooseUs from '../assets/img/whychoose-icon.png'
-import easyFlightBooking from '../assets/img/easy-flight-booking.png'
-import flyAcrossIndia from '../assets/img/fly-across-india.png'
 
-    const Dmo = () => {
+const Dmo = () => {
     return (
         <div>
             <section className="banner-wrapper">
@@ -462,7 +442,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                     <div className="redefine-travel-wrap">
                         <div className="row">
                             <div className="col-lg-5">
-                                <img src={redefineTravel} alt="Redefining Travel" />
+                                <img src="img/redefine-travel.jpg" alt="Redefining Travel" />
                             </div>
                             <div className="col-lg-7">
                                 <h3>
@@ -479,7 +459,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                                 </button>
                             </div>
                         </div>
-                    </div>  
+                    </div>
                 </div>
             </section>
             <section className="magicofindia-wrap">
@@ -499,7 +479,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Tamil Nadu's Charming Hill Town</h4>
@@ -509,7 +489,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Tamil Nadu's Charming Hill Town</h4>
@@ -519,7 +499,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Tamil Nadu's Charming Hill Town</h4>
@@ -529,7 +509,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Tamil Nadu's Charming Hill Town</h4>
@@ -539,7 +519,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Tamil Nadu's Charming Hill Town</h4>
@@ -554,35 +534,35 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={indigo} alt="indigo" />
+                                    <img src="img/indigo.jpg" alt="indigo" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={flydubai} alt="flydubai" />
+                                    <img src="img/flydubai.jpg" alt="flydubai" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={airarabia} alt="airarabia" />
+                                    <img src="img/airarabia.jpg" alt="airarabia" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={spicejet} alt="spicejet" />
+                                    <img src="img/spicejet.jpg" alt="spicejet" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={ethihad} alt="ethihad" />
+                                    <img src="img/ethihad.jpg" alt="ethihad" />
                                 </span>
                             </div>
                         </div>
@@ -590,7 +570,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                             <div className="partners-logo">
                                 <span>
                                     <img
-                                        src={saudiArabiaAirlines}
+                                        src="img/saudi-arabia-airlines.jpg"
                                         alt="saudi-arabia-airlines"
                                     />
                                 </span>
@@ -599,49 +579,49 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={malaysia} alt="malaysia" />
+                                    <img src="img/malaysia.jpg" alt="malaysia" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={airindia} alt="airindia" />
+                                    <img src="img/iarindia.jpg" alt="airindia" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                        <img src={thai} alt="thai" />
+                                    <img src="img/thai.jpg" alt="thai" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={emirates} alt="emirates" />
+                                    <img src="img/emirates.jpg" alt="emirates" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={singaporeAirlines} alt="singapore-airlines" />
+                                    <img src="img/singapore-airlines.jpg" alt="singapore-airlines" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={pia} alt="pia" />
+                                    <img src="img/pia.jpg" alt="pia" />
                                 </span>
                             </div>
                         </div>
                         <div className="col-lg-3">
                             <div className="partners-logo">
                                 <span>
-                                    <img src={gulfAir} alt="gulf-air" />
+                                    <img src="img/gulf-air.jpg" alt="gulf-air" />
                                 </span>
                             </div>
                         </div>
@@ -651,7 +631,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
             <div className="container">
                 <div className="getappnow-wrapper">
                     <div className="row">
-                        <div className="col-lg-6">  
+                        <div className="col-lg-6">
                             <h3>
                                 Plan, Book &amp; Travel On-the-Go <br />
                                 Get the App Now!
@@ -670,14 +650,14 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                             <div className="apps-qrcode">
                                 <div className="downloadapp-buttons">
                                     <a href="">
-                                        <img src={googleplay} alt="Goolge Play" />
+                                        <img src="img/googleplay.png" alt="Goolge Play" />
                                     </a>
                                     <a href="">
-                                        <img src={appstore} alt="Appstore" />
+                                        <img src="img/appstore.png" alt="Appstore" />
                                     </a>
                                 </div>
                                 <span>
-                                    <img src={qrCode} alt="QR Code" />
+                                    <img src="img/qr-code.jpg" alt="QR Code" />
                                 </span>
                             </div>
                         </div>
@@ -777,7 +757,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                     <div className="row">
                         <div className="col-lg-4 col-md-12">
                             <span>
-                                <img src={whyChooseUs} alt="Why Choose Us" />
+                                <img src="img/whychoose-icon.png" alt="Why Choose Us" />
                             </span>
                             <h4>Why Choose Us</h4>
                             <p>
@@ -788,7 +768,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                         </div>
                         <div className="col-lg-4 col-md-12">
                             <span>
-                                <img src={easyFlightBooking} alt="Easy Flight Booking" />
+                                <img src="img/easy-flight-booking.png" alt="Easy Flight Booking" />
                             </span>
                             <h4>Easy Flight Booking</h4>
                             <p>
@@ -799,7 +779,7 @@ import flyAcrossIndia from '../assets/img/fly-across-india.png'
                         </div>
                         <div className="col-lg-4 col-md-12">
                             <span>
-                                    <img src={flyAcrossIndia} alt="Fly Across India" />
+                                <img src="img/fly-across-india.png" alt="Fly Across India" />
                             </span>
                             <h4>Fly Across India</h4>
                             <p>

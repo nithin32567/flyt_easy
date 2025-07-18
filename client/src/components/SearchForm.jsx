@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
+import flightIcon from '../assets/img/flight-icon.png'
+import hotelIcon from '../assets/img/hotel-booking.png'
+import HotelSearch from './HotelSearch'
 
 const tabs = ["One Way", "Round Trip", "Multi City"];
+
 
 // Dummy airport data for UI scaffolding
 
 
-const AirportModal = ({ open, onClose, onSelect, label  , airports }) => {
+const AirportModal = ({ open, onClose, onSelect, label, airports }) => {
   const [search, setSearch] = useState('');
   const filtered = airports.filter(a =>
     a.CityName.toLowerCase().includes(search.toLowerCase()) ||
@@ -126,6 +130,7 @@ const TravellersClassModal = ({
 };
 
 const SearchForm = () => {
+  const [isActiveFlightTab, setIsActiveFlightTab] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
@@ -134,7 +139,7 @@ const SearchForm = () => {
   const [travellers, setTravellers] = useState(1);
   const [travelClass, setTravelClass] = useState("Economy");
   const [modal, setModal] = useState(null); // 'from' or 'to' or null
-  const [airports, setAirports] = useState([]); 
+  const [airports, setAirports] = useState([]);
   const [travellerModalOpen, setTravellerModalOpen] = useState(false);
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
@@ -142,10 +147,10 @@ const SearchForm = () => {
   const [isSearching, setIsSearching] = useState(false);
   const navigate = useNavigate();
 
-  const baseUrl = import.meta.env.VITE_BASE_URL 
+  const baseUrl = import.meta.env.VITE_BASE_URL
   const token = localStorage.getItem('token');
   useEffect(() => {
-  
+
     if (!token) {
       navigate('/login');
     }
@@ -154,7 +159,7 @@ const SearchForm = () => {
     fetchAirports();
   }, []);
 
-// fetching the airports from the backend
+  // fetching the airports from the backend
   async function fetchAirports() {
     try {
       const response = await fetch(`${baseUrl}/api/airport`, {
@@ -173,14 +178,14 @@ const SearchForm = () => {
 
 
 
- async function handleExpressSearch(e) {
+  async function handleExpressSearch(e) {
     e.preventDefault();
-    
+
     if (!from || !to || !departure) {
       alert('Please select From, To, and Departure Date');
       return;
     }
-    
+
     setIsSearching(true);
     const clientId = localStorage.getItem('clientId');
     const payload = {
@@ -192,10 +197,10 @@ const SearchForm = () => {
       Mode: 'AS',
       ClientID: clientId,
       FareType: activeTab === 0 ? 'ON' : 'RT',
-      IsMultipleCarrier:false,
-      IsRefundable:false,
-      preferedAirlines:null,
-      TUI:"",
+      IsMultipleCarrier: false,
+      IsRefundable: false,
+      preferedAirlines: null,
+      TUI: "",
       Trips: [
         {
           From: from.Code,
@@ -222,13 +227,13 @@ const SearchForm = () => {
       localStorage.setItem("expressSearchTUI", data.TUI)
       if (data.success && data.data?.TUI) {
         console.log("success and calling the getExpSearch================== 212")
-        
+
         // Poll GetExpSearch until Completed is 'True' or timeout
         const pollGetExpSearch = async () => {
           const startTime = Date.now();
           const timeout = 50000; // 50 seconds timeout
           const pollInterval = 2000; // Poll every 2 seconds
-          
+
           while (Date.now() - startTime < timeout) {
             try {
               const expSearchRes = await fetch(`${baseUrl}/api/flight/get/getExpSearch`, {
@@ -239,10 +244,10 @@ const SearchForm = () => {
                 },
                 body: JSON.stringify({ TUI: data.data.TUI })
               });
-              
+
               const expSearchData = await expSearchRes.json();
               console.log(expSearchData, 'GetExpSearch Response');
-              
+
               if (expSearchData.success) {
                 // Check if the search is complete
                 if (expSearchData.data?.Completed === 'True') {
@@ -273,12 +278,12 @@ const SearchForm = () => {
               return;
             }
           }
-          
+
           // Timeout reached
           console.error('Search timeout - 50 seconds exceeded');
           alert('Search is taking longer than expected. Please try again.');
         };
-        
+
         // Start polling
         await pollGetExpSearch();
       }
@@ -289,112 +294,156 @@ const SearchForm = () => {
     }
   }
   return (
-    <div className="bg-white rounded shadow p-4">
-      {/* Tabs */}
-      <div className="flex mb-4">
-        {tabs.map((tab, idx) => (
-          <button
-            key={tab}
-            className={`flex-1 py-2 font-semibold border-b-2 ${activeTab === idx ? 'border-blue-800 text-blue-800 bg-blue-100' : 'border-gray-200 text-gray-600 bg-white'}`}
-            onClick={() => setActiveTab(idx)}
-          >
-            {tab}
-          </button>
-        ))}
+    <section>
+      <div className='max-w-7xl mx-auto '>
+        <div className='bg-white rounded-md shadow-md '>
+          <ul className='flex bg-gray-200 items-center gap-4 py-4 rounded-t-md px-8   ' id="myTab" role="tablist">
+            <li className='flex items-center gap-2' role="presentation">
+              <button onClick={() => setIsActiveFlightTab(true)} className='flex items-center gap-2'
+                id="home-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#home"
+                type="button"
+                role="tab"
+                aria-controls="home"
+                aria-selected="true"
+              >
+                <img className='w-10 h-10' src={flightIcon} alt="Flight Booking" />
+                Flight Booking
+              </button>
+            </li>
+            <li className='flex items-center gap-2' role="presentation">
+              <button onClick={() => setIsActiveFlightTab(false)} className='flex items-center gap-2'
+                id="profile-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#profile"
+                type="button"
+                role="tab"
+                aria-controls="profile"
+                aria-selected="false"
+              >
+                <img className='w-10 h-10' src={hotelIcon} alt="Hotel Booking" /> Hotel
+                Booking
+              </button>
+            </li>
+          </ul>
+          <div id="myTabContent" className='p-8 space-y-4'>
+            {isActiveFlightTab && (
+              <div
+                id="home"
+                role="tabpanel"
+                aria-labelledby="home-tab"
+              >
+
+                <div className='flex items-center gap-4 border-b pt-4 pb-12 border-gray-200' >
+                  <ul className='flex items-center gap-4'>
+                    <li className='flex px-4 rounded-3xl hover:bg-gray-200 py-2 cursor-pointer'>
+                      <label className='cursor-pointer'>
+                        <input type="radio" name="trip" id="" defaultChecked="" className='mr-2' />{" "}
+                        One Way
+                      </label>
+                    </li>
+                    <li className='flex px-4 rounded-3xl hover:bg-gray-200 py-2'>
+                      <label className='cursor-pointer'>
+                        <input type="radio" name="trip" id="" className='mr-2' /> Round Trip
+                      </label>
+                    </li>
+                    <li className='flex px-4 rounded-3xl hover:bg-gray-200 py-2'>
+                      <label className='cursor-pointer'>
+                        <input type="radio" name="trip" id="" className='mr-2' /> Multi City
+                      </label>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* FORM SUBMIT SECTIONS  */}
+                <div className=' flex items-center gap-4 border-b border-gray-200'>
+                  <div className='w-1/2'>
+                    <div className='flex items-center gap-4'>
+                      <div className='w-1/2'>
+                        <button className='text-left bg-white rounded-md p-4 w-full'>
+                          <h6>FROM</h6>
+                          <h2 className='text-2xl font-bold'>Mumbai</h2>
+                          <p className='text-xs text-gray-500 truncate'>[BOM] Chhatrapati Shivaji International</p>
+                        </button>
+                      </div>
+                      <div className='w-1/2'>
+                        <button className='text-left bg-white rounded-md p-4 w-full'>
+                          <h6>To</h6>
+                          <h2 className='text-2xl font-bold'>New Delhi</h2>
+                          <p className='text-xs text-gray-500 truncate'>[DEL] Indira Gandhi International</p>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className='w-1/2'>
+                    <div className='flex items-center gap-4'>
+                      <div className='w-1/3'>
+                        <button className='text-left bg-white rounded-md p-4 w-full'>
+                          <h6>DEPART</h6>
+                          <h2 className='text-xl font-bold'>
+                            16 <span className='text-black'>Jul'25</span>
+                          </h2>
+                          <p className='text-xs text-gray-500 truncate'>Wednesday</p>
+                        </button>
+                      </div>
+                      <div className='w-1/3'>
+                        <button className='text-left bg-white rounded-md p-4 w-full'>
+                          <h6>RETURN</h6>
+                          <h2 className='text-xl font-bold'>
+                            16 <span className='text-black'>Jul'25</span>
+                          </h2>
+                          <p className='text-xs text-gray-500 truncate'>Tuesday</p>
+                        </button>
+                      </div>
+                      <div className='w-1/3'>
+                        <button className='text-left bg-white rounded-md p-4 w-full'>
+                          <h6>Travellers</h6>
+                          <h2 className='text-xl text-center justify-center items-center flex gap-1 font-bold'>
+                            2 <span className='text-black'>{" "} Travellers</span>
+                          </h2>
+                          <p className='text-xs text-gray-500 truncate'>Economy</p>
+                        </button>
+                      </div>
+                      <div className='w-1/3'>
+                        <button className='bg-[#f48f22] text-white rounded-md px-12 py-3 w-full'>Search</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <ul className='flex items-center gap-4 py-8 px-4'>
+                    <li className='flex items-center gap-2'>
+                      <label>
+                        <input type="checkbox" name="" id="" /> Direct Flights
+                      </label>
+                    </li>
+                    <li>
+                      <label>
+                        <input type="checkbox" name="" id="" /> Defence Fare
+                      </label>
+                    </li>
+                    <li>
+                      <label>
+                        <input type="checkbox" name="" id="" /> Student Fare
+                      </label>
+                    </li>
+                    <li>
+                      <label>
+                        <input type="checkbox" name="" id="" /> Senior Citizen Fare
+                      </label>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+            {!isActiveFlightTab && (
+              <HotelSearch />
+            )}
+          </div>
+        </div>
       </div>
-      {/* Form */}
-      <form className="space-y-4" onSubmit={handleExpressSearch}>
-        <div>
-          <label className="block text-xs text-gray-500">From</label>
-          <div
-            className="w-full border rounded px-3 py-2 mt-1 bg-white cursor-pointer"
-            onClick={() => setModal('from')}
-          >
-            {from ? (
-              <>
-                <div className="font-semibold text-sm">{from.CityName}</div>
-                <div className="text-xs text-gray-500">{from.Name}</div>
-              </>
-            ) : (
-              <span className="text-gray-400">Select departure airport</span>
-            )}
-          </div>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500">To</label>
-          <div
-            className="w-full border rounded px-3 py-2 mt-1 bg-white cursor-pointer"
-            onClick={() => setModal('to')}
-          >
-            {to ? (
-              <>
-                <div className="font-semibold text-sm">{to.CityName}</div>
-                <div className="text-xs text-gray-500">{to.Name}</div>
-              </>
-            ) : (
-              <span className="text-gray-400">Select arrival airport</span>
-            )}
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <label className="block text-xs text-gray-500">Departure Date</label>
-            <input type="date" className="w-full border rounded px-3 py-2 mt-1" value={departure} onChange={e => setDeparture(e.target.value)} />
-          </div>
-          {activeTab !== 0 && (
-            <div className="flex-1">
-              <label className="block text-xs text-gray-500">Return</label>
-              <input type="date" className="w-full border rounded px-3 py-2 mt-1" value={returnDate} onChange={e => setReturnDate(e.target.value)} />
-            </div>
-          )}
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500">Travellers & Class</label>
-          <div
-            className="w-full border rounded px-3 py-2 mt-1 bg-white cursor-pointer"
-            onClick={() => setTravellerModalOpen(true)}
-          >
-            {`${adults + children + infants} Traveller${adults + children + infants > 1 ? 's' : ''} | ${travelClass}`}
-          </div>
-        </div>
-        <button 
-          type="submit" 
-          disabled={isSearching}
-          className={`w-full text-white py-2 rounded font-semibold transition-colors ${
-            isSearching 
-              ? 'bg-gray-400 cursor-not-allowed' 
-              : 'bg-blue-800 hover:bg-blue-900'
-          }`}
-        >
-          {isSearching ? 'Searching...' : 'Search'}
-        </button>
-      </form>
-      <AirportModal
-        open={modal === 'from'}
-        onClose={() => setModal(null)}
-        onSelect={setFrom}
-        label="From"
-        airports={airports}
-      />
-      <AirportModal
-        open={modal === 'to'}
-        onClose={() => setModal(null)}
-        onSelect={setTo}
-        label="To"
-        airports={airports}
-      />
-      <TravellersClassModal
-        open={travellerModalOpen}
-        onClose={() => setTravellerModalOpen(false)}
-        onApply={({ adults, children, infants, travelClass }) => {
-          setAdults(adults);
-          setChildren(children);
-          setInfants(infants);
-          setTravelClass(travelClass);
-        }}
-        initial={{ adults, children, infants, travelClass }}
-      />
-    </div>
+    </section>
   );
 };
 
