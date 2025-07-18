@@ -7,6 +7,8 @@ import { Outlet } from 'react-router-dom'
 import Demobanner from '../components/Demobanner'
 import Card from '../components/Card'
 import StayCard from '../components/StayCard'
+import RedefineTravel from '../components/RedefineTravel'
+import MagicCard from '../components/MagicCard'
 
 const FlightSearch = () => {
   return (
@@ -22,7 +24,7 @@ const FlightSearch = () => {
           <button className='text-sm text-orange-600'>View All</button>
         </div>
         <div>
-          <CarousalCites card={Card} />
+          <CarousalCites Card={Card} />
         </div>
       </div>
       <div className='flex flex-col  max-w-7xl h-full mx-auto    px-4 md:px-0'>
@@ -31,7 +33,19 @@ const FlightSearch = () => {
           <button className='text-sm text-orange-600'>View All</button>
         </div>
         <div>
-          <CarousalCites card={StayCard} />
+          <CarousalCites Card={StayCard} />
+        </div>
+      </div>
+      <div className=' max-w-7xl h-full mx-auto    px-4 md:px-0 mb-10'>
+        <RedefineTravel />
+      </div>
+      <div className='flex flex-col  max-w-7xl h-full mx-auto    px-4 md:px-0'>
+        <div className="flex items-center justify-between">
+          <h3 className='text-3xl font-extrabold'>Unveil the Magic of India</h3>
+          <button className='text-sm text-orange-600'>View All</button>
+        </div>
+        <div>
+          <CarousalCites Card={MagicCard} />
         </div>
       </div>
     </div>

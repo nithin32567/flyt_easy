@@ -1,13 +1,12 @@
 import React from 'react'
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-import Card from './Card'
 import topdestinations from '../assets/img/topdestinations.jpg'
 import bali from '../assets/img/bali.jpg'
 
 
 
-const CarousalCites = () => {
+const CarousalCites = ({ Card }) => {
     const responsive = {
         desktop: {
             breakpoint: { max: 3000, min: 1024 },
@@ -64,6 +63,7 @@ const CarousalCites = () => {
                 draggable={false}
                 showDots={true}
                 responsive={responsive}
+                gap={10}
                 ssr={true} // means to render carousel on server-side.
                 infinite={true}
                 // autoPlay={this.props.deviceType !== "mobile" ? true : false}

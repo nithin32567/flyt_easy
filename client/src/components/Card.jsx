@@ -1,6 +1,7 @@
 import React from 'react';
 import topdestinations from '../assets/img/topdestinations.jpg';
 import { Link } from 'react-router-dom';
+import { FaLink } from "react-icons/fa";
 
 const Card = ({ image }) => {
     return (
@@ -17,7 +18,7 @@ const Card = ({ image }) => {
                     {/* Sliding Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center bg-[#16437c]/50 backdrop-blur-sm text-white px-4 text-center transition-transform duration-500 ease-in-out translate-y-[-100%] group-hover:translate-y-0">
                         <h3 className="text-lg font-semibold">
-                            For You: MakeMyTrip ICICI Bank Credit Card!
+                            <FaLink className="text-white text-2xl" />
                         </h3>
                     </div>
                 </div>
