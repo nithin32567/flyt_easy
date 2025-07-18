@@ -78,16 +78,16 @@ const HotelSearch = () => {
                         </div>
                     </div>
                 </div>
-                <div className="trendingsearches">
-                    <h5>Trending Searches:</h5>
-                    <ul>
-                        <li>
+                <div className="flex flex-col gap-4">
+                    <h5 className='text-lg font-bold'>Trending Searches:</h5>
+                    <ul className='flex gap-4'>
+                        <li className='bg-gray-200 rounded-md p-2'>
                             <button>Dubai, United Arab Emirates</button>
                         </li>
-                        <li>
+                        <li className='bg-gray-200 rounded-md p-2'>
                             <button>Mumbai, India</button>
                         </li>
-                        <li>
+                        <li className='bg-gray-200 rounded-md p-2'>
                             <button>London, United Kingdom</button>
                         </li>
                     </ul>

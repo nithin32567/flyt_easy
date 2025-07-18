@@ -13,6 +13,7 @@ import HotelBooking from './pages/HotelBooking'
 import HotelDetails from './pages/HotelDetails'
 import HotelPaymentSuccess from './pages/HotelPaymentSuccess'
 import Dmo from './pages/Dmo'
+import Demobanner from './components/Demobanner'
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
         <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
         <Route path="/dmo" element={<Dmo />} />
+        <Route path="/demobanner" element={<Demobanner />} />
       </Routes>
     </BrowserRouter>
   )

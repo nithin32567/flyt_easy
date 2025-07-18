@@ -4,14 +4,71 @@ import hotelIcon from '../assets/img/hotel-booking.png'
 import banner01 from '../assets/img/banner-01.jpg'
 import topdestinations from '../assets/img/topdestinations.jpg'
 
+
 const Dmo = () => {
     return (
-        <div>
+        <>
+
+            <section className="header-wrapper-div">
+                <div className="header-topsection">
+                    <div className="container">
+                        <div className="row">
+                            <div className="col-lg-6 col-md-6">
+                                <p>Book flights &amp; hotels in seconds</p>
+                            </div>
+                            <div className="col-lg-6 col-md-6">
+                                <ul className="socialmedia-icons">
+                                    <li>
+                                        <a href="#" className="fb" target="_blank">
+                                            <i className="fab fa-facebook-f" />
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" className="li" target="_blank">
+                                            <i className="fab fa-linkedin-in" />
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" className="tw" target="_blank">
+                                            <i className="fa-brands fa-x-twitter" />
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" className="in" target="_blank">
+                                            <i className="fab fa-instagram" />
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" className="em" target="_blank">
+                                            <i className="fa-regular fa-envelope" />
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="container">
+                    <div className="header-wrapper">
+                        <div className="row">
+                            <div className="col-lg-6 col-md-6">
+                                <a href="#">
+                                    <img src="img/flyteasy-logo.png" alt="Flyteasy" />
+                                </a>
+                            </div>
+                            <div className="col-lg-6 col-md-6">
+                                <button className="register-btn">register</button>
+                                <button className="signin-btn">Sign in</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <section className="banner-wrapper">
                 <div id="carouselExample" className="carousel slide">
                     <div className="carousel-inner">
                         <div className="carousel-item active">
-                            <img src={banner01} alt="Flyteasy" />
+                            <img src="img/banner-01.jpg" alt="Flyteasy" />
                             <div className="container">
                                 <div className="bannerwrap-text">
                                     <div className="bannerwrap-middlealign">
@@ -70,7 +127,7 @@ const Dmo = () => {
                                     aria-controls="home"
                                     aria-selected="true"
                                 >
-                                    <img src={flightIcon} alt="Flight Booking" />
+                                    <img src="img/flight-icon.png" alt="Flight Booking" />
                                     Flight Booking
                                 </button>
                             </li>
@@ -85,7 +142,7 @@ const Dmo = () => {
                                     aria-controls="profile"
                                     aria-selected="false"
                                 >
-                                    <img src={hotelIcon} alt="Hotel Booking" /> Hotel
+                                    <img src="img/hotel-booking.png" alt="Hotel Booking" /> Hotel
                                     Booking
                                 </button>
                             </li>
@@ -308,7 +365,7 @@ const Dmo = () => {
                                 <span>
                                     <i className="fa-solid fa-link" />
                                     <img
-                                        src={topdestinations}
+                                        src="img/topdestinations.jpg"
                                         alt="Tamil Nadu's Charming Hill Town"
                                     />
                                 </span>
@@ -321,7 +378,7 @@ const Dmo = () => {
                                 <span>
                                     <i className="fa-solid fa-link" />
                                     <img
-                                        src={topdestinations}
+                                        src="img/topdestinations.jpg"
                                         alt="Tamil Nadu's Charming Hill Town"
                                     />
                                 </span>
@@ -334,7 +391,7 @@ const Dmo = () => {
                                 <span>
                                     <i className="fa-solid fa-link" />
                                     <img
-                                        src={topdestinations}
+                                        src="img/topdestinations.jpg"
                                         alt="Tamil Nadu's Charming Hill Town"
                                     />
                                 </span>
@@ -347,7 +404,7 @@ const Dmo = () => {
                                 <span>
                                     <i className="fa-solid fa-link" />
                                     <img
-                                        src={topdestinations}
+                                        src="img/topdestinations.jpg"
                                         alt="Tamil Nadu's Charming Hill Town"
                                     />
                                 </span>
@@ -360,7 +417,7 @@ const Dmo = () => {
                                 <span>
                                     <i className="fa-solid fa-link" />
                                     <img
-                                        src={topdestinations}
+                                        src="img/topdestinations.jpg"
                                         alt="Tamil Nadu's Charming Hill Town"
                                     />
                                 </span>
@@ -388,7 +445,7 @@ const Dmo = () => {
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Stays in &amp; Around Delhi for a Weekend Getaway</h4>
@@ -398,7 +455,7 @@ const Dmo = () => {
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Stays in &amp; Around Delhi for a Weekend Getaway</h4>
@@ -408,7 +465,7 @@ const Dmo = () => {
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Stays in &amp; Around Delhi for a Weekend Getaway</h4>
@@ -418,7 +475,7 @@ const Dmo = () => {
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Stays in &amp; Around Delhi for a Weekend Getaway</h4>
@@ -428,7 +485,7 @@ const Dmo = () => {
                             <a href="#" className="popular-destinations-item">
                                 <i className="fa-solid fa-link" />
                                 <img
-                                    src={topdestinations}
+                                    src="img/topdestinations.jpg"
                                     alt="Tamil Nadu's Charming Hill Town"
                                 />
                                 <h4>Stays in &amp; Around Delhi for a Weekend Getaway</h4>
@@ -829,7 +886,8 @@ const Dmo = () => {
                     </div>
                 </div>
             </section>
-        </div >
+        </>
+
     )
 }
 

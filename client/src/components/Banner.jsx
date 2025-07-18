@@ -7,7 +7,7 @@ const Banner = () => {
             <div id="carouselExample" className="carousel slide">
                 <div className="carousel-inner">
                     <div className="carousel-item active">
-                        <img src={banner01} alt="Flyteasy" />
+                        <img className='h-full w-full object-cover' src={banner01} alt="Flyteasy" />
                         <div className="container">
                             <div className="bannerwrap-text">
                                 <div className="">
@@ -17,13 +17,13 @@ const Banner = () => {
                                                 Fast Booking. <br />
                                                 Great Prices. Smooth Takeoff
                                             </h1>
-                                            <p style={{ color: '#fff', fontSize: '16px', fontWeight: '400', zIndex: '900', width: '80%', margin: '0 auto' }}>
+                                            <p style={{ color: '#fff', fontSize: '16px', fontWeight: '400', zIndex: '0', width: '80%', margin: '0 auto' }}>
                                                 With Flyteasy, booking your next flight is faster, easier,
                                                 and more affordable — compare real-time prices, choose
                                                 from top airlines, and take off on your dream journey in
                                                 just a few clicks.
                                             </p>
-                                            <button sty className="border-2 border-[#f48f22] text-[#f48f22] px-8 py-3 rounded-lg font-semibold 
+                                            <button className="border-2 border-[#f48f22] text-[#f48f22] px-8 py-3 rounded-lg font-semibold 
                                               my-4 hover:text-white hover:bg-[#f48f22] hover:ring-2 hover:cursor-pointer">Sign In / Register</button>
                                         </div>
                                     </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import flightIcon from '../assets/img/flight-icon.png'
 import hotelIcon from '../assets/img/hotel-booking.png'
 import HotelSearch from './HotelSearch'
+import CarousalCites from './CarousalCites'
 
 const tabs = ["One Way", "Round Trip", "Multi City"];
 
@@ -178,6 +179,7 @@ const SearchForm = () => {
 
 
 
+
   async function handleExpressSearch(e) {
     e.preventDefault();
 
@@ -295,11 +297,11 @@ const SearchForm = () => {
   }
   return (
     <section>
-      <div className='max-w-7xl mx-auto '>
-        <div className='bg-white rounded-md shadow-md '>
-          <ul className='flex bg-gray-200 items-center gap-4 py-4 rounded-t-md px-8   ' id="myTab" role="tablist">
-            <li className='flex items-center gap-2' role="presentation">
-              <button onClick={() => setIsActiveFlightTab(true)} className='flex items-center gap-2'
+      <div className='max-w-7xl mx-auto px-4 md:px-0'>
+        <div className='bg-white rounded-md shadow-md'>
+          <ul className='flex flex-col sm:flex-row bg-gray-200 items-center gap-2 sm:gap-4 py-4 rounded-t-md px-4 md:px-8' id="myTab" role="tablist">
+            <li className='flex items-center gap-2 w-full sm:w-auto justify-center' role="presentation">
+              <button onClick={() => setIsActiveFlightTab(true)} className='flex items-center gap-2 text-sm md:text-base'
                 id="home-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#home"
@@ -308,12 +310,13 @@ const SearchForm = () => {
                 aria-controls="home"
                 aria-selected="true"
               >
-                <img className='w-10 h-10' src={flightIcon} alt="Flight Booking" />
-                Flight Booking
+                <img className='w-8 h-8 md:w-10 md:h-10' src={flightIcon} alt="Flight Booking" />
+                <span className='hidden sm:inline'>Flight Booking</span>
+                <span className='sm:hidden'>Flight</span>
               </button>
             </li>
-            <li className='flex items-center gap-2' role="presentation">
-              <button onClick={() => setIsActiveFlightTab(false)} className='flex items-center gap-2'
+            <li className='flex items-center gap-2 w-full sm:w-auto justify-center' role="presentation">
+              <button onClick={() => setIsActiveFlightTab(false)} className='flex items-center gap-2 text-sm md:text-base'
                 id="profile-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#profile"
@@ -322,12 +325,13 @@ const SearchForm = () => {
                 aria-controls="profile"
                 aria-selected="false"
               >
-                <img className='w-10 h-10' src={hotelIcon} alt="Hotel Booking" /> Hotel
-                Booking
+                <img className='w-8 h-8 md:w-10 md:h-10' src={hotelIcon} alt="Hotel Booking" />
+                <span className='hidden sm:inline'>Hotel Booking</span>
+                <span className='sm:hidden'>Hotel</span>
               </button>
             </li>
           </ul>
-          <div id="myTabContent" className='p-8 space-y-4'>
+          <div id="myTabContent" className='p-4 md:p-8 space-y-4'>
             {isActiveFlightTab && (
               <div
                 id="home"
@@ -335,20 +339,20 @@ const SearchForm = () => {
                 aria-labelledby="home-tab"
               >
 
-                <div className='flex items-center gap-4 border-b pt-4 pb-12 border-gray-200' >
-                  <ul className='flex items-center gap-4'>
-                    <li className='flex px-4 rounded-3xl hover:bg-gray-200 py-2 cursor-pointer'>
+                <div className='flex flex-col lg:flex-row items-start lg:items-center gap-4 border-b pt-4 pb-8 md:pb-12 border-gray-200' >
+                  <ul className='flex flex-wrap items-center gap-2 md:gap-4 text-sm md:text-base'>
+                    <li className='flex px-2 md:px-4 rounded-3xl hover:bg-gray-200 py-1 md:py-2 cursor-pointer'>
                       <label className='cursor-pointer'>
                         <input type="radio" name="trip" id="" defaultChecked="" className='mr-2' />{" "}
                         One Way
                       </label>
                     </li>
-                    <li className='flex px-4 rounded-3xl hover:bg-gray-200 py-2'>
+                    <li className='flex px-2 md:px-4 rounded-3xl hover:bg-gray-200 py-1 md:py-2'>
                       <label className='cursor-pointer'>
                         <input type="radio" name="trip" id="" className='mr-2' /> Round Trip
                       </label>
                     </li>
-                    <li className='flex px-4 rounded-3xl hover:bg-gray-200 py-2'>
+                    <li className='flex px-2 md:px-4 rounded-3xl hover:bg-gray-200 py-1 md:py-2'>
                       <label className='cursor-pointer'>
                         <input type="radio" name="trip" id="" className='mr-2' /> Multi City
                       </label>
@@ -357,62 +361,62 @@ const SearchForm = () => {
                 </div>
 
                 {/* FORM SUBMIT SECTIONS  */}
-                <div className=' flex items-center gap-4 border-b border-gray-200'>
-                  <div className='w-1/2'>
-                    <div className='flex items-center gap-4'>
-                      <div className='w-1/2'>
-                        <button className='text-left bg-white rounded-md p-4 w-full'>
-                          <h6>FROM</h6>
-                          <h2 className='text-2xl font-bold'>Mumbai</h2>
+                <div className='flex flex-col lg:flex-row items-stretch lg:items-center gap-4 border-b border-gray-200'>
+                  <div className='w-full lg:w-1/2'>
+                    <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-4'>
+                      <div className='w-full sm:w-1/2'>
+                        <button className='text-left bg-white rounded-md p-3 md:p-4 w-full h-full'>
+                          <h6 className='text-xs md:text-sm'>FROM</h6>
+                          <h2 className='text-lg md:text-2xl font-bold'>Mumbai</h2>
                           <p className='text-xs text-gray-500 truncate'>[BOM] Chhatrapati Shivaji International</p>
                         </button>
                       </div>
-                      <div className='w-1/2'>
-                        <button className='text-left bg-white rounded-md p-4 w-full'>
-                          <h6>To</h6>
-                          <h2 className='text-2xl font-bold'>New Delhi</h2>
+                      <div className='w-full sm:w-1/2'>
+                        <button className='text-left bg-white rounded-md p-3 md:p-4 w-full h-full'>
+                          <h6 className='text-xs md:text-sm'>To</h6>
+                          <h2 className='text-lg md:text-2xl font-bold'>New Delhi</h2>
                           <p className='text-xs text-gray-500 truncate'>[DEL] Indira Gandhi International</p>
                         </button>
                       </div>
                     </div>
                   </div>
-                  <div className='w-1/2'>
-                    <div className='flex items-center gap-4'>
-                      <div className='w-1/3'>
-                        <button className='text-left bg-white rounded-md p-4 w-full'>
-                          <h6>DEPART</h6>
-                          <h2 className='text-xl font-bold'>
+                  <div className='w-full lg:w-1/2'>
+                    <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-4'>
+                      <div className='w-full sm:w-1/3'>
+                        <button className='text-left bg-white rounded-md p-3 md:p-4 w-full h-full'>
+                          <h6 className='text-xs md:text-sm'>DEPART</h6>
+                          <h2 className='text-lg md:text-xl font-bold'>
                             16 <span className='text-black'>Jul'25</span>
                           </h2>
                           <p className='text-xs text-gray-500 truncate'>Wednesday</p>
                         </button>
                       </div>
-                      <div className='w-1/3'>
-                        <button className='text-left bg-white rounded-md p-4 w-full'>
-                          <h6>RETURN</h6>
-                          <h2 className='text-xl font-bold'>
+                      <div className='w-full sm:w-1/3'>
+                        <button className='text-left bg-white rounded-md p-3 md:p-4 w-full h-full'>
+                          <h6 className='text-xs md:text-sm'>RETURN</h6>
+                          <h2 className='text-lg md:text-xl font-bold'>
                             16 <span className='text-black'>Jul'25</span>
                           </h2>
                           <p className='text-xs text-gray-500 truncate'>Tuesday</p>
                         </button>
                       </div>
-                      <div className='w-1/3'>
-                        <button className='text-left bg-white rounded-md p-4 w-full'>
-                          <h6>Travellers</h6>
-                          <h2 className='text-xl text-center justify-center items-center flex gap-1 font-bold'>
+                      <div className='w-full sm:w-1/3'>
+                        <button className='text-left bg-white rounded-md p-3 md:p-4 w-full h-full'>
+                          <h6 className='text-xs md:text-sm'>Travellers</h6>
+                          <h2 className='text-lg md:text-xl text-center justify-center items-center flex gap-1 font-bold'>
                             2 <span className='text-black'>{" "} Travellers</span>
                           </h2>
                           <p className='text-xs text-gray-500 truncate'>Economy</p>
                         </button>
                       </div>
-                      <div className='w-1/3'>
-                        <button className='bg-[#f48f22] text-white rounded-md px-12 py-3 w-full'>Search</button>
+                      <div className='w-full sm:w-1/3'>
+                        <button className='bg-[#f48f22] text-white rounded-md px-6 md:px-12 py-3 w-full text-sm md:text-base'>Search</button>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div>
-                  <ul className='flex items-center gap-4 py-8 px-4'>
+                  <ul className='flex flex-wrap items-center gap-2 md:gap-4 py-4 md:py-8 px-2 md:px-4 text-xs md:text-sm'>
                     <li className='flex items-center gap-2'>
                       <label>
                         <input type="checkbox" name="" id="" /> Direct Flights
@@ -443,6 +447,7 @@ const SearchForm = () => {
           </div>
         </div>
       </div>
+
     </section>
   );
 };
