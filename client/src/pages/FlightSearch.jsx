@@ -10,6 +10,7 @@ import StayCard from '../components/StayCard'
 import RedefineTravel from '../components/RedefineTravel'
 import MagicCard from '../components/MagicCard'
 import FlightLogos from '../components/FlightLogos'
+import AppAvailableComponent from '../components/AppAvailableComponent'
 
 const FlightSearch = () => {
   return (
@@ -52,6 +53,10 @@ const FlightSearch = () => {
       <div className='max-w-7xl h-full mx-auto  '>
         <FlightLogos />
       </div>
+      <div className='w-full min-w-7xl max-w-7xl h-full mx-auto mb-12 '>
+        <AppAvailableComponent />
+      </div>
+   
     </div>
   )
 }
