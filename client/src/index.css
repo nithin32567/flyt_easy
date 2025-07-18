@@ -45,3 +45,16 @@
   -ms-transform: translate(-50%, -50%);
   text-align: center;
 }
+
+/* Swiper pagination styles */
+.airline-logos-swiper .swiper-pagination-bullet {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 0 !important;
+  background-color: #ccc !important;
+  opacity: 1 !important;
+}
+
+.airline-logos-swiper .swiper-pagination-bullet-active {
+  background-color: #000 !important;
+}

@@ -9,6 +9,7 @@ import Card from '../components/Card'
 import StayCard from '../components/StayCard'
 import RedefineTravel from '../components/RedefineTravel'
 import MagicCard from '../components/MagicCard'
+import FlightLogos from '../components/FlightLogos'
 
 const FlightSearch = () => {
   return (
@@ -47,6 +48,9 @@ const FlightSearch = () => {
         <div>
           <CarousalCites Card={MagicCard} />
         </div>
+      </div>
+      <div className='max-w-7xl h-full mx-auto  '>
+        <FlightLogos />
       </div>
     </div>
   )
