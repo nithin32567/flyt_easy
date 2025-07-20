@@ -20,6 +20,15 @@ const App = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
 
   useEffect(() => {
+    const fetchSignature = async () => {
+      const response = await fetch("http://localhost:3000/api/signature");
+      const data = await response.json();
+      console.log(data, "data");
+    };
+    fetchSignature();
+  }, []);
+
+  useEffect(() => {
     window.addEventListener("scroll", () => {
       setScrollPosition(window.scrollY);
     });
