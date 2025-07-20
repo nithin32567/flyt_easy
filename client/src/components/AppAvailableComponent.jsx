@@ -1,60 +1,69 @@
-import React from 'react'
-import googleplay from '../assets/img/googleplay.png'
-import appstore from '../assets/img/appstore.png'
-import qrcode from '../assets/img/qr-code.jpg'
+import React from 'react';
+import googleplay from '../assets/img/googleplay.png';
+import appstore from '../assets/img/appstore.png';
+import qrcode from '../assets/img/qr-code.jpg';
 
 const AppAvailableComponent = () => {
     return (
-        <div className="border-2 border-orange-400 rounded-lg p-8 md:p-12 w-full my-12 bg-white shadow-sm">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-                {/* Left Section - Text and Mobile Input */}
-                <div className="flex flex-col items-start justify-start gap-6 flex-1">
-                    <div className="space-y-2">
-                        <h3 className='text-2xl md:text-3xl font-extrabold text-gray-800 leading-tight'>
-                            Plan, Book &amp; Travel On-the-Go <br />
-                            Get the App Now!
-                        </h3>
-                        <p className='text-lg font-semibold text-orange-500'>
-                            Get the App Now!
-                        </p>
-                    </div>
+        <section className=" px-4 md:px-8 lg:px-16 my-12">
+            <div className="w-full bg-white border-2 border-orange-400 rounded-lg shadow-sm p-6 md:p-12">
+                <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-10">
+                    {/* Left Content */}
+                    <div className="w-full lg:w-1/2 flex flex-col gap-6">
+                        <div className="space-y-2">
+                            <h3 className="text-2xl md:text-3xl font-extrabold text-gray-800 leading-tight">
+                                Plan, Book & Travel On-the-Go
+                            </h3>
+                            <p className="text-lg font-semibold text-orange-500">
+                                Get the App Now!
+                            </p>
+                        </div>
 
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-start gap-4 w-full max-w-md">
-                        <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
                             <input
-                                className='border border-gray-300 py-3 px-4 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent'
                                 type="text"
                                 placeholder="Enter Your Mobile Number"
+                                className="w-full border border-gray-300 py-3 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-400"
                             />
-                        </div>
-                        <div className="w-full sm:w-auto">
-                            <button className='bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-md transition-colors duration-200 w-full sm:w-auto'>
+                            <button className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-md transition-colors duration-200">
                                 SEND
                             </button>
                         </div>
                     </div>
-                </div>
 
-                {/* Right Section - App Store Buttons and QR Code */}
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-6 lg:gap-8">
-                    <div className="flex flex-col gap-4">
-                        <a href="#" className="transition-transform duration-200 hover:scale-105">
-                            <img className='w-[160px] md:w-[185px] h-auto' src={googleplay} alt="Google Play" />
-                        </a>
-                        <a href="#" className="transition-transform duration-200 hover:scale-105">
-                            <img className='w-[160px] md:w-[185px] h-auto' src={appstore} alt="App Store" />
-                        </a>
-                    </div>
+                    {/* Right Content */}
+                    <div className="w-full lg:w-1/2 flex flex-col sm:flex-row items-center justify-center gap-6">
+                        {/* Store Buttons */}
+                        <div className="flex flex-col gap-4">
+                            <a href="#" className="transition-transform hover:scale-105">
+                                <img
+                                    src={googleplay}
+                                    alt="Google Play"
+                                    className="w-[160px] md:w-[185px] h-auto"
+                                />
+                            </a>
+                            <a href="#" className="transition-transform hover:scale-105">
+                                <img
+                                    src={appstore}
+                                    alt="App Store"
+                                    className="w-[160px] md:w-[185px] h-auto"
+                                />
+                            </a>
+                        </div>
 
-                    <div className="flex items-center justify-center">
+                        {/* QR Code */}
                         <div className="bg-white p-2 rounded-lg shadow-sm">
-                            <img className='w-[100px] md:w-[125px] h-auto object-cover' src={qrcode} alt="QR Code" />
+                            <img
+                                src={qrcode}
+                                alt="QR Code"
+                                className="w-[100px] md:w-[125px] h-auto object-cover"
+                            />
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    )
-}
+        </section>
+    );
+};
 
-export default AppAvailableComponent
+export default AppAvailableComponent;

@@ -297,7 +297,7 @@ const SearchForm = () => {
   }
   return (
     <section>
-      <div className='max-w-7xl mx-auto px-4 md:px-0'>
+      <div className='max-w-[90%] mx-auto px-4 md:px-0'>
         <div className='bg-white rounded-md shadow-md'>
           <ul className='flex flex-col sm:flex-row bg-gray-200 items-center gap-2 sm:gap-4 py-4 rounded-t-md px-4 md:px-8' id="myTab" role="tablist">
             <li className='flex items-center gap-2 w-full sm:w-auto justify-center' role="presentation">

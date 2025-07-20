@@ -20,7 +20,7 @@ const FlightSearch = () => {
         <Demobanner />
       </div>
 
-      <div className='flex flex-col  max-w-7xl h-full mx-auto    px-4 md:px-0'>
+      <div className='flex flex-col  max-w-[95%] h-full mx-auto    px-4 md:px-0'>
         <div className="flex items-center justify-between">
           <h3 className='text-3xl font-extrabold'>Hot Deals on the Move!</h3>
           <button className='text-sm text-orange-600'>View All</button>
@@ -29,7 +29,7 @@ const FlightSearch = () => {
           <CarousalCites Card={Card} />
         </div>
       </div>
-      <div className='flex flex-col  max-w-7xl h-full mx-auto    px-4 md:px-0'>
+      <div className='flex flex-col  max-w-[95%] h-full mx-auto    px-4 md:px-0'>
         <div className="flex items-center justify-between">
           <h3 className='text-3xl font-extrabold'>Stays Selected with Care</h3>
           <button className='text-sm text-orange-600'>View All</button>
@@ -38,10 +38,10 @@ const FlightSearch = () => {
           <CarousalCites Card={StayCard} />
         </div>
       </div>
-      <div className=' max-w-7xl h-full mx-auto    px-4 md:px-0 mb-10'>
+      <div className=' max-w-[95%] h-full mx-auto    px-4 md:px-0 mb-10'>
         <RedefineTravel />
       </div>
-      <div className='flex flex-col  max-w-7xl h-full mx-auto    px-4 md:px-0'>
+      <div className='flex flex-col  max-w-[95%] h-full mx-auto    px-4 md:px-0'>
         <div className="flex items-center justify-between">
           <h3 className='text-3xl font-extrabold'>Unveil the Magic of India</h3>
           <button className='text-sm text-orange-600'>View All</button>
@@ -50,13 +50,13 @@ const FlightSearch = () => {
           <CarousalCites Card={MagicCard} />
         </div>
       </div>
-      <div className='max-w-7xl h-full mx-auto  '>
+      <div className='max-w-[95%] h-full mx-auto  '>
         <FlightLogos />
       </div>
-      <div className='w-full min-w-7xl max-w-7xl h-full mx-auto mb-12 '>
+      <div className='w-full min-w-[95%] max-w-[95%] h-full mx-auto mb-12 '>
         <AppAvailableComponent />
       </div>
-   
+
     </div>
   )
 }

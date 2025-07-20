@@ -12,7 +12,7 @@ const Dmo = () => {
             <section className="header-wrapper-div">
                 <div className="header-topsection">
                     <div className="container">
-                        <div className="row">
+                    <div className="row">
                             <div className="col-lg-6 col-md-6">
                                 <p>Book flights &amp; hotels in seconds</p>
                             </div>
