@@ -25,6 +25,7 @@ const SearchForm = () => {
   const [label, setLabel] = useState("From");
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+
   const [isCalanderModalOpen, setIsCalanderModalOpen] = useState(false);
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const token = localStorage.getItem("token");
@@ -32,26 +33,30 @@ const SearchForm = () => {
   const [departureDate, setDepartureDate] = useState(new Date());
   const [returnDate, setReturnDate] = useState(new Date());
 
-  console.log(departureDate, "departureDate");
-  console.log(returnDate, "returnDate");
-
   const [dateType, setDateType] = useState("departure");
-
-  async function fetchAirports() {
-    try {
-      const response = await fetch(`${baseUrl}/api/airport`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await response.json();
-      setAirports(data);
-      // console.log(data, 'from the backend=========================');
-    } catch (error) {
-      console.error("Error fetching airports:", error);
+  // fetch  airports
+  useEffect(() => {
+    async function fetchAirports() {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/api/airport`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setAirports(data);
+        // console.log(data, 'from the backend=========================');
+      } catch (error) {
+        console.error("Error fetching airports:", error);
+      }
     }
-  }
+    fetchAirports();
+  }, []);
 
+  // !Express Search
   async function handleExpressSearch(e) {
     e.preventDefault();
 
@@ -68,7 +73,7 @@ const SearchForm = () => {
     }
 
     setIsSearching(true);
-    const clientId = localStorage.getItem("clientId");
+    const clientId = localStorage.getItem("ClientID");
     const payload = {
       ADT: adults,
       CHD: children,
@@ -91,23 +96,26 @@ const SearchForm = () => {
         {
           From: from.Code,
           To: to.Code,
-          OnwardDate: departureDate,
-          ReturnDate: returnDate,
+          OnwardDate: departureDate.toISOString().split('T')[0],
+          ReturnDate: returnDate.toISOString().split('T')[0],
           TUI: "",
         },
       ],
     };
+    console.log(payload, "payload to the backend========================= 221");
     localStorage.setItem("searchPayload", JSON.stringify(payload));
-    // console.log(payload, "payload to searchPayload local storage");
     try {
-      const response = await fetch(`${baseUrl}/api/flight/express-search`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/flight/express-search`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
       const data = await response.json();
       console.log(data, "data from the backend========================= 221");
       localStorage.setItem("expressSearchTUI", data.TUI);
@@ -192,6 +200,13 @@ const SearchForm = () => {
     } finally {
       setIsSearching(false);
     }
+  }
+
+  function handleApplyTraveller(data) {
+    setAdults(data.adults);
+    setChildren(data.children);
+    setInfants(data.infants);
+    setTravelClass(data.travelClass);
   }
 
   return (
@@ -316,10 +331,10 @@ const SearchForm = () => {
                         <button className="text-left bg-white rounded-md p-3 md:p-4 w-full h-full cursor-pointer hover:bg-gray-100">
                           <h6 className="text-xs md:text-sm">FROM</h6>
                           <h2 className="text-lg md:text-2xl font-bold">
-                            Mumbai
+                            {from?.Name || "Mumbai"} {from?.Code || "BOM"}
                           </h2>
                           <p className="text-xs text-gray-500 truncate">
-                            [BOM] Chhatrapati Shivaji International
+                            [{from?.Code || "BOM"}] {from?.Name || "Mumbai"}
                           </p>
                         </button>
                       </div>
@@ -333,10 +348,10 @@ const SearchForm = () => {
                         <button className="text-left bg-white rounded-md p-3 md:p-4 w-full h-full cursor-pointer hover:bg-gray-100">
                           <h6 className="text-xs md:text-sm">To</h6>
                           <h2 className="text-lg md:text-2xl font-bold">
-                            New Delhi
+                            {to?.Name || "New Delhi"} {to?.Code || "DEL"}
                           </h2>
                           <p className="text-xs text-gray-500 truncate">
-                            [DEL] Indira Gandhi International
+                            [{to?.Code || "DEL"}] {to?.Name || "New Delhi"}
                           </p>
                         </button>
                       </div>
@@ -395,15 +410,19 @@ const SearchForm = () => {
                         <button className="text-left bg-white rounded-md p-3 md:p-4 w-full h-full">
                           <h6 className="text-xs md:text-sm">Travellers</h6>
                           <h2 className="text-lg md:text-xl text-left justify-start items-center flex gap-1 font-bold">
-                            0 <span className="text-black"> Travellers</span>
+                            {adults + children + infants}{" "}
+                            <span className="text-black"> Travellers</span>
                           </h2>
                           <p className="text-xs text-gray-500 truncate">
-                            Economy
+                            {travelClass}
                           </p>
                         </button>
                       </div>
                       <div className="w-full sm:w-1/3">
-                        <button className="bg-[#f48f22] text-white rounded-md px-6 md:px-12 py-3 w-full text-sm md:text-base">
+                        <button
+                          onClick={handleExpressSearch}
+                          className="bg-[#f48f22] font-semibold text-white rounded-md px-6 md:px-12 py-3 w-full text-sm md:text-base"
+                        >
                           Search
                         </button>
                       </div>
@@ -445,7 +464,7 @@ const SearchForm = () => {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         airports={airports}
-        onSelect={setFrom}
+        onSelect={label === "From" ? setFrom : setTo}
         label={label}
       />
       <TravellerAddModal
@@ -453,6 +472,7 @@ const SearchForm = () => {
         setIsOpen={setTravellerModalOpen}
         // onApply={handleApplyTraveller}
         initial={{ adults, children, infants, travelClass }}
+        onApply={handleApplyTraveller}
       />
       {/* !calander modal */}
       {isCalanderModalOpen && (

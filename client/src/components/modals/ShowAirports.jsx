@@ -11,6 +11,11 @@ const ShowAirports = ({ isOpen, setIsOpen, airports, label, onSelect }) => {
       a.Code.toLowerCase().includes(search.toLowerCase())
   );
 
+  function handleSelect(a) {
+    onSelect(a);
+    setIsOpen(false);
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -37,10 +42,7 @@ const ShowAirports = ({ isOpen, setIsOpen, airports, label, onSelect }) => {
             <div
               key={a.Code}
               className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
-              onClick={() => {
-                onSelect(a);
-                onClose();
-              }}
+              onClick={() => handleSelect(a)}
             >
               <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold w-12 text-center">
                 {a.Code}

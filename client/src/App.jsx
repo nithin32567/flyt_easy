@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
+// import Login from "./pages/Login";
 import FlightSearch from "./pages/FlightSearch";
 import FlightListing from "./pages/FlightListing";
 import OneWayReview from "./pages/OneWayReview";
@@ -21,11 +21,15 @@ const App = () => {
 
   useEffect(() => {
     const fetchSignature = async () => {
-      const response = await fetch("http://localhost:3000/api/signature");
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/signature`
+      );
       const data = await response.json();
       console.log(data, "data");
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("ClientID", data.ClientID);
     };
-    fetchSignature();
+    // fetchSignature();
   }, []);
 
   useEffect(() => {
@@ -51,8 +55,8 @@ const App = () => {
 
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/search" element={<FlightSearch />} />
+          {/* <Route path="/" element={<Login />} /> */}
+          <Route path="/" element={<FlightSearch />} />
           <Route path="/flight-listing" element={<FlightListing />} />
           <Route path="/one-way-review" element={<OneWayReview />} />
           <Route path="/pax-details" element={<PaxDetails />} />

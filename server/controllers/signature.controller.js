@@ -1,6 +1,7 @@
 // import axios from "axios";
 
 export const generateToken = async (req, res) => {
+  console.log("generateToken");
   try {
     const payload = {
       MerchantID: process.env.MERCHANT_ID,
