@@ -2,8 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import indexRoutes from "./routes/index.routes.js";
-import hotelRoutes from "./routes/hotel.routes.js";
-import razorpayRoutes from "./routes/razorpay.routes.js";
+import hotelBookingRoutes from "./routes/hotelBooking.routes.js";
 import cors from "cors";
 import morgan from "morgan";
 import path from "path";
@@ -17,7 +16,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan("dev"));
 
-const allowedOrigins = ["http://localhost:5173", "http://147.93.18.244:5173"];
+const allowedOrigins = [
+  "http://localhost:5173", // for local development only
+  "http://147.93.18.244", // VPS static hosting via IP
+  "https://your-domain.com", // optional domain (if mapped via DNS)
+];
 
 app.use(
   cors({

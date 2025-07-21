@@ -8,7 +8,7 @@ import {
   bookHotel,
   getHotelBooking,
   startHotelPayment,
-  cancelHotelBooking
+  cancelHotelBooking,
 } from "../controllers/hotel.controller.js";
 
 const router = express.Router();
@@ -34,4 +34,4 @@ router.post("/payment", authenticateToken, startHotelPayment);
 // Hotel Cancellation API
 router.post("/cancel", authenticateToken, cancelHotelBooking);
 
-export default router; 
+export default router;
