@@ -21,6 +21,11 @@ export const generateToken = async (req, res) => {
     const data = await response.json();
     const token = data?.Token;
     console.log(token, "token");
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
     if (!token) {
       return res
         .status(401)

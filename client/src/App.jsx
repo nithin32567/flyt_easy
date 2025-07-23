@@ -25,11 +25,11 @@ const App = () => {
         `${import.meta.env.VITE_BASE_URL}/api/signature`
       );
       const data = await response.json();
-      console.log(data, "data");
+      // console.log(data, "data");
       localStorage.setItem("token", data.token);
       localStorage.setItem("ClientID", data.ClientID);
     };
-    // fetchSignature();
+    fetchSignature();
   }, []);
 
   useEffect(() => {

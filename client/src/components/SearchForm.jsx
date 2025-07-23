@@ -8,13 +8,14 @@ import ShowAirports from "./modals/ShowAirports";
 import TravellerAddModal from "./modals/TravellerAddModal";
 import { CalanderModal } from "./modals/CalanderModal";
 import { setDate } from "date-fns";
+import axios from "axios";
 
 const SearchForm = () => {
   const [isActiveFlightTab, setIsActiveFlightTab] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [tripType, setTripType] = useState("ON");
-  const [from, setFrom] = useState(null);
-  const [to, setTo] = useState(null);
+  const [from, setFrom] = useState("BOM");
+  const [to, setTo] = useState("DEL");
   const [travelClass, setTravelClass] = useState("Economy");
   const [airports, setAirports] = useState([]);
   const [travellerModalOpen, setTravellerModalOpen] = useState(false);
@@ -25,10 +26,12 @@ const SearchForm = () => {
   const [label, setLabel] = useState("From");
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const token = localStorage.getItem("token");
+  // console.log(token, "token========================= 221");
 
   const [isCalanderModalOpen, setIsCalanderModalOpen] = useState(false);
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
   // !calander date state
   const [departureDate, setDepartureDate] = useState(new Date());
   const [returnDate, setReturnDate] = useState(new Date());
@@ -39,12 +42,8 @@ const SearchForm = () => {
     async function fetchAirports() {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/api/airport`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          `${import.meta.env.VITE_BASE_URL}/api/flights/airports`,
+
         );
         const data = await response.json();
         setAirports(data);
@@ -74,6 +73,7 @@ const SearchForm = () => {
 
     setIsSearching(true);
     const clientId = localStorage.getItem("ClientID");
+    console.log(clientId, "clientId=========================");
     const payload = {
       ADT: adults,
       CHD: children,
@@ -82,8 +82,8 @@ const SearchForm = () => {
         travelClass === "Economy"
           ? "E"
           : travelClass === "Premium Economy"
-          ? "PE"
-          : "B",
+            ? "PE"
+            : "B",
       Source: "CF",
       Mode: "AS",
       ClientID: clientId,
@@ -94,30 +94,35 @@ const SearchForm = () => {
       TUI: "",
       Trips: [
         {
-          From: from.Code,
-          To: to.Code,
+          From: from,
+          To: to,
           OnwardDate: departureDate.toISOString().split('T')[0],
           ReturnDate: returnDate.toISOString().split('T')[0],
           TUI: "",
         },
       ],
+      token: token
     };
     console.log(payload, "payload to the backend========================= 221");
     localStorage.setItem("searchPayload", JSON.stringify(payload));
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/flight/express-search`,
+        `${import.meta.env.VITE_BASE_URL}/api/flights/express-search`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
+          token: token
         }
       );
       const data = await response.json();
       console.log(data, "data from the backend========================= 221");
+      const TUI = data.TUI
+      console.log(TUI, "TUI=========================");
+      localStorage.setItem("expressSearchTUI", TUI);
       localStorage.setItem("expressSearchTUI", data.TUI);
       if (data.success && data.data?.TUI) {
         console.log(
@@ -133,14 +138,14 @@ const SearchForm = () => {
           while (Date.now() - startTime < timeout) {
             try {
               const expSearchRes = await fetch(
-                `${baseUrl}/api/flight/get/getExpSearch`,
+                `${baseUrl}/api/flights/get-exp-search`,
                 {
                   method: "POST",
                   headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({ TUI: data.data.TUI }),
+                  body: TUI,
                 }
               );
 
@@ -195,12 +200,19 @@ const SearchForm = () => {
         // Start polling
         await pollGetExpSearch();
       }
+
+
+
+
     } catch (error) {
       console.log(error, "error from the backend=========================");
     } finally {
       setIsSearching(false);
     }
   }
+
+
+
 
   function handleApplyTraveller(data) {
     setAdults(data.adults);
@@ -224,9 +236,8 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(true)}
-                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4  ${
-                  isActiveFlightTab ? "bg-white" : "bg-gray-200"
-                }`}
+                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4  ${isActiveFlightTab ? "bg-white" : "bg-gray-200"
+                  }`}
                 id="home-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#home"
@@ -250,9 +261,8 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(false)}
-                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4 ${
-                  !isActiveFlightTab ? "bg-white" : "bg-gray-200"
-                }`}
+                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4 ${!isActiveFlightTab ? "bg-white" : "bg-gray-200"
+                  }`}
                 id="profile-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#profile"

@@ -6,6 +6,7 @@ import hotelBookingRoutes from "./routes/hotelBooking.routes.js";
 import cors from "cors";
 import morgan from "morgan";
 import path from "path";
+import cookieParser from "cookie-parser";
 dotenv.config();
 connectDB();
 const __dirname = path.resolve();
@@ -13,7 +14,7 @@ const __dirname = path.resolve();
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 app.use(morgan("dev"));
 
 const allowedOrigins = [

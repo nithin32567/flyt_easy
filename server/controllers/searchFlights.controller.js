@@ -2,7 +2,8 @@
 import axios from "axios";
 
 export const expressSearchFlights = async (req, res) => {
-  // console.log('callingggg ===============================5 express search');
+
+  console.log('callingggg ===============================5 express search');
 
   try {
     const {
@@ -20,10 +21,12 @@ export const expressSearchFlights = async (req, res) => {
       IsRefundable,
       preferedAirlines,
       TUI,
+      token
     } = req.body;
+    console.log(token, "token========================= 221");
     // console.log(req.body, "body==========================================24 express search paylod from backend");
 
-    if (!req.clientId) {
+    if (!ClientID) {
       return res.status(401).json({
         success: false,
         message: "Unauthorized: Missing ClientID or Token",
@@ -32,29 +35,39 @@ export const expressSearchFlights = async (req, res) => {
 
     // Only send required fields to upstream API
     const payload = {
-      ADT: Number(ADT),
-      CHD: Number(CHD),
-      INF: Number(INF),
-      SecType: "",
-      Cabin: Cabin || "E",
-      Source: Source || "CF",
-      Mode: Mode || "AS",
+
+      FareType: FareType,
+      ADT: ADT,
+      CHD: CHD,
+      INF: INF,
+      Cabin: Cabin,
+      Source: Source,
+      Mode: Mode,
       ClientID: ClientID,
-      FareType: FareType || "ON",
       IsMultipleCarrier: IsMultipleCarrier || false,
-      IsRefundable: IsRefundable || false,
-      preferedAirlines: preferedAirlines || null,
-      TUI: TUI || "",
-      Trips,
+      IsRefundable: IsRefundable,
+      preferedAirlines: preferedAirlines,
+      TUI: TUI,
+      SecType: "",
+      Trips: [
+        {
+          From: Trips[0].From,
+          To: Trips[0].To,
+          ReturnDate: Trips[0].ReturnDate || "",
+          OnwardDate: "",
+          TUI: Trips[0].TUI || ""
+        }
+      ],
       Parameters: {
-        Airlines: Parameters?.Airlines || "",
-        GroupType: Parameters?.GroupType || "",
-        Refundable: Parameters?.Refundable || "",
-        IsDirect: Parameters?.IsDirect || false,
-        IsStudentFare: Parameters?.IsStudentFare || false,
-        IsNearbyAirport: Parameters?.IsNearbyAirport || false,
-        IsExtendedSearch: Parameters?.IsExtendedSearch || false,
-      },
+        Airlines: "",
+        GroupType: "",
+        Refundable: "",
+        IsDirect: false,
+        IsStudentFare: false,
+        IsNearbyAirport: true,
+        IsExtendedSearch: false
+      }
+
     };
 
     console.log(
@@ -69,8 +82,8 @@ export const expressSearchFlights = async (req, res) => {
         body: JSON.stringify(payload),
         method: "POST",
         headers: {
-          Authorization: `Bearer ${req.token}`,
-          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          "content-type": "application/json",
         },
       }
     );
@@ -112,7 +125,7 @@ export const expressSearchFlights = async (req, res) => {
 export const getExpSearchFlights = async (req, res) => {
   // console.log('callingggg ===============================5 get exp search');
 
-  const { TUI } = req.body;
+  const { TUI, token } = req.body;
   console.log(
     TUI,
     "TUI====================== getExpSearchFlights controller======================="
@@ -130,7 +143,7 @@ export const getExpSearchFlights = async (req, res) => {
         body: JSON.stringify(payload),
         method: "POST",
         headers: {
-          Authorization: `Bearer ${req.token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
