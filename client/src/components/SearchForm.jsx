@@ -64,6 +64,7 @@ const SearchForm = () => {
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-exp-search`,
         {
           TUI,
+
           token,
         }
       );
@@ -72,6 +73,14 @@ const SearchForm = () => {
         response,
         "response from the backend========================="
       );
+      if (response.statusText === "OK") {
+        console.log("inside the if condition")
+        const trips = response.data.data.Trips
+        console.log(trips, "trips=========================")
+        localStorage.setItem("trips", JSON.stringify(trips))
+        navigate("/flight-list")
+      }
+
     } catch (error) {
       console.log(error, "error from the backend=========================");
     }
@@ -145,12 +154,12 @@ const SearchForm = () => {
         }
       );
       const data = await response.json();
-      console.log(data, "data from the backend========================= 221"); 
+      console.log(data, "data from the backend========================= 221");
       const TUI = data.TUI;
       await getExpSearch(TUI);
       console.log(TUI, "TUI=========================");
-      localStorage.setItem("expressSearchTUI", TUI);
-      localStorage.setItem("expressSearchTUI", data.TUI);
+      localStorage.setItem("searchTUI", TUI);
+      localStorage.setItem("searchTUI", data.TUI);
       if (data.success && data.data?.TUI) {
         console.log(
           "success and calling the getExpSearch================== 212"

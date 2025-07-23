@@ -174,7 +174,7 @@ export const getExpSearchFlights = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "ExpSearch fetched successfully",
+      message: "GETExpSearch fetched successfully",
       data: data,
     });
 

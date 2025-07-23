@@ -58,7 +58,7 @@ const App = () => {
         <Routes>
           {/* <Route path="/" element={<Login />} /> */}
           <Route path="/" element={<FlightSearch />} />
-          <Route path="/flight-listing" element={<ListFlights />} />
+          <Route path="/flight-list" element={<ListFlights />} />
           <Route path="/one-way-review" element={<OneWayReview />} />
           <Route path="/pax-details" element={<PaxDetails />} />
           <Route path="/luggage" element={<Luggage />} />
