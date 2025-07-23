@@ -30,6 +30,7 @@ const corsOptions = {
     } else {
       callback(new Error("Not allowed by CORS"));
     }
+    
   },
   credentials: true, // enable if using cookies/JWT headers
 };

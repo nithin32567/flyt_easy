@@ -22,7 +22,7 @@ export const expressSearchFlights = async (req, res) => {
       TUI,
       token,
     } = req.body;
-    console.log(Trips,'trips')
+    console.log(Trips, 'trips')
     console.log(token, "token========================= 221");
     // console.log(req.body, "body==========================================24 express search paylod from backend");
 
@@ -52,8 +52,8 @@ export const expressSearchFlights = async (req, res) => {
         {
           From: Trips[0].From,
           To: Trips[0].To,
-          ReturnDate: Trips[0].ReturnDate || "",
-          OnwardDate: "",
+          ReturnDate: FareType === "ON" ? "" : Trips[0].ReturnDate,
+          OnwardDate: Trips[0].OnwardDate,
           TUI: Trips[0].TUI || "",
         },
       ],
@@ -122,27 +122,68 @@ export const expressSearchFlights = async (req, res) => {
 
 export const getExpSearchFlights = async (req, res) => {
   const { token, TUI } = req.body;
-  const pollUntilCompleted = async () => {
-    console.log("poll started ================================");
-    try {
-      const response = await axios.post(
-        `${process.env.FLIGHT_URL}/flights/GetExpSearch`,
-        {
-          TUI,
-          token,
-        }
-      );
-      console.log(
-        response,
-        "response from the backend========================="
-      );
-    } catch (error) {
-      console.log(error, "error from the backend=========================");
-    }
+
+  if (!token || !TUI) {
+    return res.status(400).json({
+      success: false,
+      message: "Token and TUI are required",
+    });
+  }
+
+  const body = {
+    ClientID: "", // Ensure this is dynamically set or configured as needed
+    TUI: TUI
   };
-  pollUntilCompleted();
-  return res.status(200).json({
-    success: true,
-    message: "Poll started",
-  });
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  const maxRetries = 20;      // Total attempts
+  const delayMs = 1000;       // 1 second between attempts
+
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  try {
+    const pollExpSearch = async (retries = 0) => {
+      const response = await fetch(`${process.env.FLIGHT_URL}/flights/GetExpSearch`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (data.Completed === "True") {
+        return data;
+      }
+
+      if (retries >= maxRetries) {
+        throw new Error("Polling timed out: Max retries reached without completion.");
+      }
+
+      // Wait and retry
+      await sleep(delayMs);
+      return pollExpSearch(retries + 1);
+    };
+
+    const data = await pollExpSearch();
+
+    console.log(data, "data from the backend========================= poll");
+
+    return res.status(200).json({
+      success: true,
+      message: "ExpSearch fetched successfully",
+      data: data,
+    });
+
+  } catch (error) {
+    console.error(error, "error from the backend========================= poll");
+    return res.status(500).json({
+      success: false,
+      message: "ExpSearch fetch failed",
+      error: error.message || error,
+    });
+  }
 };

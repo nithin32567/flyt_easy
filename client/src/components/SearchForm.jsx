@@ -58,7 +58,7 @@ const SearchForm = () => {
     fetchAirports();
   }, []);
 
-  const getExpSearch = async () => {
+  const getExpSearch = async (TUI) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-exp-search`,
@@ -107,8 +107,8 @@ const SearchForm = () => {
         travelClass === "Economy"
           ? "E"
           : travelClass === "Premium Economy"
-          ? "PE"
-          : "B",
+            ? "PE"
+            : "B",
       Source: "CF",
       Mode: "AS",
       ClientID: localStorage.getItem("ClientID"),
@@ -145,8 +145,9 @@ const SearchForm = () => {
         }
       );
       const data = await response.json();
-      console.log(data, "data from the backend========================= 221");
+      console.log(data, "data from the backend========================= 221"); 
       const TUI = data.TUI;
+      await getExpSearch(TUI);
       console.log(TUI, "TUI=========================");
       localStorage.setItem("expressSearchTUI", TUI);
       localStorage.setItem("expressSearchTUI", data.TUI);
@@ -184,9 +185,8 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(true)}
-                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4  ${
-                  isActiveFlightTab ? "bg-white" : "bg-gray-200"
-                }`}
+                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4  ${isActiveFlightTab ? "bg-white" : "bg-gray-200"
+                  }`}
                 id="home-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#home"
@@ -210,9 +210,8 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(false)}
-                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4 ${
-                  !isActiveFlightTab ? "bg-white" : "bg-gray-200"
-                }`}
+                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4 ${!isActiveFlightTab ? "bg-white" : "bg-gray-200"
+                  }`}
                 id="profile-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#profile"
