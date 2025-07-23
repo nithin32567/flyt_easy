@@ -22,6 +22,7 @@ export const expressSearchFlights = async (req, res) => {
       TUI,
       token,
     } = req.body;
+    console.log(Trips,'trips')
     console.log(token, "token========================= 221");
     // console.log(req.body, "body==========================================24 express search paylod from backend");
 
