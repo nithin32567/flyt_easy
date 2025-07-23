@@ -42,12 +42,11 @@ const SearchForm = () => {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/api/flights/airports`,
-          { 
+          {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
-
         );
         const data = await response.json();
         setAirports(data);
@@ -58,6 +57,25 @@ const SearchForm = () => {
     }
     fetchAirports();
   }, []);
+
+  const getExpSearch = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/flights/get-exp-search`,
+        {
+          TUI,
+          token,
+        }
+      );
+
+      console.log(
+        response,
+        "response from the backend========================="
+      );
+    } catch (error) {
+      console.log(error, "error from the backend=========================");
+    }
+  };
 
   // !Express Search
   async function handleExpressSearch(e) {
@@ -81,7 +99,6 @@ const SearchForm = () => {
 
     setIsSearching(true);
 
-
     const payload = {
       ADT: adults,
       CHD: children,
@@ -90,8 +107,8 @@ const SearchForm = () => {
         travelClass === "Economy"
           ? "E"
           : travelClass === "Premium Economy"
-            ? "PE"
-            : "B",
+          ? "PE"
+          : "B",
       Source: "CF",
       Mode: "AS",
       ClientID: localStorage.getItem("ClientID"),
@@ -102,16 +119,15 @@ const SearchForm = () => {
       TUI: "",
       Trips: [
         {
-
           From: from,
           To: to,
-          OnwardDate: departureDate.toISOString().split('T')[0],
-          ReturnDate: returnDate.toISOString().split('T')[0],
+          OnwardDate: departureDate.toISOString().split("T")[0],
+          ReturnDate: returnDate.toISOString().split("T")[0],
 
           TUI: "",
         },
       ],
-      token: token
+      token: token,
     };
     console.log(payload, "payload to the backend========================= 221");
     localStorage.setItem("searchPayload", JSON.stringify(payload));
@@ -125,12 +141,12 @@ const SearchForm = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-          token: token
+          token: token,
         }
       );
       const data = await response.json();
       console.log(data, "data from the backend========================= 221");
-      const TUI = data.TUI
+      const TUI = data.TUI;
       console.log(TUI, "TUI=========================");
       localStorage.setItem("expressSearchTUI", TUI);
       localStorage.setItem("expressSearchTUI", data.TUI);
@@ -138,91 +154,13 @@ const SearchForm = () => {
         console.log(
           "success and calling the getExpSearch================== 212"
         );
-
-        // Poll GetExpSearch until Completed is 'True' or timeout
-        const pollGetExpSearch = async () => {
-          const startTime = Date.now();
-          const timeout = 50000; // 50 seconds timeout
-          const pollInterval = 2000; // Poll every 2 seconds
-
-          while (Date.now() - startTime < timeout) {
-            try {
-              const expSearchRes = await fetch(
-                `${baseUrl}/api/flights/get-exp-search`,
-                {
-                  method: "POST",
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                  },
-                  body: TUI,
-                }
-              );
-
-              const expSearchData = await expSearchRes.json();
-              console.log(expSearchData, "GetExpSearch Response");
-
-              if (expSearchData.success) {
-                // Check if the search is complete
-                if (expSearchData.data?.Completed === "True") {
-                  console.log("Search completed successfully");
-                  localStorage.setItem(
-                    "getExpSearchTUI",
-                    expSearchData.data.TUI
-                  );
-                  if (expSearchData.data?.Trips?.[0]?.Journey) {
-                    // localStorage.setItem('search-tui', expSearchData.data.TUI);
-                    navigate("/flight-listing", {
-                      state: { flights: expSearchData.data.Trips[0].Journey },
-                    });
-                    return;
-                  } else {
-                    console.error("No flights found in completed search");
-                    alert("No flights found for your search criteria.");
-                    return;
-                  }
-                } else {
-                  console.log(
-                    "Search still in progress (Completed: False), polling again..."
-                  );
-                  // Wait before next poll
-                  await new Promise((resolve) =>
-                    setTimeout(resolve, pollInterval)
-                  );
-                }
-              } else {
-                console.error("GetExpSearch failed:", expSearchData);
-                alert("Search failed. Please try again.");
-                return;
-              }
-            } catch (error) {
-              console.error("Error polling GetExpSearch:", error);
-              alert("Search failed. Please try again.");
-              return;
-            }
-          }
-
-          // Timeout reached
-          console.error("Search timeout - 50 seconds exceeded");
-          alert("Search is taking longer than expected. Please try again.");
-        };
-
-        // Start polling
-        await pollGetExpSearch();
       }
-
-
-
-
     } catch (error) {
       console.log(error, "error from the backend=========================");
     } finally {
       setIsSearching(false);
     }
   }
-
-
-
 
   function handleApplyTraveller(data) {
     setAdults(data.adults);
@@ -246,8 +184,9 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(true)}
-                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4  ${isActiveFlightTab ? "bg-white" : "bg-gray-200"
-                  }`}
+                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4  ${
+                  isActiveFlightTab ? "bg-white" : "bg-gray-200"
+                }`}
                 id="home-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#home"
@@ -271,8 +210,9 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(false)}
-                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4 ${!isActiveFlightTab ? "bg-white" : "bg-gray-200"
-                  }`}
+                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4 ${
+                  !isActiveFlightTab ? "bg-white" : "bg-gray-200"
+                }`}
                 id="profile-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#profile"

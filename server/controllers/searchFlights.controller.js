@@ -2,8 +2,7 @@
 import axios from "axios";
 
 export const expressSearchFlights = async (req, res) => {
-
-  console.log('callingggg ===============================5 express search');
+  console.log("callingggg ===============================5 express search");
 
   try {
     const {
@@ -21,7 +20,7 @@ export const expressSearchFlights = async (req, res) => {
       IsRefundable,
       preferedAirlines,
       TUI,
-      token
+      token,
     } = req.body;
     console.log(token, "token========================= 221");
     // console.log(req.body, "body==========================================24 express search paylod from backend");
@@ -35,7 +34,6 @@ export const expressSearchFlights = async (req, res) => {
 
     // Only send required fields to upstream API
     const payload = {
-
       FareType: FareType,
       ADT: ADT,
       CHD: CHD,
@@ -55,8 +53,8 @@ export const expressSearchFlights = async (req, res) => {
           To: Trips[0].To,
           ReturnDate: Trips[0].ReturnDate || "",
           OnwardDate: "",
-          TUI: Trips[0].TUI || ""
-        }
+          TUI: Trips[0].TUI || "",
+        },
       ],
       Parameters: {
         Airlines: "",
@@ -65,9 +63,8 @@ export const expressSearchFlights = async (req, res) => {
         IsDirect: false,
         IsStudentFare: false,
         IsNearbyAirport: true,
-        IsExtendedSearch: false
-      }
-
+        IsExtendedSearch: false,
+      },
     };
 
     console.log(
@@ -123,50 +120,28 @@ export const expressSearchFlights = async (req, res) => {
 };
 
 export const getExpSearchFlights = async (req, res) => {
-  // console.log('callingggg ===============================5 get exp search');
-
-  const { TUI, token } = req.body;
-  console.log(
-    TUI,
-    "TUI====================== getExpSearchFlights controller======================="
-  );
-
-  const payload = {
-    TUI: TUI,
+  const { token, TUI } = req.body;
+  const pollUntilCompleted = async () => {
+    console.log("poll started ================================");
+    try {
+      const response = await axios.post(
+        `${process.env.FLIGHT_URL}/flights/GetExpSearch`,
+        {
+          TUI,
+          token,
+        }
+      );
+      console.log(
+        response,
+        "response from the backend========================="
+      );
+    } catch (error) {
+      console.log(error, "error from the backend=========================");
+    }
   };
-  // console.log(TUI, "TUI ================================================ 113 getExpSearch");
-
-  try {
-    const response = await fetch(
-      "https://b2bapiflights.benzyinfotech.com/flights/GetExpSearch",
-      {
-        body: JSON.stringify(payload),
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    console.log(
-      data,
-      "data GETTTTTTTTTTTTTTTTT EXPPPPPPPPPPPPPPPPPPP SEARCH CHECK COMPLETED"
-    );
-    return res.status(200).json({
-      success: true,
-      message: "ExpressSearch Results Retrieved",
-      data: data,
-    });
-  } catch (error) {
-    console.error(
-      "ExpressSearch Error:",
-      error?.response?.data || error.message
-    );
-    return res.status(500).json({
-      success: false,
-      message: "ExpressSearch failed",
-      error: error?.response?.data || error.message,
-    });
-  }
+  pollUntilCompleted();
+  return res.status(200).json({
+    success: true,
+    message: "Poll started",
+  });
 };
