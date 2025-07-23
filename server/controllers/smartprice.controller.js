@@ -1,75 +1,52 @@
 import axios from "axios";
 import { getPricer } from "./getpricer.controller.js";
 
-export const getSmartPrice = async (req, res) => {
-  console.log("______________________________________________________________________________ get smart price")
+export const smartPricer = async (req, res) => {
   try {
+    const { Trips, ClientID, Mode, Options, Source, TripType, token, TUI } = req.body;
+    console.log(TUI, "TUI=========================")
+    // Basic schema validation
+    if (!Trips || !Array.isArray(Trips) || Trips.length === 0) {
+      return res.status(400).json({ Code: "400", Msg: "Invalid or missing Trips array" });
+    }
 
-    const { Amount, Index, OrderID, TUI, ClientID, Mode, Options, Source, TripType } = req.body
     const payload = {
+
       Trips: [
         {
-          Amount,
-          Index,
-          OrderID,
-          TUI
-        }
+          Amount: Trips[0].NetFare,
+          Index: Trips[0].Index,
+          OrderID: "1",
+          TUI: TUI
+        },
       ],
-      ClientID,
-      Mode,
-      Options,
-      Source,
-      TripType
+      ClientID: "",
+      Mode: Mode || "AS",
+      Options: Options || "",
+      Source: Source || "SF",
+      TripType: TripType || "",
+    }
+
+    console.log(payload, "payload========jaksdfffffffffffffffffffffffffffffffffffffff=================")
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": token
     }
 
 
-    console.log(payload, 'before submit ================================================ smart price payload')
-
-    //  send response all the functions completed using se
-
-
-    const smartPricerResponse = await axios.post(
-      `${process.env.FLIGHT_URL}/Flights/SmartPricer`,
-      payload,
-      {
-        headers: {
-          Authorization: `${req.headers.authorization?.split(" ")[1]}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    console.log(smartPricerResponse.data, 'smartPricerResponse');
-    // console.log(smartPricerResponse.data, 'smartPricerResponse');
-    const smartPriceTUI = smartPricerResponse.data.TUI;
-    console.log(smartPriceTUI, 'smartPriceTUI inside smart price controller');
-
-    const pricerData = await getPricer(smartPriceTUI, req.headers.authorization?.split(" ")[1])
-    // console.log(pricerData, 'pricerData inside smart price controller__________________________________________________');
-
-    if (pricerData) {
-      return res.status(200).json({
-        success: true,
-        message: "SmartPricer executed successfully",
-        data: {
-          smartPricerResponse: smartPricerResponse.data,
-          pricerData: pricerData,
-          // pricerData: pricerData,  
-        },
-      });
-    } else {
-      return res.status(200).json({
-        success: false,
-        message: "Failed to execute SmartPricer",
-        error: "Failed to execute SmartPricer",
-      });
+    try {
+      const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/SmartPricer`, payload, { headers })
+      console.log(response, "response=========================")
+      return res.status(200).json(response.data)
+    } catch (error) {
+      console.log(error, "error=========================")
     }
 
+
+
+    // return res.status(200).json(response);
   } catch (error) {
-    console.error("SmartPricer Error:", error?.response?.data || error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to execute SmartPricer",
-      error: error?.response?.data || error.message,
-    });
+    console.error("[SmartPricer Error]", error);
+    return res.status(500).json({ Code: "500", Msg: "Internal Server Error" });
   }
 };

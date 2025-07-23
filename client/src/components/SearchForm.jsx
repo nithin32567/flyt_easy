@@ -78,6 +78,9 @@ const SearchForm = () => {
         const trips = response.data.data.Trips
         console.log(trips, "trips=========================")
         localStorage.setItem("trips", JSON.stringify(trips))
+        const TUI = response.data.data.TUI
+        console.log(TUI, "TUI=========================")
+        localStorage.setItem("TUI", TUI)
         navigate("/flight-list")
       }
 
@@ -139,6 +142,13 @@ const SearchForm = () => {
       token: token,
     };
     console.log(payload, "payload to the backend========================= 221");
+    localStorage.removeItem("trips")
+    localStorage.removeItem("TUI")
+    localStorage.removeItem("pricerTUI")
+    localStorage.removeItem("pricerData")
+    localStorage.removeItem("tripType")
+    localStorage.removeItem("searchTUI")
+    localStorage.removeItem("searchPayload")
     localStorage.setItem("searchPayload", JSON.stringify(payload));
     try {
       const response = await fetch(

@@ -5,7 +5,7 @@ import {
 } from "../controllers/searchFlights.controller.js";
 
 import { getAirports } from "../controllers/airport.controller.js";
-import { getSmartPrice } from "../controllers/smartprice.controller.js";
+import { smartPricer } from "../controllers/smartprice.controller.js";
 import { getWebSettings } from "../controllers/websettings.controller.js";
 import { getPricer } from "../controllers/getpricer.controller.js";
 import { createItinerary } from "../controllers/createItenary.controller.js";
@@ -20,7 +20,7 @@ router.post("/web-settings", getWebSettings);
 
 router.post("/get-exp-search", getExpSearchFlights);
 
-router.post("/smart-price", getSmartPrice);
+router.post("/smart-price", smartPricer);
 
 router.post("/get-pricer", getPricer);
 
