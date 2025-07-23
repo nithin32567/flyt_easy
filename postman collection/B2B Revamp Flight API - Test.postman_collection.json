@@ -1,0 +1,820 @@
+{
+	"info": {
+		"_postman_id": "52e313a7-2d56-47a8-8ced-9a05fda94ba9",
+		"name": "B2B Revamp Flight API - Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29059881"
+	},
+	"item": [
+		{
+			"name": "1.Signature",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Tocken Received\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"    pm.environment.set(\"Token\", Res.Token);\r",
+							"    pm.environment.set(\"SearchTUI\", Res.TUI);\r",
+							"    pm.environment.set(\"ClientID\", Res.ClientID);  \r",
+							"    pm.expect(Res.Code,\"200\");  \r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"AUI\",\"300\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"MerchantID\": \"{{AUI}}\",\r\n    \"ApiKey\": \"kXAY9yHARK\",\r\n    \"ClientID\": \"bitest\",\r\n    \"Password\":\"staging@1\",\r\n    \"AgentCode\": \"\",\r\n    \"BrowserKey\": \"2463db5bcc1bf3f2d8812570fb0321c0\"\r\n}"
+				},
+				"url": {
+					"raw": "{{UtilsURLTest}}/Utils/Signature",
+					"host": [
+						"{{UtilsURLTest}}"
+					],
+					"path": [
+						"Utils",
+						"Signature"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.ExpressSearch (1-0-0)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"FlightURLDev\",\"http://localhost:57422\");"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Got TUI\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"       pm.environment.set(\"SearchTUI\",Res.TUI);\r",
+							"    pm.expect(Res.Code,\"200\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"FareType\": \"ON\",\n    \"ADT\": 1,\n    \"CHD\": 0,\n    \"INF\": 0,\n    \"Cabin\": \"E\",\n    \"Source\": \"CF\",\n    \"Mode\": \"AS\",\n    \"ClientID\": \"{{ClientID}}\",\n    \"IsMultipleCarrier\": false,\n    \"IsRefundable\": false,\n    \"preferedAirlines\": null,\n    \"TUI\": \"\",\n    \"SecType\": \"\",\n    \"Trips\": [\n        {\n            \"From\": \"BOM\",\n            \"To\": \"DEL\",\n            \"ReturnDate\": \"\",\n            \"OnwardDate\": \"2025-03-15\",\n            \"TUI\": \"\"\n        }\n    ],\n    \"Parameters\": {\n        \"Airlines\": \"\",\n        \"GroupType\": \"\",\n        \"Refundable\": \"\",\n        \"IsDirect\": false,\n        \"IsStudentFare\": false,\n        \"IsNearbyAirport\": true,\n        \"IsExtendedSearch\": \"false\"\n    }\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/flights/ExpressSearch",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"flights",
+						"ExpressSearch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2.ExpressSearch (1-1-0)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"FlightURLDev\",\"http://localhost:57422\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Got TUI\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"       pm.environment.set(\"SearchTUI\",Res.TUI);\r",
+							"    pm.expect(Res.Code,\"200\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"FareType\": \"ON\",\n    \"ADT\": 1,\n    \"CHD\": 0,\n    \"INF\": 0,\n    \"Cabin\": \"E\",\n    \"Source\": \"LV\",\n    \"Mode\": \"AS\",\n    \"ClientID\": \"{{ClientID}}\",\n    \"IsMultipleCarrier\": false,\n    \"IsRefundable\": false,\n    \"preferedAirlines\": null,\n    \"TUI\": \"\",\n    \"SecType\": \"\",\n    \"Trips\": [\n        {\n            \"From\": \"LHR\",\n            \"To\": \"EWR\",\n            \"ReturnDate\": \"2024-02-08\",\n            \"OnwardDate\": \"2024-01-08\",\n            \"TUI\": \"\"\n        }\n    ],\n    \"Parameters\": {\n        \"Airlines\": \"\",\n        \"GroupType\": \"\",\n        \"Refundable\": \"\",\n        \"IsDirect\": false,\n        \"IsStudentFare\": false,\n        \"IsNearbyAirport\": true\n    }\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/flights/ExpressSearch",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"flights",
+						"ExpressSearch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3.GetExpSearch",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Completed\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"    \r",
+							"//    const SelectedFlightIndex = pm.environment.get(\"SelectedFlightIndex\");\r",
+							"const SelectedAirlineCode=\"LH\";\r",
+							"    const SelectedFlightIndex = 0;\r",
+							"\r",
+							"    console.log(\"Fetching ...\");\r",
+							"    console.log(\"Completed\");\r",
+							"    pm.environment.set(\"SearchTUI\", Res.TUI);\r",
+							"    console.log(\"SelectedFlightIndex :\" + SelectedFlightIndex);\r",
+							"    const Flt = Res.Trips[0].Journey[SelectedFlightIndex];\r",
+							"    pm.environment.set(\"Amount\", Flt.NetFare);\r",
+							"   pm.environment.set(\"Index\", Flt.Index);\r",
+							"   pm.expect(Res.Completed).to.eql(\"Completed\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"   pm.environment.set(\"OrderID\", 1); "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ClientID\": \"\",\n    \"TUI\": \"{{SearchTUI}}\"\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/flights/GetExpSearch",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"flights",
+						"GetExpSearch"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4.SmartPricer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Priced\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"    pm.environment.set(\"SearchTUI\", Res.TUI);\r",
+							"   pm.expect(Res.Code).to.eql(\"200\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"Trips\": [\n        {\n            \"Amount\": {{Amount}},\n            \"Index\": \"{{Index}}\",\n            \"OrderID\": {{OrderID}},\n            \"TUI\": \"{{SearchTUI}}\" \n        }\n    ],\n    \"ClientID\": \"\",\n    \"Mode\": \"AS\",\n    \"Options\": \"\",\n    \"Source\": \"SF\",\n    \"TripType\": \"ON\"\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights/SmartPricer",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"SmartPricer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5.GetSPricer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Priced\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"    pm.environment.set(\"SearchTUI\", Res.TUI);\r",
+							"    pm.environment.set(\"Amount\", Res.NetAmount);\r",
+							"   pm.expect(Res.Code).to.eql(\"200\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"TUI\":\"{{SearchTUI}}\"\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights/GetSPricer",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"GetSPricer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "5.CreateItinerary",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Itinerary\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"    pm.environment.set(\"TransactionID\", Res.TransactionID);\r",
+							"    pm.environment.set(\"SearchTUI\", Res.TUI);\r",
+							"   pm.expect(Res.Code).to.eql(\"200\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\n    \"TUI\": \"{{SearchTUI}}\",\n    \"ContactInfo\": {\n        \"Title\": \"\",\n        \"FName\": \"Test\",\n        \"LName\": \"Test\",\n        \"Mobile\": \"9999999999\",\n        \"Phone\": \"\",\n        \"Email\": \"mails@mail.com\",\n        \"Address\": \"test\",\n        \"CountryCode\": \"IN\",\n        \"State\": \"Kerala\",\n        \"City\": \"KOCHI\",\n        \"PIN\": \"666666\",\n        \"GSTCompanyName\": \"\",\n        \"GSTTIN\": \"\",\n        \"GSTMobile\": \"\",\n        \"GSTEmail\": \"\",\n        \"UpdateProfile\": false,\n        \"IsGuest\": false\n    },\n    \"Travellers\": [\n        {\n            \"ID\": 1,\n            \"Title\": \"Mr\",\n            \"FName\": \"TESTA\",\n            \"LName\": \"TESTAB\",\n            \"Age\": 33,\n            \"DOB\": \"1987-08-27\",\n            \"Gender\": \"M\",\n            \"PTC\": \"ADT\",\n            \"Nationality\": \"IN\",\n            \"PassportNo\": \"HM8888HJJ6K\",\n            \"PLI\": \"Cochin\",\n            \"PDOE\": \"2022-12-15\",\n            \"VisaType\": \"Visiting Visa\"\n        }\n    ],\n    \"PLP\": [],\n    \"SSR\": [],\n    \"CrossSell\": [],\n    \"NetAmount\": {{Amount}},\n    \"SSRAmount\": 0,\n    \"ClientID\": \"\",\n    \"DeviceID\": \"\",\n    \"AppVersion\": \"\",\n    \"CrossSellAmount\": 0\n}\n"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights/CreateItinerary",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"CreateItinerary"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "6.StartPay",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"TransactionID\": 230003316,\r\n  \"PaymentAmount\": 0,\r\n  \"NetAmount\": 123800,\r\n  \"BrowserKey\": \"e3f560de2c422e2ed29f4e4b8ab27017\",\r\n  \"ClientID\": \"FVI6V120g22Ei5ztGK0FIQ==\",\r\n  \"TUI\": \"7597e74c-959a-47da-b3f6-4931863509e2|89350c5a-f42b-4f49-ba33-1a153041e9b9|20230908172620\",\r\n  \"Hold\": false,\r\n  \"Promo\": null,\r\n  \"PaymentType\": \"\",\r\n  \"BankCode\": \"\",\r\n  \"GateWayCode\": \"\",\r\n  \"MerchantID\": \"\",\r\n  \"PaymentCharge\": 0,\r\n  \"ReleaseDate\": \"\",\r\n  \"OnlinePayment\": false,\r\n  \"DepositPayment\": true,\r\n  \"Card\": {\r\n    \"Number\": \"\",\r\n    \"Expiry\": \"\",\r\n    \"CVV\": \"\",\r\n    \"CHName\": \"\",\r\n    \"Address\": \"\",\r\n    \"City\": \"\",\r\n    \"State\": \"\",\r\n    \"Country\": \"\",\r\n    \"PIN\": \"\",\r\n    \"International\": false,\r\n    \"SaveCard\": false,\r\n    \"FName\": \"\",\r\n    \"LName\": \"\",\r\n    \"EMIMonths\": \"0\"\r\n  },\r\n  \"VPA\": \"\",\r\n  \"CardAlias\": \"\",\r\n  \"QuickPay\": null,\r\n  \"RMSSignature\": \"\",\r\n  \"TargetCurrency\": \"\",\r\n  \"TargetAmount\": 0,\r\n  \"ServiceType\": \"ITI\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Payment/StartPay",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Payment",
+						"StartPay"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "7.Cancel",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ClientID\": \"FVI6V120g22Ei5ztGK0FIQ==\",\r\n    \"ClientIP\": \"\",\r\n    \"Remarks\": \"test a\",\r\n    \"TUI\": \"25dd4b3b-a58d-4c21-a4d1-9415c080b99c|4a5a88fb-95b0-4c2b-8134-6d053207e49d|20220929151729\",\r\n    \"TransactionID\": 220004242,\r\n    \"Trips\": [\r\n        {\r\n            \"Journey\": [\r\n                {\r\n                    \"Segments\": [\r\n                        {\r\n                            \"CRSPNR\": \"TLGS8K\",\r\n                            \"Pax\": [\r\n                                {\r\n                                    \"ID\": 5234,\r\n                                    \"Ticket\": \"\"\r\n                                }\r\n                            ]\r\n                        }\r\n                    ]\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights/Cancel",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"Cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "RetrieveBooking",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ReferenceType\": \"T\",\r\n    \"TUI\": \"\",\r\n    \"ReferenceNumber\": \"220009241\",\r\n    \"ClientID\": \"{{ClientID}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Utils/RetrieveBooking",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Utils",
+						"RetrieveBooking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SeatLayout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Priced\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"   pm.expect(Res.Code).to.eql(\"200\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ClientID\": \"{{ClientID}}\",\n    \"Source\": \"SF\",\n    \"Trips\": [\n        {\n            \"TUI\": \"{{SearchTUI}}\",\n            \"Index\": \"{{Index}}\",\n            \"OrderID\": {{OrderID}},\n            \"Amount\" : {{Amount}}\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights//SeatLayout",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"",
+						"SeatLayout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SeatLayout Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Priced\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"   pm.expect(Res.Code).to.eql(\"200\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ClientID\": \"\",\n    \"Source\": \"LV\",\n    \"Trips\": [\n        {\n            \"TUI\": \"718b0d1e-6d6d-48c4-9ce5-f7ed195e8c08|b6bd4e88-cdad-4fe5-9d72-6efa4fb5be1a|20221103161319\",\n            \"Index\": \"\",\n            \"OrderID\": 1\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights//SeatLayout",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"",
+						"SeatLayout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FlightInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Priced\", function () {\r",
+							"    const Res = pm.response.json();\r",
+							"   pm.expect(Res.Code).to.eql(\"200\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"content-type": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "{{Token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ClientID\": \"{{ClientID}}\",\n    \"Trips\": [\n        {\n            \"TUI\": \"{{SearchTUI}}\",\n            \"Amount\": \"{{Amount}}\",\n            \"OrderID\": {{OrderID}},\n            \"Index\": \"{{Index}}\"\n        }\n    ],\n    \"TripType\": \"ON\"\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights/FlightInfo",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"FlightInfo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SSR",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"PaidSSR\": false,\r\n    \"ClientID\": \"{{ClientID}}\",\r\n    \"Source\": \"LV\",\r\n    \"FareType\":\"N\",\r\n    \"Trips\": [\r\n\t\t{\r\n            \"Amount\": {{Amount}},\r\n            \"Index\": \"{{Index}}\",\r\n            \"OrderID\": 1,\r\n            \"TUI\": \"{{SearchTUI}}\"\r\n        }]\r\n }"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights/SSR",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"SSR"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FareRule",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjExMSIsIm5iZiI6MTU3Mjg2MjgwMSwiZXhwIjoxNTgxNTAyODAxLCJpYXQiOjE1NzI4NjI4MDEsImlzcyI6IndlYmNvbm5lY3QiLCJhdWQiOiJjbGllbnQifQ.03x3xoKIZiQ3FDdWYbOm7RFIJz6NQUpyvreB0512Lbw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "\r\n{\r\n    \"Trips\": [\r\n        {\r\n            \"Amount\": {{Amount}},\r\n            \"Index\": \"{{Index}}\",\r\n            \"OrderID\": {{OrderID}},\r\n            \"TUI\": \"{{SearchTUI}}\"\r\n        }\r\n    ],\r\n    \"ClientID\": \"{{ClientID}}\",\r\n    \"Mode\": \"SY\",\r\n    \"Options\": \"\",\r\n    \"Source\": \"LV\",\r\n    \"TripType\": \"ON\"\r\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Flights/FareRule",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Flights",
+						"FareRule"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetBookings",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjExMSIsIm5iZiI6MTU3Mjg2MjgwMSwiZXhwIjoxNTgxNTAyODAxLCJpYXQiOjE1NzI4NjI4MDEsImlzcyI6IndlYmNvbm5lY3QiLCJhdWQiOiJjbGllbnQifQ.03x3xoKIZiQ3FDdWYbOm7RFIJz6NQUpyvreB0512Lbw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"TUI\":\"6e824e0c-1b79-452a-a992-2ee295b8b676|a98850a2-f1f9-476c-b090-f2fd895e459b|20200109171128\",\"ClientID\":\"Q9wjRTbxDoPoVvi5k9q2Qsmfx4CyPVPMTHsUoWBQNuOyXPC8TmlKMc3m2Z5yqcdZ\",\"TransactionID\":\"\",\"PNR\":\"\",\"TravelFromDate\":\"2019-01-01\",\"TravelToDate\":\"2020-05-01\",\"Service\":\"\",\"BookingFromDate\":\"\",\"BookingToDate\":\"\"\r\n}"
+				},
+				"url": {
+					"raw": "{{FlightURLTest}}/Utils/GetBookings",
+					"host": [
+						"{{FlightURLTest}}"
+					],
+					"path": [
+						"Utils",
+						"GetBookings"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -15,6 +15,7 @@ import HotelPaymentSuccess from "./pages/HotelPaymentSuccess";
 import Dmo from "./pages/Dmo";
 import Demobanner from "./components/Demobanner";
 import HeaderSection from "./components/HeaderSection";
+import ListFlights from "./pages/ListFlights";
 
 const App = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -57,7 +58,7 @@ const App = () => {
         <Routes>
           {/* <Route path="/" element={<Login />} /> */}
           <Route path="/" element={<FlightSearch />} />
-          <Route path="/flight-listing" element={<FlightListing />} />
+          <Route path="/flight-listing" element={<ListFlights />} />
           <Route path="/one-way-review" element={<OneWayReview />} />
           <Route path="/pax-details" element={<PaxDetails />} />
           <Route path="/luggage" element={<Luggage />} />

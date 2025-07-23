@@ -18,25 +18,23 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 const allowedOrigins = [
-  "http://localhost:5173", // for local development only
-  "http://147.93.18.244", // VPS static hosting via IP
-  "https://your-domain.com", // optional domain (if mapped via DNS)
+  "http://localhost:5173",
+  "http://147.93.18.244",
+  "https://your-domain.com",
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed from this origin"));
-      }
-    },
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // enable if using cookies/JWT headers
+};
 
-// console.log(path.resolve(__dirname, "../client/dist"));
+app.use(cors(corsOptions));
 
 app.use(express.static(path.resolve(__dirname, "../client/dist")));
 

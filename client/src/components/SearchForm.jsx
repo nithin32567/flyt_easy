@@ -12,7 +12,6 @@ import axios from "axios";
 
 const SearchForm = () => {
   const [isActiveFlightTab, setIsActiveFlightTab] = useState(true);
-  const [activeTab, setActiveTab] = useState(0);
   const [tripType, setTripType] = useState("ON");
   const [from, setFrom] = useState("BOM");
   const [to, setTo] = useState("DEL");
@@ -43,6 +42,11 @@ const SearchForm = () => {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/api/flights/airports`,
+          { 
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
 
         );
         const data = await response.json();
@@ -70,10 +74,14 @@ const SearchForm = () => {
         return;
       }
     }
+    if (!localStorage.getItem("ClientID")) {
+      alert("Unauthorized Access Missing ClientID");
+      return;
+    }
 
     setIsSearching(true);
-    const clientId = localStorage.getItem("ClientID");
-    console.log(clientId, "clientId=========================");
+
+
     const payload = {
       ADT: adults,
       CHD: children,
@@ -86,7 +94,7 @@ const SearchForm = () => {
             : "B",
       Source: "CF",
       Mode: "AS",
-      ClientID: clientId,
+      ClientID: localStorage.getItem("ClientID"),
       FareType: tripType,
       IsMultipleCarrier: false,
       IsRefundable: false,
@@ -94,10 +102,12 @@ const SearchForm = () => {
       TUI: "",
       Trips: [
         {
+
           From: from,
           To: to,
           OnwardDate: departureDate.toISOString().split('T')[0],
           ReturnDate: returnDate.toISOString().split('T')[0],
+
           TUI: "",
         },
       ],
