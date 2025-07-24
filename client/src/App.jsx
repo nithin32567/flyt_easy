@@ -23,7 +23,7 @@ const App = () => {
   useEffect(() => {
     const fetchSignature = async () => {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/signature`
+        `/api/signature`
       );
       const data = await response.json();
       // console.log(data, "data");
