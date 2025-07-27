@@ -18,6 +18,9 @@ const FlightCard = ({ flight, setSelectedFlight }) => {
   const formatTime = (timeStr) => new Date(timeStr).toLocaleTimeString("en-IN", {
     hour: "2-digit",
     minute: "2-digit",
+
+
+    
     hour12: true,
   });
 

@@ -191,10 +191,10 @@ const SearchForm = () => {
 
   return (
     <div>
-      <div className="max-w-[95%] mx-auto px-4 md:px-0">
-        <div className="bg-white rounded-md shadow-md">
+      <div className=" mx-auto px-4 md:px-0  rounded-2xl w-full shadow-md shadow-black">
+        <div className="bg-white w-full rounded-md shadow-md">
           <ul
-            className="flex flex-col sm:flex-row bg-gray-200 items-center gap-2 sm:gap-4  rounded-t-md px-4 md:px-8"
+            className="flex  bg-gray-200 items-center gap-2 sm:gap-4  rounded-t-md px-4 md:px-8"
             id="myTab"
             role="tablist"
           >

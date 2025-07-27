@@ -37,7 +37,7 @@ const corsOptions = {
   credentials: true, // enable if using cookies/JWT headers
 };
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.static(path.resolve(__dirname, "../client/dist")));
 

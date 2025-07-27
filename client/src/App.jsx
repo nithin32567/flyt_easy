@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // import Login from "./pages/Login";
 import FlightSearch from "./pages/FlightSearch";
 import FlightListing from "./pages/FlightListing";
-import OneWayReview from "./pages/OneWayReview";
+import OneWayReview from "./components/OneWayReview";
 import PaxDetails from "./pages/Pax-details";
 import Luggage from "./components/Luggage";
 import BookingConfirmation from "./pages/BookingConfirmation";
@@ -16,6 +16,7 @@ import Dmo from "./pages/Dmo";
 import Demobanner from "./components/Demobanner";
 import HeaderSection from "./components/HeaderSection";
 import ListFlights from "./pages/ListFlights";
+import Createitenary from "./pages/Createitenary";
 
 const App = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -23,7 +24,7 @@ const App = () => {
   useEffect(() => {
     const fetchSignature = async () => {
       const response = await fetch(
-        `/api/signature`
+        `${import.meta.env.VITE_BASE_URL}/api/signature`
       );
       const data = await response.json();
       // console.log(data, "data");
@@ -49,10 +50,11 @@ const App = () => {
       ? "w-full fixed top-0 left-0 right-0 z-90 shadow-md bg-white"
       : "fixed -top-3 left-0 right-0 z-90 max-w-[95%] mx-auto rounded-xl my-12 shadow-md";
   return (
-    <div className=" ">
-      <div className={headerStyle}>
+    // responsivenes
+    <div className="">
+      {/* <div className={headerStyle}>
         <HeaderSection />
-      </div>
+      </div> */}
 
       <BrowserRouter>
         <Routes>
@@ -62,6 +64,8 @@ const App = () => {
           <Route path="/one-way-review" element={<OneWayReview />} />
           <Route path="/pax-details" element={<PaxDetails />} />
           <Route path="/luggage" element={<Luggage />} />
+          <Route path="/review" element={<OneWayReview />} />
+          <Route path="/create-itenary" element={<Createitenary />} />
           <Route
             path="/booking-confirmation"
             element={<BookingConfirmation />}

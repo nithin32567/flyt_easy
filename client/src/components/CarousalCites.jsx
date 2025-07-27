@@ -58,10 +58,11 @@ const CarousalCites = ({ Card }) => {
                    
                 `}
             </style>
-            <Carousel className='gap-4 h-full py-8 mb-12 '
+            <Carousel className='gap-4 h-full  mb-12 '
                 swipeable={false}
                 draggable={false}
                 showDots={true}
+                centerMode={true}
                 responsive={responsive}
                 gap={10}
                 ssr={true} // means to render carousel on server-side.
