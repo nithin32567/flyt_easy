@@ -9,86 +9,94 @@ const HotelSearch = () => {
                 role="tabpanel"
                 aria-labelledby="profile-tab"
             >
-                <div className="onewar-roundtrip">
-                    <ul className='flex items-center gap-4'>
-                        <li className='flex items-center gap-2 hover:bg-gray-200 rounded-3xl p-2'>
-                            <label>
-                                <input className='' type="radio" name="trips" id="" defaultChecked="" />{" "}
+                {/* TRIP TYPE RADIO BUTTONS */}
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 border-b pt-4 pb-8 md:pb-12 border-gray-200">
+                    <ul className="flex flex-wrap items-center gap-2 md:gap-4 text-sm md:text-base">
+                        <li className="flex px-2 md:px-4 rounded-3xl hover:bg-gray-200 py-1 md:py-2 cursor-pointer">
+                            <label className="cursor-pointer">
+                                <input className="mr-2" type="radio" name="trips" id="" defaultChecked="" />
                                 Upto 4 Rooms
                             </label>
                         </li>
-                        <li className='flex items-center gap-2 hover:bg-gray-200 rounded-3xl p-2'>
-                            <label>
-                                <input type="radio" name="trips" id="" /> Group Deals
+                        <li className="flex px-2 md:px-4 rounded-3xl hover:bg-gray-200 py-1 md:py-2 cursor-pointer">
+                            <label className="cursor-pointer">
+                                <input type="radio" name="trips" id="" className="mr-2" />
+                                Group Deals
                             </label>
                         </li>
                     </ul>
                 </div>
-                <div className="row flex items-center gap-4 border-b border-gray-200">
-                    <div className="col-lg-5 w-1/2">
-                        <div className="row flex  gap-4">
-                            <div className="col-lg-7 col-md-6 w-1/2">
-                                <button className="select-items bg-white rounded-3xl p-4 text-left">
-                                    <h6 className='text-xs uppercase'>City, Property name or Location</h6>
-                                    <h2 className='text-2xl font-bold'>Goa</h2>
-                                    <p className='text-xs'>India</p>
+
+                {/* FORM SUBMIT SECTIONS */}
+                <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4 border-b border-gray-200">
+                    <div className="w-full lg:w-1/2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                            <div className="w-full sm:w-1/2 cursor-pointer">
+                                <button className="text-left bg-white rounded-md p-3 md:p-4 w-full h-full cursor-pointer hover:bg-gray-100">
+                                    <h6 className="text-xs md:text-sm uppercase">City, Property name or Location</h6>
+                                    <h2 className="text-lg md:text-2xl font-bold">Goa</h2>
+                                    <p className="text-xs text-gray-500">India</p>
                                 </button>
                             </div>
-                            <div className="col-lg-5 col-md-6 w-1/2">
-                                <button className="select-items bg-white rounded-3xl p-4">
-                                    <h6 className='text-sm text-gray-500'>Rooms &amp; Guests</h6>
-                                    <h2 className='text-2xl font-bold'>
-                                        1 <span className='text-black text-lg'>Rooms</span> 2 <span className='text-black text-lg'>Adults</span>
+                            <div className="w-full sm:w-1/2 cursor-pointer">
+                                <button className="text-left bg-white rounded-md p-3 md:p-4 w-full h-full cursor-pointer hover:bg-gray-100">
+                                    <h6 className="text-xs md:text-sm text-gray-500">Rooms &amp; Guests</h6>
+                                    <h2 className="text-lg md:text-xl font-bold">
+                                        1 <span className="text-black text-base md:text-lg">Rooms</span> 2 <span className="text-black text-base md:text-lg">Adults</span>
                                     </h2>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div className="col-lg-7 w-1/2">
-                        <div className="row flex  gap-4">
-                            <div className="col-lg-3 col-md-4 col-6 w-1/2 text-left ">
-                                <button className="select-items bg-white rounded-3xl p-4">
-                                    <h6 className='text-sm uppercase'>Check-In</h6>
-                                    <h2 className='text-2xl font-bold'>
-                                        16 <span className='text-black text-lg'>Jul'25</span>
+                    <div className="w-full lg:w-1/2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                            <div className="w-full sm:w-1/3 cursor-pointer">
+                                <button className="text-left bg-white rounded-md p-3 md:p-4 w-full h-full cursor-pointer hover:bg-gray-100">
+                                    <h6 className="text-xs md:text-sm uppercase">Check-In</h6>
+                                    <h2 className="text-lg md:text-xl font-bold">
+                                        16 <span className="text-black text-base md:text-lg">Jul'25</span>
                                     </h2>
-                                    <p className='text-xs text-gray-500 truncate'>Sunday</p>
+                                    <p className="text-xs text-gray-500 truncate">Sunday</p>
                                 </button>
                             </div>
-                            <div className="col-lg-3 col-md-4 col-6 w-1/2">
-                                <button className="select-items bg-white rounded-3xl p-4">
-                                    <h6 className='text-sm uppercase'>Check-Out</h6>
-                                    <h2 className='text-2xl font-bold'>
-                                        16 <span className='text-black text-lg'>Jul'25</span>
+                            <div className="w-full sm:w-1/3 cursor-pointer">
+                                <button className="text-left bg-white rounded-md p-3 md:p-4 w-full h-full cursor-pointer hover:bg-gray-100">
+                                    <h6 className="text-xs md:text-sm uppercase">Check-Out</h6>
+                                    <h2 className="text-lg md:text-xl font-bold">
+                                        16 <span className="text-black text-base md:text-lg">Jul'25</span>
                                     </h2>
-                                    <p className='text-xs text-gray-500 truncate'>Sunday</p>
+                                    <p className="text-xs text-gray-500 truncate">Sunday</p>
                                 </button>
                             </div>
-                            <div className="col-lg-3 col-md-4 w-1/2">
-                                <button className="select-items bg-white rounded-3xl p-4 ">
-                                    <h6 className='text-sm uppercase'>Price per Night</h6>
-                                    <h2 className='text-lg font-bold'>
+                            <div className="w-full sm:w-1/3 cursor-pointer">
+                                <button className="text-left bg-white rounded-md p-3 md:p-4 w-full h-full cursor-pointer hover:bg-gray-100">
+                                    <h6 className="text-xs md:text-sm uppercase">Price per Night</h6>
+                                    <h2 className="text-base md:text-lg font-bold">
                                         <span>₹0-₹1500</span>
                                     </h2>
                                 </button>
                             </div>
-                            <div className="col-lg-3 w-1/2 my-auto">
-                                <button className="search-btn bg-[#f48f22] text-white rounded-md px-16 py-3">Search</button>
+                            <div className="w-full sm:w-1/3">
+                                <button className="bg-[#f48f22] font-semibold text-white rounded-md px-6 md:px-12 py-3 w-full text-sm md:text-base">
+                                    Search
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-col gap-4">
-                    <h5 className='text-lg font-bold'>Trending Searches:</h5>
-                    <ul className='flex gap-4'>
-                        <li className='bg-gray-200 rounded-md p-2'>
-                            <button>Dubai, United Arab Emirates</button>
+
+                {/* TRENDING SEARCHES */}
+                <div className="flex flex-col gap-4 py-4 md:py-8">
+                    <h5 className="text-base md:text-lg font-bold">Trending Searches:</h5>
+                    <ul className="flex flex-wrap gap-2 md:gap-4">
+                        <li className="bg-gray-200 rounded-md p-2">
+                            <button className="text-xs md:text-sm">Dubai, United Arab Emirates</button>
                         </li>
-                        <li className='bg-gray-200 rounded-md p-2'>
-                            <button>Mumbai, India</button>
+                        <li className="bg-gray-200 rounded-md p-2">
+                            <button className="text-xs md:text-sm">Mumbai, India</button>
                         </li>
-                        <li className='bg-gray-200 rounded-md p-2'>
-                            <button>London, United Kingdom</button>
+                        <li className="bg-gray-200 rounded-md p-2">
+                            <button className="text-xs md:text-sm">London, United Kingdom</button>
                         </li>
                     </ul>
                 </div>

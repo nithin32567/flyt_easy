@@ -5,7 +5,7 @@ import qrcode from "../assets/img/qr-code.jpg";
 
 const AppAvailableComponent = () => {
   return (
-    <div className="grid md:grid-cols-3 grid-cols-1 gap-6   p-8 items-center rounded-md border-2 border-orange-500 ">
+    <div className="grid md:grid-cols-3 grid-cols-1   p-8 items-center rounded-md border-2 border-orange-500 ">
       {/* Left Content */}
       <div className="flex flex-col  gap-4 w-full">
         <div className="w-full">
@@ -14,9 +14,9 @@ const AppAvailableComponent = () => {
           </h3>
         </div>
 
-        <div className="flex items-center justify-between border rounded-md  w-full">
+        <div className="flex items-center justify-between border rounded-md  w-full my-6">
           <input
-            className="py-2"
+            className="py-2 w-[90%]"
             type="text"
             placeholder="Enter Your Mobile Number "
           />
