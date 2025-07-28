@@ -1,4 +1,6 @@
 import React from "react";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
 import indigo from "../assets/img/indigo.jpg";
 import flydubai from "../assets/img/flydubai.jpg";
 import airarabia from "../assets/img/airarabia.jpg";
@@ -12,11 +14,6 @@ import emirates from "../assets/img/emirates.jpg";
 import singapore from "../assets/img/singapore-airlines.jpg";
 import pia from "../assets/img/pia.jpg";
 import gulfair from "../assets/img/gulf-air.jpg";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 import LogoCard from "./LogoCard";
 
 const images = [
@@ -35,46 +32,53 @@ const images = [
   { src: gulfair, alt: "Gulf Air" },
 ];
 
+const responsive = {
+  superLargeDesktop: {
+    breakpoint: { max: 4000, min: 1280 },
+    items: 5,
+  },
+  desktop: {
+    breakpoint: { max: 1280, min: 1024 },
+    items: 4,
+  },
+  tablet: {
+    breakpoint: { max: 1024, min: 768 },
+    items: 3,
+  },
+  smallTablet: {
+    breakpoint: { max: 768, min: 640 },
+    items: 2,
+  },
+  mobile: {
+    breakpoint: { max: 640, min: 0 },
+    items: 1,
+  },
+};
+
 const FlightLogos = () => {
   return (
-    <div className="my-12 w-full flex justify-center items-centermx-auto">
-      <Swiper
-        modules={[Autoplay, Navigation, Pagination]}
-        spaceBetween={20}
-        slidesPerView={1}
-        navigation={false}
-        // pagination={{ clickable: true }}
-        autoplay={{
-          delay: 3000,
-          disableOnInteraction: false,
-        }}
-        loop={true}
-        breakpoints={{
-          640: {
-            slidesPerView: 2,
-            spaceBetween: 20,
-          },
-          768: {
-            slidesPerView: 3,
-            spaceBetween: 30,
-          },
-          1024: {
-            slidesPerView: 4,
-            spaceBetween: 40,
-          },
-          1280: {
-            slidesPerView: 5,
-            spaceBetween: 40,
-          },
-        }}
-        className="airline-logos-swiper"
-      >
-        {images.map((image, index) => (
-          <SwiperSlide key={index}>
-            <LogoCard image={image.src} alt={image.alt} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+    <div className="my-12 w-full flex justify-center items-center">
+      <div className="w-full max-w-7xl px-4">
+        <Carousel
+          responsive={responsive}
+          infinite
+          autoPlay
+          autoPlaySpeed={3000}
+          arrows={false}
+          showDots={false}
+          swipeable
+          draggable
+          containerClass="carousel-container"
+          itemClass="carousel-item-padding-40-px"
+          centerMode={true}
+        >
+          {images.map((image, index) => (
+            <div key={index} className="flex justify-center items-center px-2">
+              <LogoCard image={image.src} alt={image.alt} />
+            </div>
+          ))}
+        </Carousel>
+      </div>
     </div>
   );
 };

@@ -1,11 +1,11 @@
 import React from 'react';
-import topdestinations from '../assets/img/topdestinations.jpg';
+// import topdestinations from '../assets/img/topdestinations.jpg';
 import { Link } from 'react-router-dom';
 import { FaLink } from "react-icons/fa";
 
 const Card = ({ image }) => {
     return (
-        <div className="rounded-lg shadow-md mr-4 bg-gray-200 p-2 w-[300px] group relative overflow-hidden">
+        <div className="rounded-lg shadow-md mx-2 bg-gray-200  group relative overflow-hidden ">
             <Link to="#" className="flex flex-col items-center justify-center">
                 <div className="relative w-full h-[200px] overflow-hidden rounded-xl">
                     {/* Background Image */}

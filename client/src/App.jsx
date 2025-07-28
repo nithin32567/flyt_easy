@@ -52,9 +52,9 @@ const App = () => {
   return (
     // responsivenes
     <div className="">
-      {/* <div className={headerStyle}>
+      <div className={headerStyle}>
         <HeaderSection />
-      </div> */}
+      </div>
 
       <BrowserRouter>
         <Routes>

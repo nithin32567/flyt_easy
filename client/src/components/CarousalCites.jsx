@@ -1,107 +1,84 @@
-import React from 'react'
-import Carousel from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
-import topdestinations from '../assets/img/topdestinations.jpg'
-import bali from '../assets/img/bali.jpg'
-
-
+import React from "react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "./carousal.css";
+import bali from "../assets/img/bali.jpg";
 
 const CarousalCites = ({ Card }) => {
-    const responsive = {
-        desktop: {
-            breakpoint: { max: 3000, min: 1024 },
-            items: 4,
-            slidesToSlide: 3 // optional, default to 1.
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    centerMode: true,
+    centerPadding: "0px",
+    lazyLoad: "ondemand",
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 2,
+          centerMode: true,
+          centerPadding: "20px",
         },
-        tablet: {
-            breakpoint: { max: 1024, min: 464 },
-            items: 2,
-            slidesToSlide: 2 // optional, default to 1.
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          centerMode: true,
+          centerPadding: "40px",
         },
-        mobile: {
-            breakpoint: { max: 464, min: 0 },
-            items: 1,
-            slidesToSlide: 1 // optional, default to 1.
-        }
-    };
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          slidesToShow: 1,
+          centerMode: false,
+          dots: false,
+        },
+      },
+    ],
+  };
 
-    return (
-        <>
-            <style>
-                {/* make square shaped dots     */}
-                {`
-                    .custo-list-style {
-                        display: flex;
-                        width: 100%;
-                        height: 100px !important;
-                        
-                    }.custo-list-style li{
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    border-radius: -50% !important;
-                 
-                    }
+  const cites = [
+    {
+      id: 1,
 
-                                         .custo-list-style li button {
-                         width: 20px !important;
-                         height: 20px !important;
-                         margin-top: 80px !important;
-                         border-radius: 0 !important;
-                         background-color: #ccc  !important;
-                     }
-                     
-                     .custo-list-style li.react-multi-carousel-dot--active button {
-                         background-color: #000 !important;
-                     }
-                    
-                   
-                `}
-            </style>
-            <Carousel className='gap-4 h-full  mb-12 '
-                swipeable={false}
-                draggable={false}
-                showDots={true}
-                centerMode={true}
-                responsive={responsive}
-                gap={10}
-                ssr={true} // means to render carousel on server-side.
-                infinite={true}
-                // autoPlay={this.props.deviceType !== "mobile" ? true : false}
-                autoPlaySpeed={500}
-                keyBoardControl={true}
-                customTransition="all .5"
-                transitionDuration={500}
-                containerClass="carousel-container"
-                removeArrowOnDeviceType={["tablet", "mobile"]}
-                // deviceType={this.props.deviceType}
-                dotListClass="custo-list-style"
-                autoPlay={true}
-                itemClass=""
-                arrows={false}
-            >
-                <div>
-                    <Card image={topdestinations} />
-                </div>
-                <div>
-                    <Card image={bali} />
-                </div>
-                <div>
-                    <Card image={bali} />
-                </div>
-                <div>
-                    <Card image={bali} />
-                </div>
-                <div>
-                    <Card image={topdestinations} />
-                </div>
-            </Carousel>
-        </>
-    )
-}
+      image: bali,
+    },
+    {
+      id: 2,
 
-export default CarousalCites
+      image: bali,
+    },
+    {
+      id: 3,
 
+      image: bali,
+    },
+    {
+      id: 4,
 
+      image: bali,
+    },
+  ];
 
+  return (
+    <div className="carousel-container">
+      <Slider {...settings}>
+        {cites.map((cite) => (
+          <div key={cite.id} className="slide-item flex justify-center">
+            <Card className="w-full mx-auto" image={cite.image} />
+          </div>
+        ))}
+      </Slider>
+    </div>
+  );
+};
 
+export default CarousalCites;

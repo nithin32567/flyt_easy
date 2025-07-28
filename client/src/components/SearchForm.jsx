@@ -74,16 +74,15 @@ const SearchForm = () => {
         "response from the backend========================="
       );
       if (response.statusText === "OK") {
-        console.log("inside the if condition")
-        const trips = response.data.data.Trips
-        console.log(trips, "trips=========================")
-        localStorage.setItem("trips", JSON.stringify(trips))
-        const TUI = response.data.data.TUI
-        console.log(TUI, "TUI=========================")
-        localStorage.setItem("TUI", TUI)
-        navigate("/flight-list")
+        console.log("inside the if condition");
+        const trips = response.data.data.Trips;
+        console.log(trips, "trips=========================");
+        localStorage.setItem("trips", JSON.stringify(trips));
+        const TUI = response.data.data.TUI;
+        console.log(TUI, "TUI=========================");
+        localStorage.setItem("TUI", TUI);
+        navigate("/flight-list");
       }
-
     } catch (error) {
       console.log(error, "error from the backend=========================");
     }
@@ -119,8 +118,8 @@ const SearchForm = () => {
         travelClass === "Economy"
           ? "E"
           : travelClass === "Premium Economy"
-            ? "PE"
-            : "B",
+          ? "PE"
+          : "B",
       Source: "CF",
       Mode: "AS",
       ClientID: localStorage.getItem("ClientID"),
@@ -142,13 +141,13 @@ const SearchForm = () => {
       token: token,
     };
     console.log(payload, "payload to the backend========================= 221");
-    localStorage.removeItem("trips")
-    localStorage.removeItem("TUI")
-    localStorage.removeItem("pricerTUI")
-    localStorage.removeItem("pricerData")
-    localStorage.removeItem("tripType")
-    localStorage.removeItem("searchTUI")
-    localStorage.removeItem("searchPayload")
+    localStorage.removeItem("trips");
+    localStorage.removeItem("TUI");
+    localStorage.removeItem("pricerTUI");
+    localStorage.removeItem("pricerData");
+    localStorage.removeItem("tripType");
+    localStorage.removeItem("searchTUI");
+    localStorage.removeItem("searchPayload");
     localStorage.setItem("searchPayload", JSON.stringify(payload));
     try {
       const response = await fetch(
@@ -190,22 +189,23 @@ const SearchForm = () => {
   }
 
   return (
-    <div>
-      <div className=" mx-auto px-4 md:px-0  rounded-2xl w-full shadow-md shadow-black">
+    <div className="w-full ">
+      <div className="w-full  mx-auto">
         <div className="bg-white w-full rounded-md shadow-md">
           <ul
-            className="flex  bg-gray-200 items-center gap-2 sm:gap-4  rounded-t-md px-4 md:px-8"
+            className="flex bg-gray-200 items-center gap-2 sm:gap-4 rounded-t-md"
             id="myTab"
             role="tablist"
           >
             <li
-              className="flex items-center gap-2 w-full sm:w-auto justify-center"
+              className="flex items-start w-full  sm:w-auto "
               role="presentation"
             >
               <button
                 onClick={() => setIsActiveFlightTab(true)}
-                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4  ${isActiveFlightTab ? "bg-white" : "bg-gray-200"
-                  }`}
+                className={`flex items-center gap-2 text-sm md:text-base w-full py-4 px-4  ${
+                  isActiveFlightTab ? "bg-white" : "bg-gray-200"
+                }`}
                 id="home-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#home"
@@ -229,8 +229,9 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(false)}
-                className={`flex items-center gap-2 text-sm md:text-base py-4 px-4 ${!isActiveFlightTab ? "bg-white" : "bg-gray-200"
-                  }`}
+                className={`flex items-center gap-2 text-sm md:text-base w-full py-4 px-4 ${
+                  !isActiveFlightTab ? "bg-white" : "bg-gray-200"
+                }`}
                 id="profile-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#profile"
