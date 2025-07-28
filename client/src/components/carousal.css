@@ -46,3 +46,13 @@
 .carousel-container {
   padding-bottom: 20px;
 }
+.carousel-container {
+  width: 100%;
+  overflow: hidden;
+  margin: 0 0;
+}
+
+.slide-item {
+  box-sizing: border-box;
+  padding: 20px 10px;
+}

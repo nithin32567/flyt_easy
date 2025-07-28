@@ -21,9 +21,11 @@ const FlightSearch = () => {
         <Demobanner />
       </div>
 
-      <div className="
+      <div
+        className="
       -translate-y-[5%]
-      relative z-20 w-full flex flex-col gap-4 px-4 py-8 md:max-w-7xl mx-auto ">
+      relative z-20 w-full flex flex-col gap-4 px-4 py-8 md:max-w-7xl mx-auto "
+      >
         <SearchForm />
         <div className="w-full max-w-7xl mx-auto">
           <div className="w-full flex flex-col sm:flex-row justify-between items-center">
