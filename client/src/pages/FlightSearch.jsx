@@ -12,6 +12,7 @@ import MagicCard from "../components/MagicCard";
 import FlightLogos from "../components/FlightLogos";
 import AppAvailableComponent from "../components/AppAvailableComponent";
 import { SquarePlay } from "lucide-react";
+import HomeBotttom from "../components/HomeBotttom";
 
 const FlightSearch = () => {
   return (
@@ -61,6 +62,9 @@ const FlightSearch = () => {
         <div className="w-full max-w-7xl mx-auto">
           <AppAvailableComponent />
         </div>
+      </div>
+      <div className="max-w-7xl mx-auto">
+        <HomeBotttom />
       </div>
     </div>
   );

@@ -17,6 +17,8 @@ import Demobanner from "./components/Demobanner";
 import HeaderSection from "./components/HeaderSection";
 import ListFlights from "./pages/ListFlights";
 import Createitenary from "./pages/Createitenary";
+import Footer1 from "./components/Footer1";
+import Footer from "./components/Footer";
 
 const App = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
@@ -82,6 +84,12 @@ const App = () => {
           <Route path="/demobanner" element={<Demobanner />} />
         </Routes>
       </BrowserRouter>
+      <div className="w-[100%] mx-auto">
+          <Footer1 /> 
+        </div>
+        <div className="w-[100%] mx-auto">
+          <Footer />
+        </div>
     </div>
   );
 };
