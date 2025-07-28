@@ -23,7 +23,7 @@ const FlightSearch = () => {
 
       <div
         className="
-      -translate-y-[5%]
+      -translate-y-[4%]
       relative z-20 w-full flex flex-col gap-4 px-4 py-8 md:max-w-7xl mx-auto "
       >
         <SearchForm />
