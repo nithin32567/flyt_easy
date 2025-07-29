@@ -14,9 +14,8 @@ const PassengerAddModal = ({ setShowModal, travellerData, setTravellerData }) =>
         Nationality: "",
         PassportNo: "",
         PLI: "",
-        PDOE: "",
+        PDOE:"" ,
         VisaType: "",
-        
     })
 
     // age should be number type
@@ -24,6 +23,7 @@ const PassengerAddModal = ({ setShowModal, travellerData, setTravellerData }) =>
     const handleSubmit = (e) => {
         e.preventDefault();
         setTravellerData([...travellerData, passengerData]);
+        console.log(travellerData, '================================= travellerData');
         setShowModal(false);
     }
     return (

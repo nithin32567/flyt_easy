@@ -50,13 +50,11 @@ const App = () => {
   const headerStyle =
     scrollPosition > 200
       ? "w-full fixed top-0 left-0 right-0 z-90 shadow-md bg-white"
-      : "fixed -top-3 left-0 right-0 z-90 max-w-[95%] mx-auto rounded-xl my-12 shadow-md";
+      : "max-w-7xl fixed -top-3 left-0 right-0 z-90  mx-auto rounded-xl my-12 shadow-md";
   return (
     // responsivenes
     <div className="">
-      <div className={headerStyle}>
-        <HeaderSection />
-      </div>
+    
 
       <BrowserRouter>
         <Routes>

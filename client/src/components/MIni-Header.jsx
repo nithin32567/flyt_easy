@@ -7,7 +7,7 @@ import { FaEnvelope } from "react-icons/fa";
 const MiniHeader = () => {
   return (
     <div className="flex justify-between items-center text-gray-300 max-w-[95%] mx-auto my-1 ">
-      <div className="col-lg-6 col-md-6 text-sm md:text-base ">
+      <div className="col-lg-6 col-md-6 text-sm md:text-base  w-full ">
         <p className="text-center md:text-left">Book flights &amp; hotels in seconds</p>
       </div>
       <div className=" hidden md:flex justify-center items-center">

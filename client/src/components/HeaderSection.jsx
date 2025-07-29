@@ -18,21 +18,21 @@ const HeaderSection = () => {
   }, []);
 
   return (
-    <div className="bg-white w-full  rounded-xl md:py-4 py-1 px-4 md:px-12 flex justify-between items-center">
+    <div className="bg-white w-full  md:rounded-xl md:py-6 py-1 px-4 md:px-12 flex justify-between items-center">
       <div className="flex  justify-between items-center max-w-xs">
         <a href="#">
           <img className="md:w-[60%] w-[100px]" src={logo} alt="Flyteasy" />
         </a>
       </div>
       <div className="flex justify-between items-center max-w-xs gap-4">
-        <button className="hover:bg-[#16437c] w-full hover:text-white border-2 border-[#16437c] text-[#16437c] md:px-6 px-2  py-1 rounded-md text-sm md:text-base">
+        <button className="hover:bg-[#16437c] w-full hover:text-white border-2
+         border-[#16437c] text-[#16437c] md:px-4 px-2  py-1 rounded-xs uppercase  text-xs md:text-base">
           Register
         </button>
         <button
           className="
-
-        
-        hover:bg-[#16437c] w-full bg-orange-400 hover:text-white border-none text-[#16437c] rounded-md md:px-6 px-2  py-1 text-sm md:text-base"
+        md:px-4 px-2  py-1 
+        uppercase w-full bg-[#f48f22] text-white border-none rounded-xs hover:bg-[#16437c]"
         >
           Sign in
         </button>

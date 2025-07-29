@@ -189,9 +189,9 @@ const SearchForm = () => {
   }
 
   return (
-    <div className="w-full ">
+    <div className="w-full  ">
       <div className="w-full  mx-auto">
-        <div className="bg-white w-full rounded-md shadow-md">
+        <div className="bg-white w-full rounded-md  shadow-md">
           <ul
             className="flex bg-gray-200 items-center gap-2 sm:gap-4 rounded-t-md"
             id="myTab"
@@ -203,7 +203,7 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(true)}
-                className={`flex items-center gap-2 text-sm md:text-base w-full py-4 px-4  ${
+                className={`flex items-center gap-2 text-sm md:text-base w-full py-4 px-4 rounded-tl-2xl  ${
                   isActiveFlightTab ? "bg-white" : "bg-gray-200"
                 }`}
                 id="home-tab"
@@ -219,8 +219,8 @@ const SearchForm = () => {
                   src={flightIcon}
                   alt="Flight Booking"
                 />
-                <span className="hidden sm:inline">Flight Booking</span>
-                <span className="sm:hidden">Flight</span>
+                <span className=" uppercase text-xs sm:text-base font-semibold ">Flight Booking</span>
+                {/* <span className="sm:hidden">Flight</span> */}
               </button>
             </li>
             <li
@@ -229,7 +229,7 @@ const SearchForm = () => {
             >
               <button
                 onClick={() => setIsActiveFlightTab(false)}
-                className={`flex items-center gap-2 text-sm md:text-base w-full py-4 px-4 ${
+                className={`flex items-center gap-2 text-sm md:text-base w-full py-4 px-4 rounded-tr-2xl ${
                   !isActiveFlightTab ? "bg-white" : "bg-gray-200"
                 }`}
                 id="profile-tab"
@@ -245,8 +245,8 @@ const SearchForm = () => {
                   src={hotelIcon}
                   alt="Hotel Booking"
                 />
-                <span className="hidden sm:inline">Hotel Booking</span>
-                <span className="sm:hidden">Hotel</span>
+                <span className="uppercase  text-xs sm:text-base font-semibold">Hotel Booking</span>
+                {/* <span className="sm:hidden">Hotel</span> */}
               </button>
             </li>
           </ul>

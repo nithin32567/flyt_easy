@@ -1,14 +1,11 @@
 import React from "react";
 import Navbar from "../components/Navbar";
 import SearchForm from "../components/SearchForm";
-import Banner from "../components/Banner";
 import CarousalCites from "../components/CarousalCites";
-import { Outlet } from "react-router-dom";
 import Demobanner from "../components/Demobanner";
 import Card from "../components/Card";
 import StayCard from "../components/StayCard";
 import RedefineTravel from "../components/RedefineTravel";
-import MagicCard from "../components/MagicCard";
 import FlightLogos from "../components/FlightLogos";
 import AppAvailableComponent from "../components/AppAvailableComponent";
 import { SquarePlay } from "lucide-react";
@@ -17,14 +14,13 @@ import HomeBotttom from "../components/HomeBotttom";
 const FlightSearch = () => {
   return (
     <div className="relative flex flex-col min-h-screen">
-      <div className="relative z-20">
+      <div className="relative z-20 h-full">
         <Demobanner />
       </div>
 
       <div
         className="
-      -translate-y-[4%]
-      relative z-20 w-full flex flex-col gap-4 px-4 py-8 md:max-w-7xl mx-auto "
+      relative z-20 w-full flex flex-col gap-4 px-4 py-8 md:max-w-7xl mx-auto -translate-y-[2.7%] md:-translate-[4%]"
       >
         <SearchForm />
         <div className="w-full max-w-7xl mx-auto">

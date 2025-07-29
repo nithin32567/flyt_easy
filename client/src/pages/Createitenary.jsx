@@ -3,12 +3,21 @@ import ContactInfoForm from '../components/ContactInfoForm';
 import TravelersList from '../components/TravelersList';
 import { User, Users, CheckCircle } from 'lucide-react';
 import { validateItinerary } from '../utils/validation';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Createitenary = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [contactInfo, setContactInfo] = useState(null);
   const [travelers, setTravelers] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
+  const pricerTUI = localStorage.getItem("pricerTUI");
+  const pricerData = JSON.parse(localStorage.getItem("pricerData"));
+  const netAmount = pricerData.NetAmount;
+  const [itenarySuccess, setItenarySuccess] = useState(false);
+  const navigate = useNavigate();
+
+// proper date validation with current date should be added 
 
   // Sample data for testing
   const sampleContactInfo = {
@@ -66,7 +75,7 @@ const Createitenary = () => {
     setCurrentStep(3);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate the complete itinerary
     const validation = validateItinerary(contactInfo, travelers);
     setValidationErrors(validation.errors);
@@ -76,10 +85,28 @@ const Createitenary = () => {
         ContactInfo: contactInfo,
         Travellers: travelers
       };
-      
+
       console.log('Itinerary Data:', itineraryData);
-      // Here you would typically send the data to your backend
-      alert('Itinerary created successfully!');
+      try {
+        const headers = {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+        const payload={
+          TUI: pricerTUI,
+          ContactInfo: contactInfo,
+          Travellers: travelers,
+          NetAmount: netAmount,
+          ClientID: localStorage.getItem("ClientID")
+        }
+
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/create-itinerary`, payload, { headers });
+        console.log(response.data, '================================= response');
+        localStorage.setItem("TransactionID", response.data.data.TransactionID);
+        setItenarySuccess(true);
+      } catch (error) {
+        console.log(error, '================================= error');
+      }
     } else {
       // Show validation errors
       console.log('Validation Errors:', validation.errors);
@@ -145,17 +172,17 @@ const Createitenary = () => {
           <div className="max-w-6xl mx-auto p-6">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-6">Review Itinerary</h2>
-              
+
               {/* Validation Errors Display */}
               {(() => {
                 const hasGeneralError = validationErrors.general;
                 const hasContactErrors = validationErrors.contactInfo && Object.keys(validationErrors.contactInfo).length > 0;
-                const hasTravelerErrors = validationErrors.travelers && validationErrors.travelers.some(travelerErrors => 
+                const hasTravelerErrors = validationErrors.travelers && validationErrors.travelers.some(travelerErrors =>
                   Object.keys(travelerErrors).length > 0
                 );
-                
+
                 const hasAnyErrors = hasGeneralError || hasContactErrors || hasTravelerErrors;
-                
+
                 return hasAnyErrors ? (
                   <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                     <h3 className="text-lg font-semibold text-red-800 mb-2">Please fix the following errors:</h3>
@@ -173,7 +200,7 @@ const Createitenary = () => {
                   </div>
                 ) : null;
               })()}
-              
+
               {/* Contact Information Review */}
               <div className="border-b border-gray-200 pb-6 mb-6">
                 <h3 className="text-lg font-semibold text-gray-700 mb-4">Contact Information</h3>
@@ -229,12 +256,23 @@ const Createitenary = () => {
                 >
                   Back
                 </button>
+               {!itenarySuccess ? (
+                 <button
+                 onClick={handleSubmit}
+                 className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-md font-semibold transition-colors"
+               >
+                 Create Itinerary
+               </button>
+               ) : (
                 <button
-                  onClick={handleSubmit}
+                  onClick={()=>{
+                    navigate("/payment");
+                  }}
                   className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-md font-semibold transition-colors"
                 >
-                  Create Itinerary
+                  Proceed to Payment
                 </button>
+               )}
               </div>
             </div>
           </div>
@@ -262,15 +300,14 @@ const Createitenary = () => {
               const Icon = step.icon;
               const isActive = currentStep === step.id;
               const isCompleted = currentStep > step.id;
-              
+
               return (
                 <div key={step.id} className="flex items-center">
                   <div className={`flex items-center ${isActive ? 'text-[#f48f22]' : isCompleted ? 'text-green-600' : 'text-gray-400'}`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
-                      isActive ? 'border-[#f48f22] bg-[#f48f22] text-white' :
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${isActive ? 'border-[#f48f22] bg-[#f48f22] text-white' :
                       isCompleted ? 'border-green-600 bg-green-600 text-white' :
-                      'border-gray-300 bg-white'
-                    }`}>
+                        'border-gray-300 bg-white'
+                      }`}>
                       {isCompleted ? (
                         <CheckCircle className="w-5 h-5" />
                       ) : (
@@ -280,9 +317,8 @@ const Createitenary = () => {
                     <span className="ml-2 font-medium">{step.title}</span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className={`w-16 h-0.5 mx-4 ${
-                      isCompleted ? 'bg-green-600' : 'bg-gray-300'
-                    }`} />
+                    <div className={`w-16 h-0.5 mx-4 ${isCompleted ? 'bg-green-600' : 'bg-gray-300'
+                      }`} />
                   )}
                 </div>
               );
