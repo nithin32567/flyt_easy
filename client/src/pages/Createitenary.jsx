@@ -5,6 +5,7 @@ import { User, Users, CheckCircle } from 'lucide-react';
 import { validateItinerary } from '../utils/validation';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import PaymentButton from '../components/PaymentButton';
 
 const Createitenary = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -17,7 +18,7 @@ const Createitenary = () => {
   const [itenarySuccess, setItenarySuccess] = useState(false);
   const navigate = useNavigate();
 
-// proper date validation with current date should be added 
+  // proper date validation with current date should be added 
 
   // Sample data for testing
   const sampleContactInfo = {
@@ -92,7 +93,7 @@ const Createitenary = () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
-        const payload={
+        const payload = {
           TUI: pricerTUI,
           ContactInfo: contactInfo,
           Travellers: travelers,
@@ -104,6 +105,7 @@ const Createitenary = () => {
         console.log(response.data, '================================= response');
         localStorage.setItem("TransactionID", response.data.data.TransactionID);
         setItenarySuccess(true);
+
       } catch (error) {
         console.log(error, '================================= error');
       }
@@ -256,23 +258,22 @@ const Createitenary = () => {
                 >
                   Back
                 </button>
-               {!itenarySuccess ? (
-                 <button
-                 onClick={handleSubmit}
-                 className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-md font-semibold transition-colors"
-               >
-                 Create Itinerary
-               </button>
-               ) : (
-                <button
-                  onClick={()=>{
-                    navigate("/payment");
-                  }}
-                  className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-md font-semibold transition-colors"
-                >
-                  Proceed to Payment
-                </button>
-               )}
+                {!itenarySuccess ? (
+                  <button
+                    onClick={handleSubmit}
+                    className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-md font-semibold transition-colors"
+                  >
+                    Create Itinerary
+                  </button>
+                ) : (
+                  <PaymentButton
+                    TUI={pricerTUI}
+                    amount={netAmount}
+                    name={contactInfo.FName}
+                    email={contactInfo.Email}
+                    contact={contactInfo.Mobile}
+                  />
+                )}
               </div>
             </div>
           </div>

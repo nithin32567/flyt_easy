@@ -1,3 +1,8 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
+
 export const createItinerary = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
     console.log(token, '================================= token');
@@ -60,6 +65,7 @@ export const createItinerary = async (req, res) => {
         }
 
         console.log(finalPayload, '================================= finalPayload');
+        console.log(process.env.FLIGHT_URL, '================================= process.env.FLIGHT_URL');
 
         const response = await fetch(`${process.env.FLIGHT_URL}/Flights/CreateItinerary`, {
             method: "POST",
@@ -94,3 +100,42 @@ export const createItinerary = async (req, res) => {
         });
     }
 };
+
+export const getExistingItinerary = async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    // console.log(token, '================================= token');
+
+    try {
+        const { TransactionID,ClientID } = req.body;
+        console.log(TransactionID,ClientID, '================================= TransactionID,ClientID');
+
+        const payload={
+            ReferenceType:"T",
+            TUI:"",
+            ReferenceNumber:TransactionID,
+            ClientID:ClientID,
+        }
+        const response = await fetch(`${process.env.FLIGHT_URL}/Utils/RetrieveBooking`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data=await response.json();
+        console.log(data, '================================= data');
+        return res.status(200).json({
+            success: true,
+            data: data,
+            message: "Itinerary fetched successfully"
+        });
+    } catch (error) {
+        console.error("Get Existing Itinerary Error:", error?.response?.data || error.message);
+        return res.status(500).json({
+            success: false,
+            message: error?.response?.data || error.message
+        });
+    }
+}

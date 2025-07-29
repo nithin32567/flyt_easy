@@ -178,11 +178,17 @@ const OneWayReview = () => {
                             )}
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-x-4">
                             {oneWayReviewData.SSR && (
                                 <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 font-medium">SSR:</span>
-                                    <span className="text-gray-800 font-semibold">{oneWayReviewData.SSR}</span>
+                                    <span className="text-gray-600 font-medium">SSR Charges:</span>
+                                    <span className="text-gray-800 font-semibold">{oneWayReviewData.SSR.map((item,index)=>{
+                                        return (
+                                            <div className='flex justify-between items-center' key={index}>
+                                                <p><span>{item?.Code}</span> {item?.Description} <span>INR: {item.Charge}</span></p>
+                                            </div>
+                                        )
+                                    })}</span>
                                 </div>
                             )}
 

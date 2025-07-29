@@ -8,7 +8,7 @@ import PaxDetails from "./pages/Pax-details";
 import Luggage from "./components/Luggage";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import PaymentError from "./pages/PaymentError";
-import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentSuccess from "./pages/PaymentSucccess";
 import HotelBooking from "./pages/HotelBooking";
 import HotelDetails from "./pages/HotelDetails";
 import HotelPaymentSuccess from "./pages/HotelPaymentSuccess";
@@ -80,6 +80,7 @@ const App = () => {
           />
           <Route path="/dmo" element={<Dmo />} />
           <Route path="/demobanner" element={<Demobanner />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
         </Routes>
       </BrowserRouter>
       <div className="w-[100%] mx-auto">

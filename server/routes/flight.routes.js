@@ -8,7 +8,8 @@ import { getAirports } from "../controllers/airport.controller.js";
 import { smartPricer } from "../controllers/smartprice.controller.js";
 import { getWebSettings } from "../controllers/websettings.controller.js";
 import { getPricer } from "../controllers/getpricer.controller.js";
-import { createItinerary } from "../controllers/createItenary.controller.js";
+import { createItinerary, getExistingItinerary } from "../controllers/createItenary.controller.js";
+import { startPay } from "../controllers/bookFlight.controller.js";
 
 const router = express.Router();
 
@@ -25,5 +26,9 @@ router.post("/smart-price", smartPricer);
 router.post("/get-pricer", getPricer);
 
 router.post("/create-itinerary", createItinerary);
+
+router.post("/startpay", startPay);
+
+router.post("/get-existing-itenary", getExistingItinerary);
 
 export default router;

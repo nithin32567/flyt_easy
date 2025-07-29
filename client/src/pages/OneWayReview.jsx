@@ -190,9 +190,9 @@ const OneWayReview = () => {
 
                                   {/* Airline Codes */}
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                                    <div><span className="font-semibold">VAC:</span> {segment?.Flight?.VAC}</div>
-                                    <div><span className="font-semibold">MAC:</span> {segment?.Flight?.MAC}</div>
-                                    <div><span className="font-semibold">OAC:</span> {segment?.Flight?.OAC}</div>
+                                   <div>
+                                    
+                                   </div>
                                   </div>
 
                                   {/* Fare & Booking Details */}
