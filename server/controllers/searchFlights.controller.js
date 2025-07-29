@@ -50,8 +50,8 @@ export const expressSearchFlights = async (req, res) => {
       SecType: "",
       Trips: [
         {
-          From: Trips[0].From,
-          To: Trips[0].To,
+          From: Trips[0].From.Code,
+          To: Trips[0].To.Code,
           ReturnDate: FareType === "ON" ? "" : Trips[0].ReturnDate,
           OnwardDate: Trips[0].OnwardDate,
           TUI: Trips[0].TUI || "",
