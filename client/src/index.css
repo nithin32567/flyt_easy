@@ -1,7 +1,6 @@
-@import "tailwindcss";
 @import "@fortawesome/fontawesome-free/css/all.css";
 @import "tw-animate-css";
-
+@import "tailwindcss";
 @custom-variant dark (&:is(.dark *));
 
 .container {

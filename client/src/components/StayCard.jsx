@@ -1,5 +1,6 @@
 import React from "react";
 import { FaLink } from "react-icons/fa";
+import "./carousal.css";
 
 const StayCard = ({ image }) => {
   return (

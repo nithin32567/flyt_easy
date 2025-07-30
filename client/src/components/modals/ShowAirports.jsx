@@ -19,7 +19,7 @@ const ShowAirports = ({ isOpen, setIsOpen, airports, label, onSelect }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 h-[400px]  w-[400px] rounded-2xl top-0 left-0 bg-black/50  flex items-center justify-center z-50 mx-auto">
+    <div className="fixed airport-modal inset-0 h-[400px]  w-[400px] rounded-2xl top-0 left-0 bg-black/50  flex items-center justify-center  mx-auto">
       <div className="bg-white h-full p-4 shadow-lg w-full rounded-2xl max-w-full  relative">
         <div className="flex justify-between items-center mb-2">
           <span className="font-semibold">{label}</span>

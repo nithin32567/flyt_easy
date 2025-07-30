@@ -1,58 +1,98 @@
-/* .carousel-container {
-  margin: auto;
-  max-width: 100%;
-  padding: 0 20px;
-} */
-
-/* .slide-item {
-  display: grid;
-  place-items: center;
-  text-align: center;
-  padding: 0px;
-} */
-/* 
-.slide-item img {
+/* Magic of India Carousel Styles */
+.magicofindia-wrap .carousel-container {
+  margin-top: 20px;
   width: 100%;
-  max-width: 300px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin: auto;
-} */
+  overflow: hidden;
+  margin: 0 0;
+  padding-bottom: 20px;
+}
+
+.magicofindia-wrap .slide-item {
+  box-sizing: border-box;
+  padding: 20px 10px;
+}
+
+.magicofindia-wrap .slick-slide {
+  padding: 0 5px;
+}
+
+.magicofindia-wrap .slick-track {
+  display: flex;
+  align-items: stretch;
+}
+
+.magicofindia-wrap .slick-slide > div {
+  height: 100%;
+}
+
+.magicofindia-wrap .popular-destinations-item {
+  height: 100%;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+.magicofindia-wrap .popular-destinations-item:hover {
+  transform: translateY(-5px);
+}
+
+/* Slick carousel custom styles */
+.magicofindia-wrap .slick-dots {
+  bottom: -40px;
+}
+
+.magicofindia-wrap .slick-dots li button:before {
+  font-size: 12px;
+  color: #007bff;
+}
+
+.magicofindia-wrap .slick-dots li.slick-active button:before {
+  color: #0056b3;
+}
+
+.magicofindia-wrap .slick-prev,
+.magicofindia-wrap .slick-next {
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+}
+
+.magicofindia-wrap .slick-prev {
+  left: -50px;
+}
+
+.magicofindia-wrap .slick-next {
+  right: -50px;
+}
+
+.magicofindia-wrap .slick-prev:before,
+.magicofindia-wrap .slick-next:before {
+  font-size: 24px;
+  color: #007bff;
+}
 
 /* Responsive adjustments */
-/* @media (max-width: 768px) { */
-/* .carousel-container {
-    padding: 0 10px;
+@media (max-width: 768px) {
+  .magicofindia-wrap .slick-prev {
+    left: -30px;
   }
-
-  .slide-item img {
-    max-width: 250px;
-    height: 150px;
+  
+  .magicofindia-wrap .slick-next {
+    right: -30px;
+  }
+  
+  .magicofindia-wrap .slide-item {
+    padding: 0 5px;
   }
 }
 
 @media (max-width: 480px) {
-  .carousel-container {
-    padding: 0 5px;
+  .magicofindia-wrap .slick-prev {
+    left: -20px;
   }
-
-  .slide-item img {
-    max-width: 200px;
-    height: 120px;
+  
+  .magicofindia-wrap .slick-next {
+    right: -20px;
   }
-} */
-
-.carousel-container {
-  padding-bottom: 20px;
-}
-.carousel-container {
-  width: 100%;
-  overflow: hidden;
-  margin: 0 0;
-}
-
-.slide-item {
-  box-sizing: border-box;
-  padding: 20px 10px;
 }

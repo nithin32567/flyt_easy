@@ -18,7 +18,7 @@ export function CalanderModal({ isOpen, setIsOpen, setDate }) {
   }
 
   return (
-    <div className="fixed inset-0 w-[400px]   mx-auto bg-black/90  rounded-md bg-opacity-30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 w-[400px] calander-modal  mx-auto bg-black/90  rounded-md bg-opacity-30 flex items-center justify-center z-50">
       <Calendar
         mode="single"
         onSelect={handleSelectAndClose}

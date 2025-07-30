@@ -1,0 +1,93 @@
+/* Stays Carousel Styles */
+.stays-carousel {
+  margin-top: 20px;
+}
+
+.carousel-item-wrapper {
+  padding: 0 10px;
+}
+
+.stays-carousel .slick-slide {
+  padding: 0 5px;
+}
+
+.stays-carousel .slick-track {
+  display: flex;
+  align-items: stretch;
+}
+
+.stays-carousel .slick-slide > div {
+  height: 100%;
+}
+
+.stays-carousel .popular-destinations-item {
+  height: 100%;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s ease;
+}
+
+.stays-carousel .popular-destinations-item:hover {
+  transform: translateY(-5px);
+}
+
+/* Slick carousel custom styles */
+.stays-carousel .slick-dots {
+  bottom: -40px;
+}
+
+.stays-carousel .slick-dots li button:before {
+  font-size: 12px;
+  color: #007bff;
+}
+
+.stays-carousel .slick-dots li.slick-active button:before {
+  color: #0056b3;
+}
+
+.stays-carousel .slick-prev,
+.stays-carousel .slick-next {
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+}
+
+.stays-carousel .slick-prev {
+  left: -50px;
+}
+
+.stays-carousel .slick-next {
+  right: -50px;
+}
+
+.stays-carousel .slick-prev:before,
+.stays-carousel .slick-next:before {
+  font-size: 24px;
+  color: #007bff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stays-carousel .slick-prev {
+    left: -30px;
+  }
+  
+  .stays-carousel .slick-next {
+    right: -30px;
+  }
+  
+  .carousel-item-wrapper {
+    padding: 0 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stays-carousel .slick-prev {
+    left: -20px;
+  }
+  
+  .stays-carousel .slick-next {
+    right: -20px;
+  }
+} 

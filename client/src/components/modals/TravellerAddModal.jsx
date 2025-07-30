@@ -24,7 +24,7 @@ export default function TravellerAddModal({
 
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 ">
+    <div className=" traveller-add-modal fixed inset-0 flex items-center justify-center z-50 bg-black/50 ">
       <div className="bg-white rounded shadow-lg w-96 max-w-full p-6 relative">
         <div className="flex justify-between items-center mb-4">
           <span className="font-semibold text-lg">TRAVELLERS & CLASS</span>

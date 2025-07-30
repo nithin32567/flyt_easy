@@ -18,6 +18,7 @@ import HeaderSection from "./components/HeaderSection";
 import ListFlights from "./pages/ListFlights";
 import Createitenary from "./pages/Createitenary";
 import Footer1 from "./components/Footer1";
+import HeaderWrapper from "./components/HeaderWrapper";
 import Footer from "./components/Footer";
 
 const App = () => {
@@ -50,47 +51,88 @@ const App = () => {
   const headerStyle =
     scrollPosition > 200
       ? "w-full fixed top-0 left-0 right-0 z-90 shadow-md bg-white"
+<<<<<<< HEAD
       : "max-w-7xl fixed -top-3 left-0 right-0 z-90  mx-auto rounded-xl my-12 shadow-md";
   return (
     // responsivenes
     <div className="">
     
 
+=======
+      : "fixed -top-3 left-0 right-0 z-90 max-w-7xl mx-auto rounded-xl my-12 shadow-md";
+  return (
+    // responsivenes
+    <div className="">
+      <HeaderWrapper />
+>>>>>>> a1f7a2a (ui rewampt)
       <BrowserRouter>
         <Routes>
-          {/* <Route path="/" element={<Login />} /> */}
-          <Route path="/" element={<FlightSearch />} />
+          <Route path="/" element={<Dmo />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/flight-list" element={<ListFlights />} />
-          <Route path="/one-way-review" element={<OneWayReview />} />
-          <Route path="/pax-details" element={<PaxDetails />} />
-          <Route path="/luggage" element={<Luggage />} />
           <Route path="/review" element={<OneWayReview />} />
           <Route path="/create-itenary" element={<Createitenary />} />
-          <Route
-            path="/booking-confirmation"
-            element={<BookingConfirmation />}
-          />
+          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
           <Route path="/payment-error" element={<PaymentError />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/hotel-booking" element={<HotelBooking />} />
           <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
-          <Route
-            path="/hotel-payment-success"
-            element={<HotelPaymentSuccess />}
-          />
+          <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
           <Route path="/dmo" element={<Dmo />} />
           <Route path="/demobanner" element={<Demobanner />} />
+<<<<<<< HEAD
           <Route path="/payment-success" element={<PaymentSuccess />} />
+=======
+          <Route path="/header-section" element={<HeaderSection />} />
+          <Route path="/footer1" element={<Footer1 />} />
+          <Route path="/footer" element={<Footer />} />
+          <Route path="/flight-search" element={<FlightSearch />} />
+          <Route path="/flight-listing" element={<FlightListing />} />
+          <Route path="/one-way-review" element={<OneWayReview />} />
+>>>>>>> a1f7a2a (ui rewampt)
         </Routes>
       </BrowserRouter>
-      <div className="w-[100%] mx-auto">
-          <Footer1 /> 
-        </div>
-        <div className="w-[100%] mx-auto">
-          <Footer />
-        </div>
+      <Footer />  
+      
+      
     </div>
   );
 };
 
 export default App;
+
+// <div className={headerStyle}>
+// <HeaderSection />
+// </div>
+
+// <BrowserRouter>
+// <Routes>
+//   {/* <Route path="/" element={<Login />} /> */}
+//   <Route path="/" element={<FlightSearch />} />
+//   <Route path="/flight-list" element={<ListFlights />} />
+//   <Route path="/one-way-review" element={<OneWayReview />} />
+//   <Route path="/pax-details" element={<PaxDetails />} />
+//   <Route path="/luggage" element={<Luggage />} />
+//   <Route path="/review" element={<OneWayReview />} />
+//   <Route path="/create-itenary" element={<Createitenary />} />
+//   <Route
+//     path="/booking-confirmation"
+//     element={<BookingConfirmation />}
+//   />
+//   <Route path="/payment-error" element={<PaymentError />} />
+//   <Route path="/payment-success" element={<PaymentSuccess />} />
+//   <Route path="/hotel-booking" element={<HotelBooking />} />
+//   <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
+//   <Route
+//     path="/hotel-payment-success"
+//     element={<HotelPaymentSuccess />}
+//   />
+//   <Route path="/dmo" element={<Dmo />} />
+//   <Route path="/demobanner" element={<Demobanner />} />
+// </Routes>
+// </BrowserRouter>
+// <div className="w-[100%] mx-auto">
+// <Footer1 />
+// </div>
+// <div className="w-[100%] mx-auto">
+// <Footer />
+// </div>
