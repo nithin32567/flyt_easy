@@ -9,7 +9,10 @@ export const createItinerary = async (req, res) => {
 
     try {
         const gender = req.body.Travellers[0].Gender;
-        const netAmount = parseInt(req.body.NetAmount);
+        // Use the exact NetAmount value without parsing to avoid precision issues
+        const netAmount = req.body.NetAmount;
+        console.log(netAmount, '================================= netAmount');
+        console.log('Original NetAmount from request:', req.body.NetAmount, 'Type:', typeof req.body.NetAmount);
         const genderCode = gender === "Male" ? "M" : "F";
         // console.log(req.body, '================================= req.body');
         const finalPayload = {
@@ -69,7 +72,15 @@ export const createItinerary = async (req, res) => {
         console.log(finalPayload, '================================= finalPayload');
         console.log(process.env.FLIGHT_URL, '================================= process.env.FLIGHT_URL');
 
-        const response = await fetch(`${process.env.FLIGHT_URL}/Flights/CreateItinerary`, {
+        const apiUrl = `${process.env.FLIGHT_URL}/Flights/CreateItinerary`;
+        console.log('Making request to:', apiUrl);
+        console.log('Request headers:', {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        });
+        console.log('Request body:', JSON.stringify(finalPayload, null, 2));
+
+        const response = await fetch(apiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -80,6 +91,8 @@ export const createItinerary = async (req, res) => {
 
         const data = await response.json();
 
+        console.log('External API Response Status:', response.status);
+        console.log('External API Response Headers:', Object.fromEntries(response.headers.entries()));
         console.log(data, '================================= data create itenary');
         if (data.Code === "200") {
             return res.status(200).json({
@@ -88,10 +101,16 @@ export const createItinerary = async (req, res) => {
                 message: "Itinerary created successfully"
             });
         } else {
+            console.log('API Error Response:', data);
+            console.log('Error Code:', data.Code);
+            console.log('Error Messages:', data.Msg);
+            
+            // Return the exact error from the external API
             return res.status(400).json({
                 success: false,
                 data: data,
-                message: "Itinerary creation failed"
+                message: data.Msg ? (Array.isArray(data.Msg) ? data.Msg.join(', ') : data.Msg) : "Itinerary creation failed",
+                errorCode: data.Code
             });
         }
     } catch (error) {

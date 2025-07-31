@@ -15,9 +15,13 @@ const Createitenary = () => {
   const pricerTUI = localStorage.getItem("pricerTUI");
   const pricerData = JSON.parse(localStorage.getItem("pricerData"));
   // const reviewData = JSON.parse(localStorage.getItem("oneWayReviewData"));
-  const netAmount = pricerData.NetAmount;
+  const netAmount = pricerData.NetAmount; // Use the exact value without parsing
   const [itenarySuccess, setItenarySuccess] = useState(false);
   const navigate = useNavigate();
+
+  // Debug logging
+  console.log('PricerData:', pricerData);
+  console.log('NetAmount from pricerData:', netAmount, 'Type:', typeof netAmount);
 
   // proper date validation with current date should be added 
 
@@ -83,6 +87,17 @@ const Createitenary = () => {
     setValidationErrors(validation.errors);
 
     if (validation.isValid) {
+      // Additional validation for required data
+      if (!pricerTUI) {
+        alert('Missing pricing data. Please try searching for flights again.');
+        return;
+      }
+      
+      if (!netAmount || netAmount <= 0) {
+        alert('Invalid pricing data. Please try searching for flights again.');
+        return;
+      }
+
       const itineraryData = {
         ContactInfo: contactInfo,
         Travellers: travelers
@@ -102,13 +117,29 @@ const Createitenary = () => {
           ClientID: localStorage.getItem("ClientID")
         }
 
+        console.log('Sending payload with NetAmount:', netAmount, 'Type:', typeof netAmount);
+        console.log('Full payload:', payload);
+        console.log('Original pricerData NetAmount:', pricerData.NetAmount, 'Type:', typeof pricerData.NetAmount);
+        console.log('TUI being sent:', pricerTUI);
+        
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/create-itinerary`, payload, { headers });
         console.log(response.data, '================================= response');
-        localStorage.setItem("TransactionID", response.data.data.TransactionID);
-        setItenarySuccess(true);
+        
+        if (response.data.success) {
+          localStorage.setItem("TransactionID", response.data.data.TransactionID);
+          setItenarySuccess(true);
+        } else {
+          console.error('API Error:', response.data.message);
+          console.error('Error Code:', response.data.errorCode);
+          console.error('Full Error Response:', response.data);
+          alert(`Failed to create itinerary: ${response.data.message}`);
+        }
 
       } catch (error) {
         console.log(error, '================================= error');
+        console.log('Error response:', error.response?.data);
+        const errorMessage = error.response?.data?.message || error.message || 'Failed to create itinerary';
+        alert(`Error: ${errorMessage}`);
       }
     } else {
       // Show validation errors
