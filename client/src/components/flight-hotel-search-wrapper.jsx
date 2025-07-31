@@ -81,7 +81,7 @@ const FlightHotelWearchWrapper = () => {
     }
   };
 
-  // Express Search
+  // Express Searchhea
   async function handleExpressSearch(e) {
     e.preventDefault();
 
@@ -231,7 +231,7 @@ const FlightHotelWearchWrapper = () => {
                       <li>
                         <label>
                           <input
-                            onClick={() => setTripType("ON")}
+                            onChange={() => setTripType("ON")}
                             type="radio"
                             name="trip"
                             id="oneway"
@@ -243,7 +243,7 @@ const FlightHotelWearchWrapper = () => {
                       <li>
                         <label>
                           <input
-                            onClick={() => setTripType("RT")}
+                            onChange={() => setTripType("RT")}
                             type="radio"
                             name="trip"
                             id="roundtrip"
@@ -255,7 +255,7 @@ const FlightHotelWearchWrapper = () => {
                       <li>
                         <label>
                           <input
-                            onClick={() => setTripType("MC")}
+                            onChange={() => setTripType("MC")}
                             type="radio"
                             name="trip"
                             id="multicity"

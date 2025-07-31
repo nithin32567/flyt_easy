@@ -1,15 +1,12 @@
-import Razorpay from "razorpay";
-import crypto from "crypto";
-import dotenv from "dotenv";
 import axios from "axios";
-
-dotenv.config();
-
+import crypto from "crypto";
+import Razorpay from "razorpay";
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
+
 console.log(process.env.RAZORPAY_KEY_ID, '================================= process.env.RAZORPAY_KEY_ID');
 console.log(process.env.RAZORPAY_KEY_SECRET, '================================= process.env.RAZORPAY_KEY_SECRET');
 export const bookFlight = async (req, res) => {
@@ -42,25 +39,36 @@ export const verifyPayment = async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
         console.log(razorpay_order_id, razorpay_payment_id, razorpay_signature, '================================= razorpay_order_id, razorpay_payment_id, razorpay_signature');
+        
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            console.log('Missing payment details');
             return res.status(400).json({ success: false, message: "Missing payment details" });
         }
 
         const sign = `${razorpay_order_id}|${razorpay_payment_id}`;
+        console.log('Sign string:', sign);
+        console.log('RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET ? 'Present' : 'Missing');
+        
         const expectedSign = crypto
             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
             .update(sign)
             .digest("hex");
 
+        console.log('Expected signature:', expectedSign);
+        console.log('Received signature:', razorpay_signature);
+        console.log('Signatures match:', expectedSign === razorpay_signature);
+
         if (expectedSign === razorpay_signature) {
+            console.log('Payment verification successful');
             return res.json({
                 success: true, message: "Payment verified successfully"
-
             });
         } else {
+            console.log('Invalid signature');
             return res.status(400).json({ success: false, message: "Invalid signature" });
         }
     } catch (error) {
+        console.error('Payment verification error:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -69,8 +77,6 @@ export const startPay = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     // console.log(token, '================================= token');
     try {
-
-
         const {
             TransactionID,
             PaymentAmount,
@@ -145,7 +151,17 @@ export const startPay = async (req, res) => {
         }
         const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/StartPay`, finalPayload, { headers });
         console.log(response.data, '================================= response');
+        
+        return res.status(200).json({
+            success: true,
+            data: response.data,
+            message: "Payment processed successfully"
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        console.error("StartPay Error:", error?.response?.data || error.message);
+        return res.status(500).json({ 
+            success: false, 
+            message: error?.response?.data || error.message 
+        });
     }
 }

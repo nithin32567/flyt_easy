@@ -14,6 +14,7 @@ const Createitenary = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const pricerTUI = localStorage.getItem("pricerTUI");
   const pricerData = JSON.parse(localStorage.getItem("pricerData"));
+  // const reviewData = JSON.parse(localStorage.getItem("oneWayReviewData"));
   const netAmount = pricerData.NetAmount;
   const [itenarySuccess, setItenarySuccess] = useState(false);
   const navigate = useNavigate();

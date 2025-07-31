@@ -11,21 +11,31 @@ const PaymentSucccess = () => {
         contact: false
     });
 
+    console.log('PaymentSuccess component loaded');
+    console.log('TransactionID:', transactionID);
+    console.log('ClientID:', clientID);
+
     useEffect(() => {
+        console.log('PaymentSuccess useEffect triggered');
         fetchExistingItinerary();
     }, []);
 
     const fetchExistingItinerary = async () => {
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-existing-itenary`, {
-            TransactionID: transactionID,
-            ClientID: clientID
-        }, {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
-        console.log(response.data, '================================= response');
-        setBookingData(response.data.data);
+        console.log('Fetching existing itinerary...');
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-existing-itenary`, {
+                TransactionID: transactionID,
+                ClientID: clientID
+            }, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            console.log('Existing itinerary response:', response.data);
+            setBookingData(response.data.data);
+        } catch (error) {
+            console.error('Error fetching existing itinerary:', error);
+        }
     }
 
     // Helper function to format date

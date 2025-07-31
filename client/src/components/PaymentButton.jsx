@@ -2,9 +2,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-
-
-
 const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     const token = localStorage.getItem("token");
     console.log(amount, name, email, contact, '================================= amount, name, email, contact');
@@ -12,6 +9,7 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     const clientID = localStorage.getItem("ClientID");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    
     const loadRazorpay = (src) => {
         return new Promise((resolve) => {
             const script = document.createElement("script");
@@ -31,35 +29,37 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             TUI: TUI,
         }
         try {
+            console.log('Starting payment with payload:', payload);
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/startpay`, payload, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 },
             });
-            console.log(response.data, '================================= response');
+            console.log('StartPay response:', response.data);
+            return response.data;
         } catch (error) {
-            console.log(error, '================================= error');
+            console.error('StartPay error:', error);
+            throw error;
         }
     }
 
     const handlePayment = async () => {
         setLoading(true);
 
-        const res = await loadRazorpay("https://checkout.razorpay.com/v1/checkout.js");
-        if (!res) {
-            alert("Failed to load Razorpay SDK. Please check your connection.");
-            setLoading(false);
-            return;
-        }
-
         try {
+            const res = await loadRazorpay("https://checkout.razorpay.com/v1/checkout.js");
+            if (!res) {
+                alert("Failed to load Razorpay SDK. Please check your connection.");
+                setLoading(false);
+                return;
+            }
+
             // 1. Create order on backend
+            console.log('Creating Razorpay order...');
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/razorpay/bookFlight`, {
                 amount: amount,
-
-            },
-            );
-            console.log(response.data.order, '================================= response');
+            });
+            console.log('Razorpay order created:', response.data.order);
 
             const options = {
                 key: "rzp_test_9Hi6wVlmuLeJ77",
@@ -69,19 +69,35 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 description: "Flight Payment",
                 order_id: response.data.order.id,
                 handler: async function (response) {
-                    console.log(response, '================================= response');
-                    // 2. Verify payment signature
-                    const verify = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/razorpay/verifyPayment`, {
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature
-                    });
-                    console.log(verify.data, '================================= verify');
-                    if (verify.data.success) {
-                        await startPay();
-                        alert("✅ Payment Successful!");
-                        navigate("/payment-success");
-                    } else {
+                    console.log('Payment successful, verifying...', response);
+                    try {
+                        // 2. Verify payment signature
+                        const verify = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/razorpay/verifyPayment`, {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        });
+                        console.log('Payment verification response:', verify.data);
+                        
+                        if (verify.data.success) {
+                            console.log('Payment verified successfully, starting payment...');
+                            await startPay();
+                            alert("✅ Payment Successful!");
+                            console.log('Navigating to payment success page...');
+                            console.log('Current location before navigation:', window.location.pathname);
+                            
+                            // Add a small delay to ensure everything is processed
+                            setTimeout(() => {
+                                console.log('Executing navigation to /payment-success');
+                                navigate("/payment-success");
+                                console.log('Navigation executed');
+                            }, 1000);
+                        } else {
+                            console.error('Payment verification failed:', verify.data);
+                            alert("❌ Payment Verification Failed!");
+                        }
+                    } catch (error) {
+                        console.error('Error in payment verification:', error);
                         alert("❌ Payment Verification Failed!");
                     }
                 },
@@ -95,21 +111,20 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             };
 
-            console.log(options, '================================= options');
-
-
+            console.log('Opening Razorpay with options:', options);
             const rzp = new window.Razorpay(options);
             rzp.open();
 
             rzp.on("payment.failed", function (response) {
+                console.error('Payment failed:', response);
                 alert(`❌ Payment Failed: ${response.error.description}`);
+                setLoading(false);
             });
         } catch (err) {
-            console.error(err);
+            console.error('Error in handlePayment:', err);
             alert("Something went wrong");
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     return (

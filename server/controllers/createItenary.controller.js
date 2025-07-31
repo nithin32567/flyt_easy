@@ -9,6 +9,7 @@ export const createItinerary = async (req, res) => {
 
     try {
         const gender = req.body.Travellers[0].Gender;
+        const netAmount = parseInt(req.body.NetAmount);
         const genderCode = gender === "Male" ? "M" : "F";
         // console.log(req.body, '================================= req.body');
         const finalPayload = {
@@ -53,10 +54,11 @@ export const createItinerary = async (req, res) => {
                     Operation: "0",
                 }
             ],
+            
             PLP: req.body.PLP || [],
             SSR: req.body.SSR || [],
             CrossSell: req.body.CrossSell || [],
-            NetAmount: req.body.NetAmount || 0,
+            NetAmount: netAmount, 
             SSRAmount: req.body.SSRAmount || 0,
             ClientID: req.body.ClientID || "",
             DeviceID: "",

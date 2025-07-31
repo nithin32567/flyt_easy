@@ -18,7 +18,7 @@ const OneWayReview = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="min-h-screen bg-gray-50 py-8 px-4 py-[10%]">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -116,13 +116,13 @@ const OneWayReview = () => {
                         <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Booking Information</h2>
 
                         <div className="space-y-4">
-                            <div className="flex justify-between items-center">
+                            {/* <div className="flex justify-between items-center">
                                 <span className="text-gray-600 font-medium">Status Code:</span>
                                 <span className={`px-2 py-1 rounded text-sm font-medium ${oneWayReviewData.Code === "200" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                                     }`}>
                                     {oneWayReviewData.Code}
                                 </span>
-                            </div>
+                            </div> */}
 
                             <div className="flex justify-between items-center">
                                 <span className="text-gray-600 font-medium">Source:</span>
@@ -148,7 +148,7 @@ const OneWayReview = () => {
                 </div>
 
                 {/* Messages */}
-                {oneWayReviewData.Msg && oneWayReviewData.Msg.length > 0 && (
+                {/* {oneWayReviewData.Msg && oneWayReviewData.Msg.length > 0 && (
                     <div className="bg-white rounded-lg shadow-md p-6 mt-6">
                         <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Messages</h2>
                         <div className="space-y-2">
@@ -160,10 +160,10 @@ const OneWayReview = () => {
                             ))}
                         </div>
                     </div>
-                )}
+                )} */}
 
                 {/* Technical Details */}
-                <div className="bg-white rounded-lg shadow-md p-6 mt-6">
+                {/* <div className="bg-white rounded-lg shadow-md p-6 mt-6">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Technical Details</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -207,7 +207,7 @@ const OneWayReview = () => {
                             )}
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {/* Action Buttons */}
                 <div className="bg-white rounded-lg shadow-md p-6 mt-6">
