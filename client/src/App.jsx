@@ -12,7 +12,7 @@ import PaymentSuccess from "./pages/PaymentSucccess";
 import HotelBooking from "./pages/HotelBooking";
 import HotelDetails from "./pages/HotelDetails";
 import HotelPaymentSuccess from "./pages/HotelPaymentSuccess";
-import Dmo from "./pages/Dmo";
+import Home from "./pages/Home";
 import Demobanner from "./components/Demobanner";
 import HeaderSection from "./components/HeaderSection";
 import ListFlights from "./pages/ListFlights";
@@ -37,30 +37,18 @@ const App = () => {
     fetchSignature();
   }, []);
 
-  useEffect(() => {
-    window.addEventListener("scroll", () => {
-      setScrollPosition(window.scrollY);
-    });
-    return () => {
-      window.removeEventListener("scroll", () => {
-        setScrollPosition(window.scrollY);
-      });
-    };
-  }, []);
 
-  const headerStyle =
-    scrollPosition > 200
-      ? "w-full fixed top-0 left-0 right-0 z-90 shadow-md bg-white"
 
-      : "fixed -top-3 left-0 right-0 z-90 max-w-7xl mx-auto rounded-xl my-12 shadow-md";
+  
   return (
     // responsivenes
     <div className="">
+    
+      <BrowserRouter>
       <HeaderWrapper />
 
-      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dmo />} />
+            <Route path="/" element={<Home />} />
           <Route path="/flight-list" element={<ListFlights />} />
           <Route path="/review" element={<OneWayReview />} />
           <Route path="/create-itenary" element={<Createitenary />} />
@@ -70,7 +58,7 @@ const App = () => {
           <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
           <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/dmo" element={<Dmo />} />
+          <Route path="/dmo" element={<Home />} />
           <Route path="/demobanner" element={<Demobanner />} />
 
           <Route path="/header-section" element={<HeaderSection />} />

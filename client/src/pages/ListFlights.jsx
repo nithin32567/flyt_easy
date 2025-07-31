@@ -81,20 +81,23 @@ const ListFlights = () => {
   }, [selectedFlight])
 
   // console.log(flights[0])
-  return <div className=" max-w-7xl p-12 py-40 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div className="flex justify-center items-center">
-      {/* list flight descriptoon */}
-    </div>
-      {
-      // if flights is not empty then show the flights
-      
-      flights.length > 0 ? flights.map((flight, index) => (
-        <FlightCard key={index} flight={flight} setSelectedFlight={setSelectedFlight} />
-      )) : <div className="text-center text-2xl font-bold">No flights found</div>
-    }
-    
-    
-  </div>;
+  return (
+  <div className="pt-40">
+    <h1 className="text-center text-2xl font-bold mb-4">Flight List</h1>
+<div className=" max-w-7xl mx-auto grid grid- cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+{
+// if flights is not empty then show the flights
+
+flights.length > 0 ? flights.map((flight, index) => (
+  <FlightCard key={index} flight={flight} setSelectedFlight={setSelectedFlight} />
+)) : <div className="text-center text-2xl font-bold">No flights found</div>
+}
+
+
+</div>;
+  </div>
+  )
 };
 
 export default ListFlights;

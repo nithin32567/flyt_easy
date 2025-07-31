@@ -18,7 +18,7 @@ const OneWayReview = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 py-[10%]">
+        <div className="min-h-screen bg-gray-50 pt-40">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">

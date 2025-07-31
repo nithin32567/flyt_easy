@@ -67,7 +67,7 @@ const PaymentSucccess = () => {
     };
 
     return (  
-        <div className='min-h-screen bg-gray-50'>
+        <div className='min-h-screen bg-gray-50 pt-40'>
             <div className='max-w-6xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8'>
                 <h1 className='text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-4 sm:mb-6 md:mb-8 text-gray-800 px-2'>Review Your Booking</h1>
                 

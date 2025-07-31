@@ -186,7 +186,7 @@ const FlightHotelWearchWrapper = () => {
         <div className="container">
           <div className="booking-tabs-wrapper">
             <ul className="nav nav-tabs" id="myTab" role="tablist">
-              <li className="nav-item" role="presentation">
+              <li className="nav-item items-center justify-center" role="presentation">
                 <button
                   onClick={() => setIsActiveFlightTab(true)}
                   className={`nav-link ${isActiveFlightTab ? "active" : ""}`}
@@ -202,7 +202,7 @@ const FlightHotelWearchWrapper = () => {
                   Flight Booking
                 </button>
               </li>
-              <li className="nav-item" role="presentation">
+              <li className="nav-item items-center justify-center" role="presentation">
                 <button
                   onClick={() => setIsActiveFlightTab(false)}
                   className={`nav-link ${!isActiveFlightTab ? "active" : ""}`}
