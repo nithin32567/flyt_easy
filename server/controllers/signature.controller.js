@@ -13,12 +13,15 @@ export const generateToken = async (req, res) => {
       Key: process.env.KEY,
     };
 
+
+    console.log(payload, "payload");
     const response = await fetch(process.env.SIGNATURE_API, {
       method: "POST",
       body: JSON.stringify(payload),
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json();
+    console.log(data, "data");
     const token = data?.Token;
     console.log(token, "token");
     res.cookie("token", token, {

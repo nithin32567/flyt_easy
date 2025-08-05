@@ -61,7 +61,9 @@ const ListFlights = () => {
       const data = response.data
       console.log(data, "data=========================")
       localStorage.setItem("pricerData", JSON.stringify(data.data))
+      localStorage.setItem("netamount", data.data.NetAmount) 
       localStorage.setItem("oneWayReviewData", JSON.stringify(data.data))
+      localStorage.setItem("pricerTUI", data.data.TUI)
       navigate("/one-way-review")
     } else {
       console.log("inside the else condition")

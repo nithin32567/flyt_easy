@@ -485,8 +485,15 @@ const PaymentSucccess = () => {
                         </div>
                     )}
                 </div>
+              
             </div>
+            <button 
+            style={{
+              
+            }}
+            className='text-center mx-auto flex justify-center items-center bg-orange-400 text-white p-2 rounded-xl px-8 py-2'>Go To Home</button>
         </div>
+
     )
 }
 

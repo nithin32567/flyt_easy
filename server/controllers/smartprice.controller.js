@@ -36,7 +36,8 @@ export const smartPricer = async (req, res) => {
 
     try {
       const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/SmartPricer`, payload, { headers })
-      console.log(response, "response=========================")
+      // console.log(response, "response=========================")
+      console.log(response.data, "response.data=========================")
       return res.status(200).json(response.data)
     } catch (error) {
       console.log(error, "error=========================")

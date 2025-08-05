@@ -16,12 +16,14 @@ export const getPricer = async (req, res) => {
       TUI: TUI,
       ClientID: ""
     }
+
+    console.log(payload, "payload get pricer controller");
     const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/GetSPricer`, payload, { headers })
 
 
     console.log(response, 'response get pricer controller*****************');
     const data = await response.data;
-    // console.log(data, '=================  ******************data get pricer controller');
+    console.log(data, '=================  ******************data get pricer controller');
     return res.status(200).json({
       Code: "200",
       Msg: "Pricer fetched successfully",

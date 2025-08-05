@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import axios from "axios";
 
 dotenv.config();
 
@@ -41,18 +42,18 @@ export const createItinerary = async (req, res) => {
             Travellers: [
                 {
                     ID: 1,
-                    Title: "Mr",
+                    Title: req.body.Travellers[0].Title || "Mr",
                     FName: req.body.Travellers[0].FName,
                     LName: req.body.Travellers[0].LName,
-                    Age: 25,
-                    DOB: "2000-07-27",
+                    Age: req.body.Travellers[0].Age || 25,
+                    DOB: req.body.Travellers[0].DOB || "2000-07-27",
                     Gender: genderCode,
                     PTC: req.body.Travellers[0].PTC,
                     Nationality: req.body.Travellers[0].Nationality || "IN",
                     PassportNo: req.body.Travellers[0].PassportNo || "HM8888HJJ6K",
                     PLI: "Cochin",
-                    PDOE: "2029-12-15",
-                    VisaType: "Visiting Visa",
+                    PDOE: req.body.Travellers[0].PDOE || "2029-12-15",
+                    VisaType: req.body.Travellers[0].VisaType || "Visiting Visa",
                     PaxID: "",
                     Operation: "0",
                 }
@@ -61,7 +62,7 @@ export const createItinerary = async (req, res) => {
             PLP: req.body.PLP || [],
             SSR: req.body.SSR || [],
             CrossSell: req.body.CrossSell || [],
-            NetAmount: netAmount, 
+                NetAmount: netAmount ,
             SSRAmount: req.body.SSRAmount || 0,
             ClientID: req.body.ClientID || "",
             DeviceID: "",
@@ -80,39 +81,24 @@ export const createItinerary = async (req, res) => {
         });
         console.log('Request body:', JSON.stringify(finalPayload, null, 2));
 
-        const response = await fetch(apiUrl, {
-            method: "POST",
+        const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/CreateItinerary`, finalPayload, {
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/json"
             },
-            body: JSON.stringify(finalPayload)
+                data: finalPayload
+        });
+        console.log(response, '================================= response');
+        const data = await response.data;
+        console.log(data, '================================= data');
+        return res.status(200).json({
+            success: true,
+            data: data,
+            message: "Itinerary created successfully"
         });
 
-        const data = await response.json();
-
-        console.log('External API Response Status:', response.status);
-        console.log('External API Response Headers:', Object.fromEntries(response.headers.entries()));
-        console.log(data, '================================= data create itenary');
-        if (data.Code === "200") {
-            return res.status(200).json({
-                success: true,
-                data: data,
-                message: "Itinerary created successfully"
-            });
-        } else {
-            console.log('API Error Response:', data);
-            console.log('Error Code:', data.Code);
-            console.log('Error Messages:', data.Msg);
-            
-            // Return the exact error from the external API
-            return res.status(400).json({
-                success: false,
-                data: data,
-                message: data.Msg ? (Array.isArray(data.Msg) ? data.Msg.join(', ') : data.Msg) : "Itinerary creation failed",
-                errorCode: data.Code
-            });
-        }
+      
     } catch (error) {
         console.error("Create Itinerary Error:", error?.response?.data || error.message);
         return res.status(500).json({

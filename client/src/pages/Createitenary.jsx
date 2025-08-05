@@ -15,7 +15,7 @@ const Createitenary = () => {
   const pricerTUI = localStorage.getItem("pricerTUI");
   const pricerData = JSON.parse(localStorage.getItem("pricerData"));
   // const reviewData = JSON.parse(localStorage.getItem("oneWayReviewData"));
-  const netAmount = pricerData.NetAmount; // Use the exact value without parsing
+  const netAmount = localStorage.getItem("netamount") // Use the exact value without parsing
   const [itenarySuccess, setItenarySuccess] = useState(false);
   const navigate = useNavigate();
 
@@ -26,41 +26,7 @@ const Createitenary = () => {
   // proper date validation with current date should be added 
 
   // Sample data for testing
-  const sampleContactInfo = {
-    Title: "Mr",
-    FName: "John",
-    LName: "Doe",
-    Mobile: "9876543210",
-    Phone: "0484123456",
-    Email: "john.doe@example.com",
-    Address: "123, MG Road",
-    CountryCode: "IN",
-    State: "Kerala",
-    City: "Kochi",
-    PIN: "682001",
-    GSTCompanyName: "Doe Enterprises",
-    GSTTIN: "32ABCDE1234F1Z5",
-    GSTMobile: "9876543210",
-    GSTEmail: "gst@example.com",
-    UpdateProfile: false,
-    IsGuest: false
-  };
 
-  const sampleTraveler = {
-    ID: 1,
-    Title: "Mr",
-    FName: "Alex",
-    LName: "Mason",
-    Age: 30,
-    DOB: "1994-01-15",
-    Gender: "M",
-    PTC: "ADT",
-    Nationality: "IN",
-    PassportNo: "M1234567",
-    PLI: "Kochi",
-    PDOE: "2027-12-15",
-    VisaType: "Tourist Visa"
-  };
 
   const steps = [
     { id: 1, title: 'Contact Information', icon: User },
@@ -148,11 +114,6 @@ const Createitenary = () => {
     }
   };
 
-  const loadSampleData = () => {
-    setContactInfo(sampleContactInfo);
-    setTravelers([sampleTraveler]);
-    setCurrentStep(2);
-  };
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -163,16 +124,7 @@ const Createitenary = () => {
               contactData={contactInfo}
               onSave={handleContactInfoSave}
             />
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center">
-                <button
-                  onClick={loadSampleData}
-                  className="text-[#f48f22] hover:text-[#16437c] text-sm underline"
-                >
-                  Load Sample Data
-                </button>
-              </div>
-            </div>
+   
           </div>
         );
       case 2:

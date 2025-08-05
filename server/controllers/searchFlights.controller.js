@@ -89,7 +89,7 @@ export const expressSearchFlights = async (req, res) => {
       }
     );
     const data = await response.json();
-    // console.log(data, "response.data======================================78");
+    console.log(data, "response.data======================================78");
     console.log(
       data.TUI,
       "data.TUI=======================inside the express search"
@@ -138,6 +138,7 @@ export const getExpSearchFlights = async (req, res) => {
     TUI: TUI
   };
 
+  console.log(body, "body");
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
