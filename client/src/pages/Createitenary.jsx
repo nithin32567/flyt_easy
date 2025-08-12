@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ContactInfoForm from '../components/ContactInfoForm';
 import TravelersList from '../components/TravelersList';
-import { User, Users, CheckCircle } from 'lucide-react';
+import SSRToggle from '../components/SSRToggle';
+import SSRServicesSelection from '../components/SSRServicesSelection';
+import { User, Users, Package, CheckCircle } from 'lucide-react';
 import { validateItinerary } from '../utils/validation';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -12,7 +14,11 @@ const Createitenary = () => {
   const [contactInfo, setContactInfo] = useState(null);
   const [travelers, setTravelers] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
-  const pricerTUI = localStorage.getItem("pricerTUI");
+  const [ssrEnabled, setSsrEnabled] = useState(false);
+  const [availableSSRServices, setAvailableSSRServices] = useState([]);
+  const [selectedSSRServices, setSelectedSSRServices] = useState([]);
+  const [loadingSSR, setLoadingSSR] = useState(false);
+  const pricerTUI = localStorage.getItem("pricerTUI")
   const pricerData = JSON.parse(localStorage.getItem("pricerData"));
   // const reviewData = JSON.parse(localStorage.getItem("oneWayReviewData"));
   const netAmount = localStorage.getItem("netamount") // Use the exact value without parsing
@@ -21,7 +27,25 @@ const Createitenary = () => {
 
   // Debug logging
   console.log('PricerData:', pricerData);
-  console.log('NetAmount from pricerData:', netAmount, 'Type:', typeof netAmount);
+  console.log('NetAmount from localStorage:', netAmount, 'Type:', typeof netAmount);
+  console.log('Original pricerData.NetAmount:', pricerData?.NetAmount, 'Type:', typeof pricerData?.NetAmount);
+
+  // Use the TUI from pricerData (GetPricer response) instead of the old pricerTUI
+  const currentTUI = pricerData?.TUI || pricerTUI;
+  console.log('Current TUI being used:', currentTUI);
+  console.log('PricerData TUI:', pricerData?.TUI);
+  console.log('PricerTUI from localStorage:', pricerTUI);
+  
+  // Use NetAmount directly from pricerData to avoid any conversion issues
+  const netAmountNumber = pricerData?.NetAmount || (netAmount ? Number(netAmount) : 0);
+  
+  // Ensure we have valid data
+  if (!pricerData || !pricerData.TUI) {
+    console.error('Missing pricerData or TUI');
+    alert('Missing pricing data. Please try searching for flights again.');
+    navigate('/');
+    return;
+  }
 
   // proper date validation with current date should be added 
 
@@ -31,7 +55,8 @@ const Createitenary = () => {
   const steps = [
     { id: 1, title: 'Contact Information', icon: User },
     { id: 2, title: 'Travelers', icon: Users },
-    { id: 3, title: 'Review & Submit', icon: CheckCircle }
+    { id: 3, title: 'Additional Services', icon: Package },
+    { id: 4, title: 'Review & Submit', icon: CheckCircle }
   ];
 
   const handleContactInfoSave = (data) => {
@@ -43,8 +68,60 @@ const Createitenary = () => {
     setTravelers(newTravelers);
   };
 
-  const handleNextToReview = () => {
+  // SSR Functions
+  const fetchSSRServices = async () => {
+    if (!currentTUI) return;
+    
+    setLoadingSSR(true);
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
+        {
+          TUI: currentTUI,
+          PaidSSR: ssrEnabled
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        }
+      );
+
+      console.log(response.data, '================================= response create itinerary');
+
+      if (response.data.success) {
+        setAvailableSSRServices(response.data.data.services || []);
+      } else {
+        console.error('Failed to fetch SSR services:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching SSR services:', error);
+    } finally {
+      setLoadingSSR(false);
+    }
+  };
+
+  const handleSSRToggle = (enabled) => {
+    setSsrEnabled(enabled);
+    if (enabled) {
+      fetchSSRServices();
+    } else {
+      setAvailableSSRServices([]);
+      setSelectedSSRServices([]);
+    }
+  };
+
+  const handleSSRServiceSelection = (services) => {
+    setSelectedSSRServices(services);
+  };
+
+  const handleNextToSSR = () => {
     setCurrentStep(3);
+  };
+
+  const handleNextToReview = () => {
+    setCurrentStep(4);
   };
 
   const handleSubmit = async () => {
@@ -54,12 +131,12 @@ const Createitenary = () => {
 
     if (validation.isValid) {
       // Additional validation for required data
-      if (!pricerTUI) {
+      if (!currentTUI) {
         alert('Missing pricing data. Please try searching for flights again.');
         return;
       }
       
-      if (!netAmount || netAmount <= 0) {
+      if (!netAmountNumber || netAmountNumber <= 0) {
         alert('Invalid pricing data. Please try searching for flights again.');
         return;
       }
@@ -75,21 +152,76 @@ const Createitenary = () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
-        const payload = {
-          TUI: pricerTUI,
-          ContactInfo: contactInfo,
-          Travellers: travelers,
-          NetAmount: netAmount,
-          ClientID: localStorage.getItem("ClientID")
+
+        // Get fresh pricing data to ensure NetAmount is correct
+        console.log('Getting fresh pricing data for TUI:', currentTUI);
+        console.log('Current stored NetAmount:', netAmountNumber);
+        console.log('PricerData from localStorage:', pricerData);
+        
+        let finalNetAmount = netAmountNumber;
+        try {
+          console.log('Making fresh getPricer API call...');
+          const pricingResponse = await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`,
+            {
+              TUI: currentTUI,
+              token: localStorage.getItem("token")
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+              }
+            }
+          );
+
+          console.log('Pricing response:', pricingResponse.data);
+          
+          if (pricingResponse.data.Code === "200" && pricingResponse.data.data) {
+            finalNetAmount = Number(pricingResponse.data.data.NetAmount) || netAmountNumber;
+            console.log('Fresh NetAmount from API:', finalNetAmount);
+            console.log('Fresh NetAmount type:', typeof finalNetAmount);
+            console.log('API response data:', pricingResponse.data.data);
+            
+            // Update localStorage with fresh data
+            localStorage.setItem("pricerData", JSON.stringify(pricingResponse.data.data));
+            localStorage.setItem("netamount", pricingResponse.data.data.NetAmount.toString());
+          } else {
+            console.log('Using stored NetAmount:', netAmountNumber);
+            console.log('Response code:', pricingResponse.data.Code);
+            console.log('Response data:', pricingResponse.data.data);
+          }
+        } catch (pricingError) {
+          console.error('Error getting fresh pricing:', pricingError);
+          console.log('Using stored NetAmount as fallback:', netAmountNumber);
         }
 
-        console.log('Sending payload with NetAmount:', netAmount, 'Type:', typeof netAmount);
+        // Filter out free services (Charge: 0) - only send paid services
+        const paidSSRServices = selectedSSRServices.filter(service => service.Charge > 0);
+        const ssrAmount = paidSSRServices.reduce((total, service) => total + service.Charge, 0);
+        
+        const payload = {
+          TUI: currentTUI,
+          ContactInfo: contactInfo,
+          Travellers: travelers,
+          NetAmount: finalNetAmount,
+          SSR: paidSSRServices.length > 0 ? paidSSRServices : [],
+          SSRAmount: ssrAmount,
+          ClientID: ""  // Set to empty string to match sample data
+        }
+
+        // Double-check that we're using the correct NetAmount
+        console.log('Final payload NetAmount:', payload.NetAmount);
+        console.log('Final payload NetAmount type:', typeof payload.NetAmount);
+
+        console.log('Sending payload with NetAmount:', finalNetAmount, 'Type:', typeof finalNetAmount);
         console.log('Full payload:', payload);
-        console.log('Original pricerData NetAmount:', pricerData.NetAmount, 'Type:', typeof pricerData.NetAmount);
-        console.log('TUI being sent:', pricerTUI);
+        console.log('Original pricerData NetAmount:', pricerData?.NetAmount, 'Type:', typeof pricerData?.NetAmount);
+        console.log('TUI being sent:', currentTUI);
+        console.log('Final NetAmount being sent:', finalNetAmount);
         
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/create-itinerary`, payload, { headers });
-        console.log(response.data, '================================= response');
+        console.log(response.data, '================================= response create itinerary');
         
         if (response.data.success) {
           localStorage.setItem("TransactionID", response.data.data.TransactionID);
@@ -143,7 +275,7 @@ const Createitenary = () => {
                   Back
                 </button>
                 <button
-                  onClick={handleNextToReview}
+                  onClick={handleNextToSSR}
                   disabled={travelers.length === 0}
                   className="w-full sm:w-auto bg-[#f48f22] hover:bg-[#16437c] text-white py-2 px-6 rounded-md font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -154,6 +286,44 @@ const Createitenary = () => {
           </div>
         );
       case 3:
+        return (
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="space-y-6">
+              <SSRToggle
+                isEnabled={ssrEnabled}
+                onToggle={handleSSRToggle}
+                availableServices={availableSSRServices}
+              />
+              
+              {ssrEnabled && (
+                <SSRServicesSelection
+                  availableServices={availableSSRServices}
+                  selectedServices={selectedSSRServices}
+                  onServiceSelectionChange={handleSSRServiceSelection}
+                  travelers={travelers}
+                />
+              )}
+            </div>
+            
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+              <div className="flex flex-col sm:flex-row gap-4 justify-end">
+                <button
+                  onClick={() => setCurrentStep(2)}
+                  className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-6 rounded-md font-semibold transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handleNextToReview}
+                  className="w-full sm:w-auto bg-[#f48f22] hover:bg-[#16437c] text-white py-2 px-6 rounded-md font-semibold transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      case 4:
         return (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
@@ -234,10 +404,74 @@ const Createitenary = () => {
                 </div>
               </div>
 
+              {/* SSR Services Review */}
+              {ssrEnabled && selectedSSRServices.length > 0 && (
+                <div className="border-b border-gray-200 pb-4 sm:pb-6 mb-4 sm:mb-6">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
+                    Additional Services ({selectedSSRServices.length})
+                  </h3>
+                  <div className="space-y-3">
+                    {selectedSSRServices.map((service, index) => (
+                      <div key={service.ID || index} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                              {index + 1}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <span className="font-medium break-words">{service.Description}</span>
+                              <span className="text-gray-500 ml-2">({service.Code})</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-semibold text-green-600">₹{service.Charge.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="border-t border-gray-200 pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium text-gray-700">Total Additional Services:</span>
+                        <span className="font-bold text-green-600">
+                          ₹{selectedSSRServices.reduce((total, service) => total + service.Charge, 0).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Total Amount Summary */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 sm:mb-6">
+                <h3 className="text-base sm:text-lg font-semibold text-blue-800 mb-3">Total Amount Summary</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-blue-700">Base Fare:</span>
+                    <span className="font-medium text-blue-800">₹{netAmountNumber.toLocaleString()}</span>
+                  </div>
+                  {selectedSSRServices.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-blue-700">Additional Services:</span>
+                      <span className="font-medium text-blue-800">
+                        ₹{selectedSSRServices.reduce((total, service) => total + service.Charge, 0).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
+                  <div className="border-t border-blue-200 pt-2">
+                    <div className="flex justify-between font-bold">
+                      <span className="text-blue-800">Total Amount:</span>
+                      <span className="text-blue-800">
+                        ₹{(netAmountNumber + selectedSSRServices.reduce((total, service) => total + service.Charge, 0)).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-end">
                 <button
-                  onClick={() => setCurrentStep(2)}
+                  onClick={() => setCurrentStep(3)}
                   className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-6 rounded-md font-semibold transition-colors"
                 >
                   Back
@@ -252,8 +486,8 @@ const Createitenary = () => {
                 ) : (
                   <div className="w-full sm:w-auto">
                     <PaymentButton
-                      TUI={pricerTUI}
-                      amount={netAmount}
+                      TUI={currentTUI}
+                      amount={netAmountNumber}
                       name={contactInfo.FName}
                       email={contactInfo.Email}
                       contact={contactInfo.Mobile}

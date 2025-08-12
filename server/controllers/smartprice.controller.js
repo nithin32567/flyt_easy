@@ -21,7 +21,7 @@ export const smartPricer = async (req, res) => {
         },
       ],
       ClientID: "",
-      Mode: Mode || "AS",
+      Mode: Mode || "SS",
       Options: Options || "",
       Source: Source || "SF",
       TripType: TripType || "",

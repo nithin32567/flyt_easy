@@ -22,11 +22,46 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
 
     async function startPay() {
         const payload = {
+            DepositPayment: false,
+            VPA: "",
+            PaymentAmount: amount.toString(),
             TransactionID: transactionID,
-            PaymentAmount: amount,
-            NetAmount: amount,
-            ClientID: clientID,
+            TargetCurrency: "",
+            RMSSignature: "",
+            QuickPay: "null",
+            PaymentCharge: "0",
+            CardType: "default",
+            ServiceType: "ITI",
+            NetAmount: amount.toString(),
+            PaymentType: "",
+            TargetAmount: "0",
+            OnlinePayment: false,
+            BrowserKey: "caecd3cd30225512c1811070dce615c1",
             TUI: TUI,
+            BankCode: "",
+            MerchantID: "",
+            ReleaseDate: "",
+            CardAlias: "",
+            Card: {
+                CHName: "",
+                CVV: "",
+                Address: "",
+                SaveCard: false,
+                LName: "",
+                City: "",
+                FName: "",
+                Number: "",
+                PIN: "",
+                State: "",
+                Country: "",
+                EMIMonths: "0",
+                Expiry: "",
+                International: false
+            },
+            Promo: "",
+            GateWayCode: "",
+            ClientID: clientID,
+            Hold: false
         }
         try {
             console.log('Starting payment with payload:', payload);
@@ -41,6 +76,80 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             console.error('StartPay error:', error);
             throw error;
         }
+    }
+
+    async function getItineraryStatus(TUI, TransactionID) {
+        try {
+            console.log('Checking itinerary status...');
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-itinerary-status`, {
+                TUI: TUI,
+                TransactionID: TransactionID
+            }, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+            });
+            console.log('GetItineraryStatus response:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('GetItineraryStatus error:', error);
+            throw error;
+        }
+    }
+
+    async function retrieveBooking(TUI, TransactionID) {
+        try {
+            console.log('Retrieving booking details...');
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, {
+                TUI: TUI,
+                ReferenceNumber: TransactionID,
+                ReferenceType: "T",
+                ClientID: clientID
+            }, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+            });
+            console.log('RetrieveBooking response:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('RetrieveBooking error:', error);
+            throw error;
+        }
+    }
+
+    async function pollBookingStatus(TUI, TransactionID, maxAttempts = 30) {
+        let attempts = 0;
+        
+        while (attempts < maxAttempts) {
+            try {
+                const statusResponse = await getItineraryStatus(TUI, TransactionID);
+                
+                if (statusResponse.status === "SUCCESS") {
+                    console.log('Booking completed successfully');
+                    // Get booking details
+                    const bookingResponse = await retrieveBooking(TUI, TransactionID);
+                    if (bookingResponse.success) {
+                        localStorage.setItem("bookingDetails", JSON.stringify(bookingResponse.data));
+                        return { success: true, bookingData: bookingResponse.data };
+                    }
+                } else if (statusResponse.status === "FAILED") {
+                    console.log('Booking failed');
+                    return { success: false, message: "Booking failed" };
+                } else {
+                    // Still in progress, wait and try again
+                    console.log(`Booking still in progress, attempt ${attempts + 1}/${maxAttempts}`);
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+                    attempts++;
+                }
+            } catch (error) {
+                console.error('Error polling booking status:', error);
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+            }
+        }
+        
+        return { success: false, message: "Booking status polling timeout" };
     }
 
     const handlePayment = async () => {
@@ -81,17 +190,35 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                         
                         if (verify.data.success) {
                             console.log('Payment verified successfully, starting payment...');
-                            await startPay();
-                            alert("✅ Payment Successful!");
-                            console.log('Navigating to payment success page...');
-                            console.log('Current location before navigation:', window.location.pathname);
                             
-                            // Add a small delay to ensure everything is processed
-                            setTimeout(() => {
-                                console.log('Executing navigation to /payment-success');
-                                navigate("/payment-success");
-                                console.log('Navigation executed');
-                            }, 1000);
+                            // 3. Start payment process
+                            const startPayResponse = await startPay();
+                            console.log('StartPay completed:', startPayResponse);
+                            
+                            if (startPayResponse.shouldPoll) {
+                                // 4. Poll for booking status
+                                console.log('Starting booking status polling...');
+                                const pollingResult = await pollBookingStatus(TUI, transactionID);
+                                
+                                if (pollingResult.success) {
+                                    alert("✅ Payment and Booking Successful!");
+                                    console.log('Navigating to payment success page...');
+                                    setTimeout(() => {
+                                        navigate("/payment-success");
+                                    }, 1000);
+                                } else {
+                                    alert(`❌ Booking Failed: ${pollingResult.message}`);
+                                    navigate("/payment-error");
+                                }
+                            } else if (startPayResponse.status === "SUCCESS") {
+                                alert("✅ Payment Successful!");
+                                setTimeout(() => {
+                                    navigate("/payment-success");
+                                }, 1000);
+                            } else {
+                                alert("❌ Payment Failed!");
+                                navigate("/payment-error");
+                            }
                         } else {
                             console.error('Payment verification failed:', verify.data);
                             alert("❌ Payment Verification Failed!");

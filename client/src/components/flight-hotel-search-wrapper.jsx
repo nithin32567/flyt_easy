@@ -30,6 +30,18 @@ const FlightHotelWearchWrapper = () => {
   const [departureDate, setDepartureDate] = useState(new Date());
   const [returnDate, setReturnDate] = useState(new Date());
   const [dateType, setDateType] = useState("departure");
+  const [isDirect, setIsDirect] = useState(false);
+  const [isDefenceFare, setIsDefenceFare] = useState(false);
+  const [isStudentFare, setIsStudentFare] = useState(false);
+  const [isSeniorCitizenFare, setIsSeniorCitizenFare] = useState(false);
+  const [isNearbyAirport, setIsNearbyAirport] = useState(false);
+
+
+  console.log(isDirect, "isDirect=========================");
+  console.log(isDefenceFare, "isDefenceFare=========================");
+  console.log(isStudentFare, "isStudentFare=========================");
+  console.log(isSeniorCitizenFare, "isSeniorCitizenFare=========================");
+  console.log(isNearbyAirport, "isNearbyAirport=========================");
 
   // fetch airports
   useEffect(() => {
@@ -64,7 +76,7 @@ const FlightHotelWearchWrapper = () => {
 
       console.log(
         response,
-        "response from the backend========================="
+        "response from the backend========================= get exp search"
       );
       if (response.statusText === "OK") {
         console.log("inside the if condition");
@@ -131,6 +143,9 @@ const FlightHotelWearchWrapper = () => {
         },
       ],
       token: token,
+      IsDirect: isDirect,
+      IsStudentFare: isStudentFare,
+      IsNearbyAirport: isNearbyAirport,
     };
     console.log(payload, "payload to the backend========================= 221");
     localStorage.removeItem("trips");
@@ -237,7 +252,7 @@ const FlightHotelWearchWrapper = () => {
                             id="oneway"
                             checked={tripType === "ON"}
                           />{" "}
-                          One Way
+                          One Way 
                         </label>
                       </li>
                       <li>
@@ -384,22 +399,22 @@ const FlightHotelWearchWrapper = () => {
                     <ul>
                       <li>
                         <label>
-                          <input type="checkbox" name="" id="" /> Direct Flights
+                          <input onChange={() => setIsDirect(!isDirect)} checked={isDirect} type="checkbox" name="" id="" /> Direct Flights
                         </label>
                       </li>
                       <li>
                         <label>
-                          <input type="checkbox" name="" id="" /> Defence Fare
+                          <input onChange={() => setIsDefenceFare(!isDefenceFare)} checked={isDefenceFare} type="checkbox" name="" id="" /> Defence Fare
                         </label>
                       </li>
                       <li>
                         <label>
-                          <input type="checkbox" name="" id="" /> Student Fare
+                          <input onChange={() => setIsStudentFare(!isStudentFare)} checked={isStudentFare} type="checkbox" name="" id="" /> Student Fare
                         </label>
                       </li>
                       <li>
                         <label>
-                          <input type="checkbox" name="" id="" /> Senior Citizen
+                          <input onChange={() => setIsSeniorCitizenFare(!isSeniorCitizenFare)} checked={isSeniorCitizenFare} type="checkbox" name="" id="" /> Senior Citizen
                           Fare
                         </label>
                       </li>

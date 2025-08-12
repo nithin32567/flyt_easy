@@ -11,9 +11,11 @@ export const createItinerary = async (req, res) => {
     try {
         const gender = req.body.Travellers[0].Gender;
         // Use the exact NetAmount value without parsing to avoid precision issues
-        const netAmount = req.body.NetAmount;
-        console.log(netAmount, '================================= netAmount');
+        const NetAmount = Number(req.body.NetAmount);
+        console.log(NetAmount, '================================= netAmount');
         console.log('Original NetAmount from request:', req.body.NetAmount, 'Type:', typeof req.body.NetAmount);
+        console.log('Converted NetAmount:', NetAmount, 'Type:', typeof NetAmount);
+        console.log('Full request body:', JSON.stringify(req.body, null, 2));
         const genderCode = gender === "Male" ? "M" : "F";
         // console.log(req.body, '================================= req.body');
         const finalPayload = {
@@ -58,11 +60,11 @@ export const createItinerary = async (req, res) => {
                     Operation: "0",
                 }
             ],
-            
+
             PLP: req.body.PLP || [],
             SSR: req.body.SSR || [],
             CrossSell: req.body.CrossSell || [],
-                NetAmount: netAmount ,
+            NetAmount: NetAmount,
             SSRAmount: req.body.SSRAmount || 0,
             ClientID: req.body.ClientID || "",
             DeviceID: "",
@@ -71,23 +73,25 @@ export const createItinerary = async (req, res) => {
         }
 
         console.log(finalPayload, '================================= finalPayload');
-        console.log(process.env.FLIGHT_URL, '================================= process.env.FLIGHT_URL');
+        // console.log(process.env.FLIGHT_URL, '================================= process.env.FLIGHT_URL');
 
         const apiUrl = `${process.env.FLIGHT_URL}/Flights/CreateItinerary`;
-        console.log('Making request to:', apiUrl);
-        console.log('Request headers:', {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        });
-        console.log('Request body:', JSON.stringify(finalPayload, null, 2));
+        // console.log('Making request to:', apiUrl);
+        // console.log('Request headers:', {
+        //     "Content-Type": "application/json",
+        //     "Authorization": `Bearer ${token}`
+        // });
+        // console.log('Request body:', JSON.stringify(finalPayload, null, 2));
 
+        console.log('Making API call to:', `${process.env.FLIGHT_URL}/Flights/CreateItinerary`);
+        console.log('Request payload:', JSON.stringify(finalPayload, null, 2));
+        
         const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/CreateItinerary`, finalPayload, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token}`,
                 "Accept": "application/json"
-            },
-                data: finalPayload
+            }
         });
         console.log(response, '================================= response');
         const data = await response.data;
@@ -98,7 +102,7 @@ export const createItinerary = async (req, res) => {
             message: "Itinerary created successfully"
         });
 
-      
+
     } catch (error) {
         console.error("Create Itinerary Error:", error?.response?.data || error.message);
         return res.status(500).json({
@@ -113,15 +117,17 @@ export const getExistingItinerary = async (req, res) => {
     // console.log(token, '================================= token');
 
     try {
-        const { TransactionID,ClientID } = req.body;
-        console.log(TransactionID,ClientID, '================================= TransactionID,ClientID');
+        const { TransactionID, ClientID } = req.body;
+        console.log(TransactionID, ClientID, '================================= TransactionID,ClientID');
 
-        const payload={
-            ReferenceType:"T",
-            TUI:"",
-            ReferenceNumber:TransactionID,
-            ClientID:ClientID,
+        const payload = {
+            ReferenceType: "T",
+            TUI: "",
+            ReferenceNumber: TransactionID,
+            ClientID: ClientID,
         }
+
+        console.log(payload, '================================= payload getExistingItinerary');
         const response = await fetch(`${process.env.FLIGHT_URL}/Utils/RetrieveBooking`, {
             method: "POST",
             headers: {
@@ -131,7 +137,7 @@ export const getExistingItinerary = async (req, res) => {
             body: JSON.stringify(payload)
         });
 
-        const data=await response.json();
+        const data = await response.json();
         console.log(data, '================================= data');
         return res.status(200).json({
             success: true,

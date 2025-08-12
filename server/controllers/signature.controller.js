@@ -14,7 +14,7 @@ export const generateToken = async (req, res) => {
     };
 
 
-    console.log(payload, "payload");
+    console.log(payload, "payload signature");
     const response = await fetch(process.env.SIGNATURE_API, {
       method: "POST",
       body: JSON.stringify(payload),

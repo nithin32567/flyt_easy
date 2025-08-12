@@ -9,7 +9,9 @@ import { smartPricer } from "../controllers/smartprice.controller.js";
 import { getWebSettings } from "../controllers/websettings.controller.js";
 import { getPricer } from "../controllers/getpricer.controller.js";
 import { createItinerary, getExistingItinerary } from "../controllers/createItenary.controller.js";
-import { startPay } from "../controllers/bookFlight.controller.js";
+import { startPay, getItineraryStatus } from "../controllers/bookFlight.controller.js";
+import { getSSRServices, validateSSRSelection } from "../controllers/ssr.controller.js";
+import { retrieveBooking } from "../controllers/retrieveBooking.controller.js";
 
 const router = express.Router();
 
@@ -29,6 +31,14 @@ router.post("/create-itinerary", createItinerary);
 
 router.post("/startpay", startPay);
 
+router.post("/get-itinerary-status", getItineraryStatus);
+
 router.post("/get-existing-itenary", getExistingItinerary);
+
+router.post("/get-ssr-services", getSSRServices);
+
+router.post("/validate-ssr-selection", validateSSRSelection);
+
+router.post("/retrieve-booking", retrieveBooking);
 
 export default router;

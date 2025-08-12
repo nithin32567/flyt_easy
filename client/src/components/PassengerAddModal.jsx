@@ -18,6 +18,7 @@ const PassengerAddModal = ({ setShowModal, travellerData, setTravellerData }) =>
         VisaType: "",
     })
 
+    // create an empty data easy for load
     // age should be number type
 
     const handleSubmit = (e) => {

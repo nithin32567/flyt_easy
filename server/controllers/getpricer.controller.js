@@ -1,9 +1,10 @@
 import axios from "axios";
+import fs from 'fs';
+import path from 'path';
 
 export const getPricer = async (req, res) => {
-  const { TUI, token } = req.body;
+  const { TUI, token, saveToFile } = req.body;
   console.log("______________________________________________________________________________ get pricer function called")
-
 
   console.log(TUI, 'TUI get pricer controller*****************');
   // console.log(token, 'token get pricer controller*****************');
@@ -20,10 +21,40 @@ export const getPricer = async (req, res) => {
     console.log(payload, "payload get pricer controller");
     const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/GetSPricer`, payload, { headers })
 
-
     console.log(response, 'response get pricer controller*****************');
     const data = await response.data;
     console.log(data, '=================  ******************data get pricer controller');
+
+    // Save to file if requested
+    if (saveToFile) {
+      try {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `getPricer_${TUI}_${timestamp}.json`;
+        const filepath = path.join(process.cwd(), 'api_request_response', filename);
+        
+        // Ensure directory exists
+        const dir = path.dirname(filepath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        // Save the complete response data
+        fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+        
+        console.log(`Complete getPricer data saved to: ${filepath}`);
+        
+        return res.status(200).json({
+          Code: "200",
+          Msg: "Pricer fetched successfully and saved to file",
+          data: data,
+          savedFile: filename
+        });
+      } catch (fileError) {
+        console.error("Error saving file:", fileError);
+        // Continue with normal response even if file save fails
+      }
+    }
+
     return res.status(200).json({
       Code: "200",
       Msg: "Pricer fetched successfully",

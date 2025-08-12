@@ -2,6 +2,8 @@
 // import dotenv from "dotenv";
 
 // dotenv.config();
+import fs from 'fs';
+import path from 'path';
 
 
 export const expressSearchFlights = async (req, res) => {
@@ -64,9 +66,9 @@ export const expressSearchFlights = async (req, res) => {
         Airlines: "",
         GroupType: "",
         Refundable: "",
-        IsDirect: false,
-        IsStudentFare: false,
-        IsNearbyAirport: true,
+        IsDirect: req.body.IsDirect || false,
+        IsStudentFare: req.body.IsStudentFare || false,
+        IsNearbyAirport: req.body.IsNearbyAirport || false,
         IsExtendedSearch: false,
       },
     };
@@ -124,7 +126,7 @@ export const expressSearchFlights = async (req, res) => {
 };
 
 export const getExpSearchFlights = async (req, res) => {
-  const { token, TUI } = req.body;
+  const { token, TUI, saveToFile } = req.body;
 
   if (!token || !TUI) {
     return res.status(400).json({
@@ -138,7 +140,7 @@ export const getExpSearchFlights = async (req, res) => {
     TUI: TUI
   };
 
-  console.log(body, "body");
+  console.log(body, "body getExpSearchFlights");
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
@@ -175,6 +177,36 @@ export const getExpSearchFlights = async (req, res) => {
     const data = await pollExpSearch();
 
     console.log(data, "data from the backend========================= poll");
+
+    // Save to file if requested
+    if (saveToFile) {
+      try {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `getExpSearch_${TUI}_${timestamp}.json`;
+        const filepath = path.join(process.cwd(), 'api_request_response', filename);
+        
+        // Ensure directory exists
+        const dir = path.dirname(filepath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        // Save the complete response data
+        fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
+        
+        console.log(`Complete getExpSearch data saved to: ${filepath}`);
+        
+        return res.status(200).json({
+          success: true,
+          message: "GETExpSearch fetched successfully and saved to file",
+          data: data,
+          savedFile: filename
+        });
+      } catch (fileError) {
+        console.error("Error saving file:", fileError);
+        // Continue with normal response even if file save fails
+      }
+    }
 
     return res.status(200).json({
       success: true,

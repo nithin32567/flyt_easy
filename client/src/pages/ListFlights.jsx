@@ -45,8 +45,9 @@ const ListFlights = () => {
       const pricerTUI = response.data.TUI
       localStorage.setItem("pricerTUI", pricerTUI)
       //if success getPricer Api Call
+      console.log(response.data, '================================= response smart price');
 
-      await getPricer(pricerTUI)
+      await getPricer()
     }
   }
 
@@ -56,12 +57,12 @@ const ListFlights = () => {
       TUI: pricerTUI,
       token: localStorage.getItem("token")
     })
-    console.log(response, "response=========================")
+    console.log(response, "response========================= get pricer")
     if (response.statusText === "OK") {
       const data = response.data
       console.log(data, "data=========================")
       localStorage.setItem("pricerData", JSON.stringify(data.data))
-      localStorage.setItem("netamount", data.data.NetAmount) 
+      localStorage.setItem("netamount", data.data.NetAmount.toString()) 
       localStorage.setItem("oneWayReviewData", JSON.stringify(data.data))
       localStorage.setItem("pricerTUI", data.data.TUI)
       navigate("/one-way-review")

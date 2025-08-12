@@ -75,7 +75,7 @@ export const verifyPayment = async (req, res) => {
 
 export const startPay = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
-    // console.log(token, '================================= token');
+    console.log(token, '================================= token');
     try {
         const {
             TransactionID,
@@ -103,62 +103,204 @@ export const startPay = async (req, res) => {
         } = req.body;
 
         const finalPayload = {
+            DepositPayment: true,
+            VPA: "",
+            PaymentAmount: "0",
             TransactionID: TransactionID || 0,
-            PaymentAmount: PaymentAmount || 0,
-            NetAmount: NetAmount || 0,
+            TargetCurrency: "",
+            RMSSignature: "",
+            QuickPay: "null",
+            PaymentCharge: "0",
+            CardType: "default",
+            ServiceType: "ITI",
+            NetAmount: NetAmount.toString(),
+            PaymentType: "",
+            TargetAmount: "0",
+            OnlinePayment:  false,
             BrowserKey: process.env.BROWSER_KEY,
-            ClientID: ClientID,
             TUI: TUI,
-            Hold: Hold || false,
-            Promo: Promo || null,
-            PaymentType: PaymentType || "",
-            BankCode: BankCode || "",
-            GateWayCode: GateWayCode || "",
-            MerchantID: MerchantID || "",
-            PaymentCharge: PaymentCharge || 0,
-            ReleaseDate: ReleaseDate || "",
-            OnlinePayment: OnlinePayment || false,
-            DepositPayment: DepositPayment || false,
+            BankCode: "",
+            MerchantID: "",
+            ReleaseDate: "",
+            CardAlias: "",
             Card: {
-                Number: Card?.Number || "",
-                Expiry: Card?.Expiry || "",
-                CVV: Card?.CVV || "",
-                CHName: Card?.CHName || "",
-                Address: Card?.Address || "",
-                City: Card?.City || "",
-                State: Card?.State || "",
-                Country: Card?.Country || "",
-                PIN: Card?.PIN || "",
-                International: Card?.International || false,
-                SaveCard: Card?.SaveCard || false,
-                FName: Card?.FName || "",
-                LName: Card?.LName || "",
-                EMIMonths: Card?.EMIMonths || "0"
+                CHName: "",
+                CVV: "",
+                Address: "",
+                SaveCard: false,
+                LName: "",
+                City: "",
+                FName: "",
+                Number: "",
+                PIN: "",
+                State: "",
+                Country: "",
+                EMIMonths: "0",
+                Expiry: "",
+                International: false
             },
-            VPA: VPA || "",
-            CardAlias: CardAlias || "",
-            QuickPay: QuickPay || null,
-            RMSSignature: RMSSignature || "",
-            TargetCurrency: TargetCurrency || "",
-            TargetAmount: TargetAmount || 0,
-
-            ServiceType: "ITI"
+            Promo: "",
+            GateWayCode: "",
+            ClientID: ClientID,
+            Hold: false
         };
+        console.log(finalPayload, '================================= finalPayload startpay');
 
         const headers = {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
         }
-        const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/StartPay`, finalPayload, { headers });
-        console.log(response.data, '================================= response');
         
+        // console.log('FLIGHT_URL:', process.env.FLIGHT_URL);
+        // console.log('BROWSER_KEY:', process.env.BROWSER_KEY);
+        // console.log('Headers:', headers);
+        
+        const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/StartPay`, finalPayload, { headers });
+        // console.log('Response status:', response.status);
+        // console.log('Response headers:', response.headers);
+        console.log(response.data, '================================= response startpay');
+        
+        // Check the response for booking status
+        const responseData = response.data;
+        // console.log('Response data type:', typeof responseData);
+        // console.log('Response data keys:', Object.keys(responseData));
+        
+        // Handle case where response might be null or empty
+        if (!responseData || Object.keys(responseData).length === 0) {
+            return res.status(500).json({
+                success: false,
+                message: "Invalid response from StartPay API",
+                data: responseData
+            });
+        }
+        
+        // Handle case where all important fields are null (API issue)
+        if (responseData.TUI === null && responseData.Code === null && responseData.Msg === null) {
+            console.error('API returned null values - possible API issue or authentication problem');
+            return res.status(500).json({
+                success: false,
+                message: "API returned null values - possible API issue or authentication problem",
+                data: responseData,
+                debug: {
+                    url: `${process.env.FLIGHT_URL}/Payment/StartPay`,
+                    payload: finalPayload,
+                    headers: headers
+                }
+            });
+        }
+        
+        // Check if we have a valid response with Msg field
+        if (responseData.Msg && Array.isArray(responseData.Msg) && responseData.Msg[0]) {
+            const message = responseData.Msg[0];
+            console.log('Message from API:', message);
+            
+            if (message.includes("BOOKING INPROGRESS") || message.includes("BOOKING  INPROGRESS")) {
+                return res.status(200).json({
+                    success: true,
+                    data: responseData,
+                    message: "Booking in progress",
+                    status: "IN_PROGRESS",
+                    shouldPoll: true
+                });
+            } else if (message.includes("BOOKING FAILED")) {
+                return res.status(400).json({
+                    success: false,
+                    data: responseData,
+                    message: "Booking failed",
+                    status: "FAILED"
+                });
+            }
+        }
+        
+        // If no specific message or status, check for other indicators
+        if (responseData.Code === "6033" || responseData.Code === 6033) {
+            return res.status(200).json({
+                success: true,
+                data: responseData,
+                message: "Booking in progress (Code 6033)",
+                status: "IN_PROGRESS",
+                shouldPoll: true
+            });
+        }
+        
+        // Default success response
         return res.status(200).json({
             success: true,
-            data: response.data,
-            message: "Payment processed successfully"
+            data: responseData,
+            message: "Payment processed successfully",
+            status: "SUCCESS"
         });
     } catch (error) {
         console.error("StartPay Error:", error?.response?.data || error.message);
+        return res.status(500).json({ 
+            success: false, 
+            message: error?.response?.data || error.message 
+        });
+    }
+}
+
+export const getItineraryStatus = async (req, res) => {
+    const token = req.headers.authorization.split(" ")[1];
+    
+    try {
+        const { TUI, TransactionID } = req.body;
+        
+        if (!TUI || !TransactionID) {
+            return res.status(400).json({
+                success: false,
+                message: "TUI and TransactionID are required"
+            });
+        }
+
+        const payload = {
+            TUI: TUI,
+            TransactionID: TransactionID
+        };
+
+        console.log(payload, '================================= payload getItineraryStatus');
+
+        const headers = {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+            "Accept": "application/json"
+        };
+
+        const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/GetItineraryStatus`, payload, { headers });
+        console.log(response.data, '================================= response getItineraryStatus');
+        
+        const responseData = response.data;
+        
+        // Check the current status
+        if (responseData.CurrentStatus === "Success") {
+            return res.status(200).json({
+                success: true,
+                data: responseData,
+                message: "Booking completed successfully",
+                status: "SUCCESS",
+                shouldPoll: false
+            });
+        } else if (responseData.CurrentStatus === "Failed") {
+            return res.status(400).json({
+                success: false,
+                data: responseData,
+                message: "Booking failed",
+                status: "FAILED",
+                shouldPoll: false
+            });
+        } else {
+            // Still in progress
+            return res.status(200).json({
+                success: true,
+                data: responseData,
+                message: "Booking still in progress",
+                status: "IN_PROGRESS",
+                shouldPoll: true
+            });
+        }
+        
+    } catch (error) {
+        console.error("GetItineraryStatus Error:", error?.response?.data || error.message);
         return res.status(500).json({ 
             success: false, 
             message: error?.response?.data || error.message 

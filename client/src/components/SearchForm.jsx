@@ -163,7 +163,7 @@ const SearchForm = () => {
         }
       );
       const data = await response.json();
-      console.log(data, "data from the backend========================= 221");
+      console.log(data, "data from the backend========================= 221 express search");
       const TUI = data.TUI;
       await getExpSearch(TUI);
       console.log(TUI, "TUI=========================");

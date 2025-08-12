@@ -31,7 +31,7 @@ const PaymentSucccess = () => {
                     "Authorization": `Bearer ${token}`
                 }
             });
-            console.log('Existing itinerary response:', response.data);
+            console.log('Existing itinerary response:', response.data, '================================= response get existing itinerary');
             setBookingData(response.data.data);
         } catch (error) {
             console.error('Error fetching existing itinerary:', error);
@@ -64,6 +64,34 @@ const PaymentSucccess = () => {
             ...prev,
             [section]: !prev[section]
         }));
+    };
+
+    // Handle retrieve booking
+    const handleRetrieveBooking = async () => {
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, {
+                ReferenceType: 'T',
+                TUI: localStorage.getItem('TUI') || '',
+                ReferenceNumber: transactionID,
+                ClientID: clientID
+            }, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.data.success) {
+                // Store the retrieved booking data
+                localStorage.setItem('retrievedBookingData', JSON.stringify(response.data.data));
+                console.log(response.data.data, '================================= response retrieve booking');
+                alert('Booking retrieved successfully! Check your booking details above.');
+            } else {
+                alert('Failed to retrieve booking: ' + response.data.message);
+            }
+        } catch (error) {
+            console.error('Error retrieving booking:', error);
+            alert('Error retrieving booking. Please try again.');
+        }
     };
 
     return (  
@@ -487,11 +515,20 @@ const PaymentSucccess = () => {
                 </div>
               
             </div>
-            <button 
-            style={{
-              
-            }}
-            className='text-center mx-auto flex justify-center items-center bg-orange-400 text-white p-2 rounded-xl px-8 py-2'>Go To Home</button>
+            <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mt-8'>
+                <button 
+                    style={{
+                        
+                    }}
+                    className='text-center flex justify-center items-center bg-orange-400 text-white p-2 rounded-xl px-8 py-2 hover:bg-orange-500 transition-colors'>
+                    Go To Home
+                </button>
+                <button 
+                    onClick={handleRetrieveBooking}
+                    className='text-center flex justify-center items-center bg-blue-600 text-white p-2 rounded-xl px-8 py-2 hover:bg-blue-700 transition-colors'>
+                    Retrieve Booking
+                </button>
+            </div>
         </div>
 
     )
