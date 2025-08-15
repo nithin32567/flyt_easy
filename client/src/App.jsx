@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 // import Login from "./pages/Login";
 import FlightSearch from "./pages/FlightSearch";
 // import FlightListing from "./pages/FlightListing";
@@ -23,9 +23,14 @@ import Footer from "./components/Footer";
 
 const App = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
-
+  const token = localStorage.getItem("token")
+  const navigate = useNavigate()
   useEffect(() => {
+
+
+
     const fetchSignature = async () => {
+      // localStorage.clear()
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/api/signature`
       );
@@ -35,44 +40,43 @@ const App = () => {
       localStorage.setItem("ClientID", data.ClientID);
     };
     fetchSignature();
+
   }, []);
 
 
 
-  
+
   return (
     // responsivenes
     <div className="">
-    
-      <BrowserRouter>
+
       <HeaderWrapper />
 
-        <Routes>
-            <Route path="/" element={<Home />} />
-          <Route path="/flight-list" element={<ListFlights />} />
-          <Route path="/review" element={<OneWayReview />} />
-          <Route path="/create-itenary" element={<Createitenary />} />
-          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-          <Route path="/payment-error" element={<PaymentError />} />
-          <Route path="/hotel-booking" element={<HotelBooking />} />
-          <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
-          <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/dmo" element={<Home />} />
-          <Route path="/demobanner" element={<Demobanner />} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/flight-list" element={<ListFlights />} />
+        <Route path="/review" element={<OneWayReview />} />
+        <Route path="/create-itenary" element={<Createitenary />} />
+        <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+        <Route path="/payment-error" element={<PaymentError />} />
+        <Route path="/hotel-booking" element={<HotelBooking />} />
+        <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
+        <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/dmo" element={<Home />} />
+        <Route path="/demobanner" element={<Demobanner />} />
 
-          <Route path="/header-section" element={<HeaderSection />} />
-          <Route path="/footer1" element={<Footer1 />} />
-          <Route path="/footer" element={<Footer />} />
-          <Route path="/flight-search" element={<FlightSearch />} />
-          {/* <Route path="/flight-listing" element={<FlightListing />} /> */}
-          <Route path="/one-way-review" element={<OneWayReview />} />
+        <Route path="/header-section" element={<HeaderSection />} />
+        <Route path="/footer1" element={<Footer1 />} />
+        <Route path="/footer" element={<Footer />} />
+        <Route path="/flight-search" element={<FlightSearch />} />
+        {/* <Route path="/flight-listing" element={<FlightListing />} /> */}
+        <Route path="/one-way-review" element={<OneWayReview />} />
 
-        </Routes>
-      </BrowserRouter>
-      <Footer />  
-      
-      
+      </Routes>
+      <Footer />
+
+
     </div>
   );
 };

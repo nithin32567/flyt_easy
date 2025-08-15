@@ -21,7 +21,7 @@ export const getPricer = async (req, res) => {
     console.log(payload, "payload get pricer controller");
     const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/GetSPricer`, payload, { headers })
 
-    console.log(response, 'response get pricer controller*****************');
+    // console.log(response, 'response get pricer controller*****************');
     const data = await response.data;
     console.log(data, '=================  ******************data get pricer controller');
 

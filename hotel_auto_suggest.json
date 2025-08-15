@@ -1,0 +1,9 @@
+{
+    "url": "https://travelportal.benzyinfotech.com/api/content/autosuggest?term=kochi",
+    "method": "GET",
+    "headers": {
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6IjMwMCIsIkFnZW50SW5mbyI6Ii9MRldjVENVQ3lkWVBjVGNuaFdLaWo0UXhhcXN2eFBIcWV0a0psY3NGZklxWmVCUkZIUlNTOFFRWE1ybk8vVDhFcmt6UnMyYzk3cnloS01sWXc3NitRPT0iLCJwd2QiOiJMMkV0NEcvWHE0bExYQUd4Q3M2REh3PT0iLCJhZ2VudENvZGUiOiIvS2ZkWXdlc3FQdz0iLCJjbGllbnRJZCI6IjJmelhFa014VkRVPSIsIkJyb3dzZXJLZXkiOiJ3WXppV2RyclhRdjEwT0xOeXVHZDdHTFRnYzRRRmlkM0RpVXV2VGtEb201ZERvd0xHeVVzT2c9PSIsIm5iZiI6MTc1NTEwMTE1NiwiZXhwIjoxNzYzNzQxMTU2LCJpYXQiOjE3NTUxMDExNTYsImlzcyI6IndlYmNvbm5uZWN0IiwiYXVkIjoiY2xpZW50In0.TeEAnPb2Q1X-7uPTsO-FMvP2CqoICM40QmRkxnNXScA",
+      "Content-Type": "application/json"
+    }
+  }
+  

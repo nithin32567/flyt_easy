@@ -1,0 +1,14 @@
+{
+  "PaidSSR": false,
+  "ClientID": "bitest",
+  "Source": "SF",
+  "FareType": "ON",
+  "Trips": [
+    {
+      "Amount": 0,
+      "Index": "",
+      "OrderID": 1,
+      "TUI": "6d1be68f-c7c5-4303-8637-b034c762d206|d51fc1dd-082d-4c34-9351-2cecdceb0f41|20250812190328"
+    }
+  ]
+}

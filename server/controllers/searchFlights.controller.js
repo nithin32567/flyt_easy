@@ -53,14 +53,22 @@ export const expressSearchFlights = async (req, res) => {
       preferedAirlines: preferedAirlines,
       TUI: TUI,
       SecType: "",
-      Trips: [
+      Trips: FareType === "RT" ? [
         {
           From: typeof Trips[0].From === 'object' ? Trips[0].From.Code : Trips[0].From,
           To: typeof Trips[0].To === 'object' ? Trips[0].To.Code : Trips[0].To,
-          ReturnDate: FareType === "ON" ? "" : Trips[0].ReturnDate,
+          ReturnDate: Trips[0].ReturnDate || "",
           OnwardDate: Trips[0].OnwardDate,
           TUI: Trips[0].TUI || "",
-        },
+        }
+      ] : [
+        {
+          From: typeof Trips[0].From === 'object' ? Trips[0].From.Code : Trips[0].From,
+          To: typeof Trips[0].To === 'object' ? Trips[0].To.Code : Trips[0].To,
+          ReturnDate: "",
+          OnwardDate: Trips[0].OnwardDate,
+          TUI: Trips[0].TUI || "",
+        }
       ],
       Parameters: {
         Airlines: "",
@@ -90,6 +98,7 @@ export const expressSearchFlights = async (req, res) => {
         },
       }
     );
+    console.log(response, "response from the backend========================= poll");
     const data = await response.json();
     console.log(data, "response.data======================================78");
     console.log(
@@ -153,6 +162,8 @@ export const getExpSearchFlights = async (req, res) => {
 
   try {
     const pollExpSearch = async (retries = 0) => {
+      console.log(body, "body from the backend========================= poll");
+      console.log(headers, "headers from the backend========================= poll");
       const response = await fetch(`${process.env.FLIGHT_URL}/flights/GetExpSearch`, {
         method: "POST",
         headers: headers,
@@ -173,6 +184,8 @@ export const getExpSearchFlights = async (req, res) => {
       await sleep(delayMs);
       return pollExpSearch(retries + 1);
     };
+
+    console.log(pollExpSearch, "pollExpSearch from the backend========================= poll");
 
     const data = await pollExpSearch();
 

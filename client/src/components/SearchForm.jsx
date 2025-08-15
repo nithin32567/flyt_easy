@@ -145,7 +145,6 @@ const SearchForm = () => {
     localStorage.removeItem("TUI");
     localStorage.removeItem("pricerTUI");
     localStorage.removeItem("pricerData");
-    localStorage.removeItem("tripType");
     localStorage.removeItem("searchTUI");
     localStorage.removeItem("searchPayload");
     localStorage.setItem("searchPayload", JSON.stringify(payload));

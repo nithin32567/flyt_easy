@@ -36,12 +36,9 @@ const FlightHotelWearchWrapper = () => {
   const [isSeniorCitizenFare, setIsSeniorCitizenFare] = useState(false);
   const [isNearbyAirport, setIsNearbyAirport] = useState(false);
 
-
-  console.log(isDirect, "isDirect=========================");
-  console.log(isDefenceFare, "isDefenceFare=========================");
-  console.log(isStudentFare, "isStudentFare=========================");
-  console.log(isSeniorCitizenFare, "isSeniorCitizenFare=========================");
-  console.log(isNearbyAirport, "isNearbyAirport=========================");
+  useEffect(() => {
+    localStorage.setItem("tripType", tripType);
+  }, [tripType]);
 
   // fetch airports
   useEffect(() => {
@@ -96,6 +93,7 @@ const FlightHotelWearchWrapper = () => {
   // Express Searchhea
   async function handleExpressSearch(e) {
     e.preventDefault();
+    
 
     if (tripType === "ON") {
       if (!from || !to || !departureDate) {
@@ -138,7 +136,7 @@ const FlightHotelWearchWrapper = () => {
           From: from,
           To: to,
           OnwardDate: departureDate.toISOString().split("T")[0],
-          ReturnDate: returnDate.toISOString().split("T")[0],
+          ReturnDate: tripType === "RT" ? returnDate.toISOString().split("T")[0] : "",
           TUI: "",
         },
       ],
@@ -152,7 +150,6 @@ const FlightHotelWearchWrapper = () => {
     localStorage.removeItem("TUI");
     localStorage.removeItem("pricerTUI");
     localStorage.removeItem("pricerData");
-    localStorage.removeItem("tripType");
     localStorage.removeItem("searchTUI");
     localStorage.removeItem("searchPayload");
     localStorage.setItem("searchPayload", JSON.stringify(payload));

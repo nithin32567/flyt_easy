@@ -4,12 +4,19 @@ export const getSSRServices = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
     
     try {
-        const { TUI, PaidSSR = true, ClientID = "bitest", Source = "SF", FareType = "ON" } = req.body;
+        const { TUI, PaidSSR = true, ClientID = "bitest", Source = "SF", FareType } = req.body;
 
         if (!TUI) {
             return res.status(400).json({
                 success: false,
                 message: "TUI is required"
+            });
+        }
+
+        if (!FareType) {
+            return res.status(400).json({
+                success: false,
+                message: "FareType is required (ON for one-way, RT for round trip)"
             });
         }
 
@@ -30,6 +37,7 @@ export const getSSRServices = async (req, res) => {
 
         console.log('SSR Request Payload:', payload);
         console.log('Making SSR request to:', `${process.env.FLIGHT_URL}/Flights/SSR`);
+        console.log('FareType being used:', FareType, 'for TUI:', TUI);
 
         const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/SSR`, payload, {
             headers: {

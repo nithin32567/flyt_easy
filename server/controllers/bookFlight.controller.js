@@ -271,7 +271,7 @@ export const getItineraryStatus = async (req, res) => {
         
         const responseData = response.data;
         
-        // Check the current status
+        // Check the current status - this is the key field that determines if booking is complete
         if (responseData.CurrentStatus === "Success") {
             return res.status(200).json({
                 success: true,
@@ -289,7 +289,7 @@ export const getItineraryStatus = async (req, res) => {
                 shouldPoll: false
             });
         } else {
-            // Still in progress
+            // Still in progress - continue polling
             return res.status(200).json({
                 success: true,
                 data: responseData,

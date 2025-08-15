@@ -74,12 +74,18 @@ const Createitenary = () => {
     
     setLoadingSSR(true);
     try {
+      const ssrPayload = {
+        TUI: currentTUI,
+        PaidSSR: ssrEnabled,
+        FareType: pricerData?.FareType || "ON" // Add FareType from pricerData
+      };
+      
+      console.log('SSR Request Payload:', ssrPayload);
+      console.log('PricerData FareType:', pricerData?.FareType);
+      
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
-        {
-          TUI: currentTUI,
-          PaidSSR: ssrEnabled
-        },
+        ssrPayload,
         {
           headers: {
             "Content-Type": "application/json",

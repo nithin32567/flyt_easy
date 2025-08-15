@@ -30,6 +30,11 @@ const ListFlights = () => {
     }
   }, [trips, navigate])
   const handleBookFlight = async () => {
+    if(!tripType){
+      alert("No Trip Type Found, Please try again!!!")
+      navigate("/")
+      return
+    }
     // console.log(selectedFlight, "selectedFlight=========================")
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, {
       Trips: [selectedFlight],
@@ -38,7 +43,7 @@ const ListFlights = () => {
       Options: "",
       token: localStorage.getItem("token"),
       TUI: TUI,
-      TripType: tripType || "ON"
+      TripType: tripType
     })
     if (response.statusText === "OK") {
       console.log("inside the if condition")
@@ -66,6 +71,7 @@ const ListFlights = () => {
       localStorage.setItem("oneWayReviewData", JSON.stringify(data.data))
       localStorage.setItem("pricerTUI", data.data.TUI)
       navigate("/one-way-review")
+      
     } else {
       console.log("inside the else condition")
       alert("Something went wrong, Please try again!!!")
@@ -100,6 +106,8 @@ flights.length > 0 ? flights.map((flight, index) => (
 
 </div>;
   </div>
+
+
   )
 };
 

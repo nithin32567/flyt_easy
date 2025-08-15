@@ -90,6 +90,8 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             });
             console.log('GetItineraryStatus response:', response.data);
+            
+            // Return the response data which contains the status information
             return response.data;
         } catch (error) {
             console.error('GetItineraryStatus error:', error);
@@ -111,6 +113,8 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             });
             console.log('RetrieveBooking response:', response.data);
+            
+            // Return the response data which contains the booking details
             return response.data;
         } catch (error) {
             console.error('RetrieveBooking error:', error);
@@ -123,15 +127,23 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
         
         while (attempts < maxAttempts) {
             try {
+                console.log(`Polling attempt ${attempts + 1}/${maxAttempts}...`);
                 const statusResponse = await getItineraryStatus(TUI, TransactionID);
                 
+                console.log('Status response:', statusResponse);
+                
+                // Check if the status response indicates completion
                 if (statusResponse.status === "SUCCESS") {
-                    console.log('Booking completed successfully');
-                    // Get booking details
+                    console.log('Booking completed successfully, retrieving booking details...');
+                    // Only call RetrieveBooking after GetItineraryStatus returns Success
                     const bookingResponse = await retrieveBooking(TUI, TransactionID);
                     if (bookingResponse.success) {
+                        console.log('Booking details retrieved successfully:', bookingResponse.data);
                         localStorage.setItem("bookingDetails", JSON.stringify(bookingResponse.data));
                         return { success: true, bookingData: bookingResponse.data };
+                    } else {
+                        console.error('Failed to retrieve booking details:', bookingResponse);
+                        return { success: false, message: "Failed to retrieve booking details" };
                     }
                 } else if (statusResponse.status === "FAILED") {
                     console.log('Booking failed');

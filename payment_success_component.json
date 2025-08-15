@@ -1,0 +1,343 @@
+{
+  "componentName": "PaymentSuccess",
+  "imports": [
+    "React",
+    "useEffect",
+    "useState",
+    "axios"
+  ],
+  "localStorageKeys": {
+    "token": "token",
+    "transactionID": "TransactionID",
+    "clientID": "ClientID",
+    "tui": "TUI",
+    "retrievedBookingData": "retrievedBookingData"
+  ],
+  "stateVariables": {
+    "bookingData": {
+      "type": "object",
+      "default": null,
+      "description": "Stores the booking data from API response"
+    },
+    "expandedSections": {
+      "type": "object",
+      "default": {
+        "passengers": false,
+        "contact": false
+      },
+      "description": "Controls accordion section visibility"
+    }
+  },
+  "apiEndpoints": {
+    "getExistingItinerary": "/api/flights/get-existing-itenary",
+    "retrieveBooking": "/api/flights/retrieve-booking"
+  },
+  "helperFunctions": {
+    "formatDate": {
+      "description": "Formats date strings to readable format",
+      "parameters": ["dateString"],
+      "returns": "formatted date string or 'N/A'"
+    },
+    "getPassengerType": {
+      "description": "Converts PTC codes to readable passenger types",
+      "parameters": ["ptc"],
+      "mapping": {
+        "ADT": "Adult",
+        "CHD": "Child",
+        "INF": "Infant"
+      }
+    },
+    "toggleSection": {
+      "description": "Toggles accordion section visibility",
+      "parameters": ["section"]
+    }
+  },
+  "apiFunctions": {
+    "fetchExistingItinerary": {
+      "description": "Fetches existing itinerary data",
+      "method": "POST",
+      "payload": {
+        "TransactionID": "from localStorage",
+        "ClientID": "from localStorage"
+      },
+      "headers": {
+        "Authorization": "Bearer token"
+      }
+    },
+    "handleRetrieveBooking": {
+      "description": "Retrieves booking data using retrieve booking API",
+      "method": "POST",
+      "payload": {
+        "ReferenceType": "T",
+        "TUI": "from localStorage",
+        "ReferenceNumber": "transactionID",
+        "ClientID": "clientID"
+      },
+      "headers": {
+        "Authorization": "Bearer token"
+      }
+    }
+  },
+  "uiSections": {
+    "flightDetails": {
+      "title": "Flight Details",
+      "fields": [
+        {
+          "label": "From",
+          "value": "bookingData.From - bookingData.FromName"
+        },
+        {
+          "label": "Travel Date",
+          "value": "formatted OnwardDate"
+        },
+        {
+          "label": "Fare Type",
+          "value": "Normal Fare (if FareType === 'N')"
+        },
+        {
+          "label": "Customer Fare",
+          "value": "₹bookingData.CustomerFare"
+        },
+        {
+          "label": "Net Amount",
+          "value": "₹bookingData.NetAmount"
+        },
+        {
+          "label": "Gross Amount",
+          "value": "₹bookingData.GrossAmount"
+        },
+        {
+          "label": "Payment Status",
+          "value": "bookingData.PGDescription"
+        },
+        {
+          "label": "Hold Release Date",
+          "value": "formatted HBReleaseDate",
+          "conditional": "if HBReleaseDate exists"
+        },
+        {
+          "label": "Reference Number",
+          "value": "bookingData.DRefNo",
+          "conditional": "if DRefNo exists"
+        },
+        {
+          "label": "Invoice",
+          "value": "bookingData.Invoice",
+          "conditional": "if Invoice exists"
+        }
+      ]
+    },
+    "bookingInformation": {
+      "title": "Booking Information",
+      "fields": [
+        {
+          "label": "Transaction ID",
+          "value": "bookingData.TransactionID"
+        },
+        {
+          "label": "Booking Reference",
+          "value": "bookingData.BookingReference"
+        },
+        {
+          "label": "Booking Date",
+          "value": "bookingData.BookingDate"
+        },
+        {
+          "label": "Booking Status",
+          "value": "bookingData.BookingStatus"
+        }
+      ]
+    },
+    "passengerDetails": {
+      "title": "Passenger Details",
+      "type": "accordion",
+      "dataSource": "bookingData.Pax",
+      "fields": [
+        {
+          "label": "Full Name",
+          "value": "Title FName LName"
+        },
+        {
+          "label": "Age",
+          "value": "Age years"
+        },
+        {
+          "label": "Date of Birth",
+          "value": "formatted DOB"
+        },
+        {
+          "label": "Gender",
+          "value": "M/F mapping"
+        },
+        {
+          "label": "Nationality",
+          "value": "Nationality"
+        },
+        {
+          "label": "Passport Number",
+          "value": "PassportNo"
+        },
+        {
+          "label": "Place of Issue",
+          "value": "PLI",
+          "conditional": "if PLI exists"
+        },
+        {
+          "label": "Passport Expiry",
+          "value": "formatted DOE",
+          "conditional": "if DOE exists and not default"
+        },
+        {
+          "label": "Visa Type",
+          "value": "VisaType",
+          "conditional": "if VisaType exists"
+        },
+        {
+          "label": "Frequent Flyer Number",
+          "value": "FFNumber",
+          "conditional": "if FFNumber exists"
+        }
+      ]
+    },
+    "contactDetails": {
+      "title": "Contact Information",
+      "type": "accordion",
+      "dataSource": "bookingData.ContactInfo",
+      "fields": [
+        {
+          "label": "Full Name",
+          "value": "Title FName LName"
+        },
+        {
+          "label": "Email",
+          "value": "Email"
+        },
+        {
+          "label": "Mobile Number",
+          "value": "MobileCountryCode Mobile"
+        },
+        {
+          "label": "Phone Number",
+          "value": "Phone",
+          "conditional": "if Phone exists"
+        },
+        {
+          "label": "Address",
+          "value": "Address"
+        },
+        {
+          "label": "City",
+          "value": "City"
+        },
+        {
+          "label": "State",
+          "value": "State"
+        },
+        {
+          "label": "PIN Code",
+          "value": "PIN"
+        },
+        {
+          "label": "Country",
+          "value": "CountryCode"
+        },
+        {
+          "label": "Destination Mobile",
+          "value": "DestMobCountryCode DestMob",
+          "conditional": "if DestMob exists"
+        },
+        {
+          "label": "Return Contact",
+          "value": "ReturnMobileCountryCode ReturnContactNo",
+          "conditional": "if ReturnContactNo exists"
+        },
+        {
+          "label": "Preferred Language",
+          "value": "PreferredLanguage",
+          "conditional": "if PreferredLanguage exists"
+        }
+      ],
+      "gstSection": {
+        "title": "GST Information",
+        "conditional": "if any GST field exists",
+        "fields": [
+          {
+            "label": "Company Name",
+            "value": "GSTCompanyName",
+            "conditional": "if GSTCompanyName exists"
+          },
+          {
+            "label": "GST Email",
+            "value": "GSTEmail",
+            "conditional": "if GSTEmail exists"
+          },
+          {
+            "label": "GST Mobile",
+            "value": "GSTMobile",
+            "conditional": "if GSTMobile exists"
+          },
+          {
+            "label": "GST TIN",
+            "value": "GSTTIN",
+            "conditional": "if GSTTIN exists"
+          }
+        ]
+      }
+    }
+  },
+  "actionButtons": [
+    {
+      "text": "Go To Home",
+      "style": "bg-orange-400 hover:bg-orange-500",
+      "action": "navigation"
+    },
+    {
+      "text": "Retrieve Booking",
+      "style": "bg-blue-600 hover:bg-blue-700",
+      "action": "handleRetrieveBooking"
+    }
+  ],
+  "responsiveDesign": {
+    "breakpoints": {
+      "xs": "grid-cols-1",
+      "sm": "grid-cols-2",
+      "lg": "grid-cols-3",
+      "xl": "grid-cols-4"
+    },
+    "spacing": {
+      "mobile": "p-3",
+      "tablet": "p-4 md:p-6",
+      "desktop": "lg:p-8"
+    },
+    "textSizes": {
+      "mobile": "text-sm",
+      "tablet": "sm:text-base",
+      "desktop": "md:text-lg lg:text-xl"
+    }
+  },
+  "errorHandling": {
+    "apiErrors": {
+      "fetchExistingItinerary": "console.error and continue",
+      "handleRetrieveBooking": "alert with error message"
+    },
+    "dataValidation": {
+      "nullChecks": "N/A fallbacks",
+      "dateValidation": "formatDate function handles invalid dates"
+    }
+  },
+  "styling": {
+    "theme": {
+      "primary": "blue-600",
+      "secondary": "orange-400",
+      "success": "green-600",
+      "background": "gray-50",
+      "cards": "white",
+      "borders": "gray-200"
+    },
+    "components": {
+      "cards": "bg-white rounded-lg shadow-md",
+      "sections": "border border-gray-200 rounded-lg",
+      "buttons": "rounded-xl px-8 py-2 transition-colors"
+    }
+  }
+} 

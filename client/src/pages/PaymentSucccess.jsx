@@ -5,6 +5,7 @@ const PaymentSucccess = () => {
     const token = localStorage.getItem("token");
     const transactionID = JSON.parse(localStorage.getItem("TransactionID"));
     const clientID = localStorage.getItem("ClientID");
+    const TUI = localStorage.getItem("TUI");
     const [bookingData, setBookingData] = useState(null);
     const [expandedSections, setExpandedSections] = useState({
         passengers: false,
@@ -14,27 +15,45 @@ const PaymentSucccess = () => {
     console.log('PaymentSuccess component loaded');
     console.log('TransactionID:', transactionID);
     console.log('ClientID:', clientID);
+    console.log('TUI:', TUI);
 
     useEffect(() => {
         console.log('PaymentSuccess useEffect triggered');
-        fetchExistingItinerary();
+        // First try to get booking data from localStorage (from payment process)
+        const storedBookingData = localStorage.getItem("bookingDetails");
+        if (storedBookingData) {
+            console.log('Found booking data in localStorage');
+            setBookingData(JSON.parse(storedBookingData));
+        } else {
+            // If not in localStorage, fetch from API
+            console.log('No booking data in localStorage, fetching from API...');
+            fetchBookingDetails();
+        }
     }, []);
 
-    const fetchExistingItinerary = async () => {
-        console.log('Fetching existing itinerary...');
+    const fetchBookingDetails = async () => {
+        console.log('Fetching booking details...');
         try {
-            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-existing-itenary`, {
-                TransactionID: transactionID,
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, {
+                ReferenceType: 'T',
+                TUI: TUI,
+                ReferenceNumber: transactionID,
                 ClientID: clientID
             }, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
             });
-            console.log('Existing itinerary response:', response.data, '================================= response get existing itinerary');
-            setBookingData(response.data.data);
+            console.log('Retrieve booking response:', response.data);
+            
+            if (response.data.success) {
+                setBookingData(response.data.data);
+                localStorage.setItem("bookingDetails", JSON.stringify(response.data.data));
+            } else {
+                console.error('Failed to retrieve booking:', response.data.message);
+            }
         } catch (error) {
-            console.error('Error fetching existing itinerary:', error);
+            console.error('Error fetching booking details:', error);
         }
     }
 
@@ -71,7 +90,7 @@ const PaymentSucccess = () => {
         try {
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, {
                 ReferenceType: 'T',
-                TUI: localStorage.getItem('TUI') || '',
+                TUI: TUI,
                 ReferenceNumber: transactionID,
                 ClientID: clientID
             }, {
@@ -82,7 +101,8 @@ const PaymentSucccess = () => {
 
             if (response.data.success) {
                 // Store the retrieved booking data
-                localStorage.setItem('retrievedBookingData', JSON.stringify(response.data.data));
+                setBookingData(response.data.data);
+                localStorage.setItem('bookingDetails', JSON.stringify(response.data.data));
                 console.log(response.data.data, '================================= response retrieve booking');
                 alert('Booking retrieved successfully! Check your booking details above.');
             } else {
@@ -91,6 +111,49 @@ const PaymentSucccess = () => {
         } catch (error) {
             console.error('Error retrieving booking:', error);
             alert('Error retrieving booking. Please try again.');
+        }
+    };
+
+    // Helper function to check if web check-in is available
+    const isWebCheckInAvailable = (flightDate) => {
+        const now = new Date();
+        const flight = new Date(flightDate);
+        const hoursUntilFlight = (flight - now) / (1000 * 60 * 60);
+        
+        // Web check-in available 24-48 hours before flight
+        return hoursUntilFlight <= 48 && hoursUntilFlight >= 0;
+    };
+
+    // Helper function to get web check-in status message
+    const getWebCheckInStatus = (bookingData) => {
+        if (!bookingData?.OnwardDate) return "Flight date not available";
+        
+        const flightDate = bookingData.OnwardDate;
+        const isAvailable = isWebCheckInAvailable(flightDate);
+        
+        if (isAvailable) {
+            const isCompleted = bookingData.WebCheckInInfo?.[0]?.IsWebCheckInCompleted;
+            return isCompleted ? "Web Check-in Completed" : "Web Check-in Available";
+        } else {
+            const now = new Date();
+            const flight = new Date(flightDate);
+            const daysUntilFlight = Math.ceil((flight - now) / (1000 * 60 * 60 * 24));
+            return `Web Check-in opens in ${daysUntilFlight} days`;
+        }
+    };
+
+    // Helper function to get web check-in status color
+    const getWebCheckInStatusColor = (bookingData) => {
+        if (!bookingData?.OnwardDate) return "text-gray-500";
+        
+        const flightDate = bookingData.OnwardDate;
+        const isAvailable = isWebCheckInAvailable(flightDate);
+        
+        if (isAvailable) {
+            const isCompleted = bookingData.WebCheckInInfo?.[0]?.IsWebCheckInCompleted;
+            return isCompleted ? "text-green-600" : "text-blue-600";
+        } else {
+            return "text-orange-600";
         }
     };
 
@@ -173,6 +236,13 @@ const PaymentSucccess = () => {
                                     <span className='text-xs sm:text-sm font-medium text-gray-500 mb-1'>Payment Status</span>
                                     <span className='text-sm sm:text-base font-semibold text-green-600'>
                                         {bookingData.PGDescription || 'N/A'}
+                                    </span>
+                                </div>
+                                
+                                <div className='flex flex-col p-2 sm:p-3 bg-gray-50 rounded-lg'>
+                                    <span className='text-xs sm:text-sm font-medium text-gray-500 mb-1'>Web Check-in Status</span>
+                                    <span className={`text-sm sm:text-base font-semibold ${getWebCheckInStatusColor(bookingData)}`}>
+                                        {getWebCheckInStatus(bookingData)}
                                     </span>
                                 </div>
                                 

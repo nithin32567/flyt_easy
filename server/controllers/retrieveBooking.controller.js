@@ -43,7 +43,9 @@ export const retrieveBooking = async (req, res) => {
 
         const data = await response.json();
         console.log(data, '================================= data retrieveBooking');
-        if (data.Code === "200") {
+        
+        // Check if the response contains the expected booking data
+        if (data.Code === "200" && data.TransactionID) {
             return res.status(200).json({
                 success: true,
                 message: "Booking retrieved successfully",
@@ -52,7 +54,7 @@ export const retrieveBooking = async (req, res) => {
         } else {
             return res.status(400).json({
                 success: false,
-                message: data.Msg?.[0] || "Failed to retrieve booking",
+                message: data.Msg?.[0] || "Failed to retrieve booking - incomplete response",
                 data: data
             });
         }
