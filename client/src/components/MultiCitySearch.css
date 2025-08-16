@@ -1,0 +1,236 @@
+.multi-city-search {
+  padding: 20px 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.segments-container {
+  margin-bottom: 20px;
+}
+
+.segment-row {
+  background: var(--LightBg);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  border: 1px solid var(--borderColor);
+  transition: all 0.3s ease;
+}
+
+.segment-row:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--PrimaryColor);
+}
+
+.segment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.segment-header h6 {
+  margin: 0;
+  color: var(--headingColor);
+  font-weight: 600;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+}
+
+.remove-segment-btn {
+  background: #dc3545;
+  color: var(--whitecolor);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  font-family: "Poppins", sans-serif;
+}
+
+.remove-segment-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.add-segment-section {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.add-segment-btn {
+  background: var(--PrimaryColor);
+  color: var(--whitecolor);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  text-transform: uppercase;
+}
+
+.add-segment-btn:hover {
+  background: var(--YellowColor);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(22, 67, 124, 0.3);
+}
+
+.search-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--borderColor);
+}
+
+.multi-city-search .select-items {
+  width: 100%;
+  text-align: left;
+  padding: 0px;
+  margin: 0px;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.multi-city-search .select-items:hover {
+  opacity: 0.8;
+}
+
+.multi-city-search .select-items h6 {
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--textcolor);
+  text-transform: uppercase;
+  font-family: "Poppins", sans-serif;
+}
+
+.multi-city-search .select-items h2 {
+  padding: 0;
+  margin: 2px 0px 8px 0px;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--headingColor);
+  font-family: "Poppins", sans-serif;
+}
+
+.multi-city-search .select-items h2 span {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.multi-city-search .select-items p {
+  padding: 0;
+  margin: 0;
+  line-height: 14px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  color: var(--textcolor);
+  font-family: "Poppins", sans-serif;
+}
+
+.multi-city-search .search-btn {
+  width: 100%;
+  padding: 0;
+  margin: 14px 0px 0px 0px;
+  background: var(--YellowColor);
+  border: none;
+  outline: none;
+  color: var(--whitecolor);
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 14px;
+  height: 48px;
+  border-radius: 5px;
+  transition-duration: 0.3s;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+}
+
+.multi-city-search .search-btn:hover:not(:disabled) {
+  background: var(--PrimaryColor);
+}
+
+.multi-city-search .search-btn:disabled {
+  background: var(--textcolor);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .segment-row {
+    padding: 15px;
+  }
+  
+  .multi-city-search .select-items h2 {
+    font-size: 20px;
+  }
+  
+  .multi-city-search .select-items h2 span {
+    font-size: 16px;
+  }
+  
+  .add-segment-btn {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+/* Animation for new segments */
+.segment-row {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Segment number styling */
+.segment-header h6::before {
+  content: "✈️ ";
+  margin-right: 5px;
+}
+
+/* Empty state styling */
+.segment-row:empty {
+  display: none;
+}
+
+/* Focus states for accessibility */
+.multi-city-search .select-items:focus {
+  outline: 2px solid var(--PrimaryColor);
+  outline-offset: 2px;
+}
+
+.add-segment-btn:focus {
+  outline: 2px solid var(--PrimaryColor);
+  outline-offset: 2px;
+}
+
+.remove-segment-btn:focus {
+  outline: 2px solid #dc3545;
+  outline-offset: 2px;
+} 

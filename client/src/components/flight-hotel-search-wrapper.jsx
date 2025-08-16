@@ -6,6 +6,7 @@ import HotelSearch from "./HotelSearch";
 import ShowAirports from "./modals/ShowAirports";
 import TravellerAddModal from "./modals/TravellerAddModal";
 import { CalanderModal } from "./modals/CalanderModal";
+import MultiCitySearch from "./MultiCitySearch";
 import axios from "axios";
 
 const FlightHotelWearchWrapper = () => {
@@ -100,7 +101,7 @@ const FlightHotelWearchWrapper = () => {
         alert("Please select From, To, and Departure Date");
         return;
       }
-    } else {
+    } else if (tripType === "RT") {
       if (!from || !to || !departureDate || !returnDate) {
         alert("Please select From, To, Departure Date and Return Date");
         return;
@@ -131,7 +132,7 @@ const FlightHotelWearchWrapper = () => {
       IsRefundable: false,
       preferedAirlines: null,
       TUI: "",
-      Trips: [
+      Trips: tripType === "MC" ? [] : [
         {
           From: from,
           To: to,
@@ -192,6 +193,81 @@ const FlightHotelWearchWrapper = () => {
     setTravelClass(data.travelClass);
   }
 
+  // Handle multi-city search
+  async function handleMultiCitySearch(trips) {
+    if (!localStorage.getItem("ClientID")) {
+      alert("Unauthorized Access Missing ClientID");
+      return;
+    }
+
+    setIsSearching(true);
+
+    const payload = {
+      ADT: adults,
+      CHD: children,
+      INF: infants,
+      Cabin:
+        travelClass === "Economy"
+          ? "E"
+          : travelClass === "Premium Economy"
+          ? "PE"
+          : "B",
+      Source: "CF",
+      Mode: "AS",
+      ClientID: localStorage.getItem("ClientID"),
+      FareType: "MC",
+      IsMultipleCarrier: false,
+      IsRefundable: false,
+      preferedAirlines: null,
+      TUI: "",
+      Trips: trips,
+      token: token,
+      IsDirect: isDirect,
+      IsStudentFare: isStudentFare,
+      IsNearbyAirport: isNearbyAirport,
+    };
+
+    console.log(payload, "multi-city payload to the backend=========================");
+    localStorage.removeItem("trips");
+    localStorage.removeItem("TUI");
+    localStorage.removeItem("pricerTUI");
+    localStorage.removeItem("pricerData");
+    localStorage.removeItem("searchTUI");
+    localStorage.removeItem("searchPayload");
+    localStorage.setItem("searchPayload", JSON.stringify(payload));
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/flights/express-search`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+          token: token,
+        }
+      );
+      const data = await response.json();
+      console.log(data, "multi-city data from the backend=========================");
+      const TUI = data.TUI;
+      await getExpSearch(TUI);
+      console.log(TUI, "multi-city TUI=========================");
+      localStorage.setItem("searchTUI", TUI);
+      localStorage.setItem("searchTUI", data.TUI);
+      if (data.success && data.data?.TUI) {
+        console.log(
+          "multi-city success and calling the getExpSearch=================="
+        );
+      }
+    } catch (error) {
+      console.log(error, "multi-city error from the backend=========================");
+    } finally {
+      setIsSearching(false);
+    }
+  }
+
   return (
     <div>
       <section>
@@ -201,7 +277,7 @@ const FlightHotelWearchWrapper = () => {
               <li className="nav-item items-center justify-center" role="presentation">
                 <button
                   onClick={() => setIsActiveFlightTab(true)}
-                  className={`nav-link ${isActiveFlightTab ? "active" : ""}`}
+                  className={`nav-link ${isActiveFlightTab ? "active" : ""} `}
                   id="home-tab"
                   data-bs-toggle="tab"
                   data-bs-target="#home"
@@ -278,120 +354,135 @@ const FlightHotelWearchWrapper = () => {
                       </li>
                     </ul>
                   </div>
-                  <div className="row">
-                    <div className="col-lg-5">
-                      <div className="row">
-                        <div className="col-lg-6 col-md-6">
-                          <button
-                            className="select-items"
-                            onClick={() => {
-                              setIsOpen(true);
-                              setLabel("From");
-                            }}
-                          >
-                            <h6>FROM</h6>
-                            <h2>
-                              {from?.Name || "Mumbai"} {from?.Code || "BOM"}
-                            </h2>
-                            <p>
-                              [{from?.Code || "BOM"}] {from?.Name || "Mumbai"}
-                            </p>
-                          </button>
-                        </div>
-                        <div className="col-lg-6 col-md-6">
-                          <button
-                            className="select-items"
-                            onClick={() => {
-                              setIsOpen(true);
-                              setLabel("To");
-                            }}
-                          >
-                            <h6>To</h6>
-                            <h2>
-                              {to?.Name || "New Delhi"} {to?.Code || "DEL"}
-                            </h2>
-                            <p>
-                              [{to?.Code || "DEL"}] {to?.Name || "New Delhi"}
-                            </p>
-                          </button>
+                  {tripType === "MC" ? (
+                    <MultiCitySearch
+                      airports={airports}
+                      onSearch={handleMultiCitySearch}
+                      isSearching={isSearching}
+                      adults={adults}
+                      children={children}
+                      infants={infants}
+                      travelClass={travelClass}
+                      onTravellerClick={() => setTravellerModalOpen(true)}
+                    />
+                  ) : (
+                    <div className="row">
+                      <div className="col-lg-5">
+                        <div className="row">
+                          <div className="col-lg-6 col-md-6">
+                            <button
+                              className="select-items"
+                              onClick={() => {
+                                setIsOpen(true);
+                                setLabel("From");
+                              }}
+                            >
+                              <h6>FROM</h6>
+                              <h2>
+                                {from?.Name || "Mumbai"} {from?.Code || "BOM"}
+                              </h2>
+                              <p>
+                                [{from?.Code || "BOM"}] {from?.Name || "Mumbai"}
+                              </p>
+                            </button>
+                          </div>
+                          <div className="col-lg-6 col-md-6">
+                            <button
+                              className="select-items"
+                              onClick={() => {
+                                setIsOpen(true);
+                                setLabel("To");
+                              }}
+                            >
+                              <h6>To</h6>
+                              <h2>
+                                {to?.Name || "New Delhi"} {to?.Code || "DEL"}
+                              </h2>
+                              <p>
+                                [{to?.Code || "DEL"}] {to?.Name || "New Delhi"}
+                              </p>
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="col-lg-7">
-                      <div className="row">
-                        <div className="col-lg-3 col-md-4 col-6">
-                          <button
-                            className="select-items"
-                            onClick={() => {
-                              setIsCalanderModalOpen(true);
-                              setDateType("departure");
-                            }}
-                          >
-                            <h6>DEPART</h6>
-                            <h2>
-                              {departureDate.getDate()}{" "}
-                              <span>
+                      <div className="col-lg-7">
+                        <div className="row">
+                          <div className="col-lg-3 col-md-4 col-6">
+                            <button
+                              className="select-items"
+                              onClick={() => {
+                                setIsCalanderModalOpen(true);
+                                setDateType("departure");
+                              }}
+                            >
+                              <h6>DEPART</h6>
+                              <h2>
+                                {departureDate.getDate()}{" "}
+                                <span>
+                                  {departureDate.toLocaleString("default", {
+                                    month: "short",
+                                  })}
+                                </span>
+                              </h2>
+                              <p>
                                 {departureDate.toLocaleString("default", {
-                                  month: "short",
+                                  weekday: "long",
                                 })}
-                              </span>
-                            </h2>
-                            <p>
-                              {departureDate.toLocaleString("default", {
-                                weekday: "long",
-                              })}
-                            </p>
-                          </button>
-                        </div>
-                        <div className="col-lg-3 col-md-4 col-6">
-                          <button
-                            className="select-items"
-                            onClick={() => {
-                              setIsCalanderModalOpen(true);
-                              setDateType("return");
-                            }}
-                          >
-                            <h6>RETURN</h6>
-                            <h2>
-                              {returnDate.getDate()}{" "}
-                              <span>
-                                {returnDate.toLocaleString("default", {
-                                  month: "short",
-                                })}
-                              </span>
-                            </h2>
-                            <p>
-                              {returnDate.toLocaleString("default", {
-                                weekday: "long",
-                              })}
-                            </p>
-                          </button>
-                        </div>
-                        <div className="col-lg-3 col-md-4">
-                          <button
-                            className="select-items"
-                            onClick={() => setTravellerModalOpen(true)}
-                          >
-                            <h6>Travellers</h6>
-                            <h2>
-                              {adults + children + infants}{" "}
-                              <span>Travellers</span>
-                            </h2>
-                            <p>{travelClass}</p>
-                          </button>
-                        </div>
-                        <div className="col-lg-3">
-                          <button
-                            className="search-btn"
-                            onClick={handleExpressSearch}
-                            disabled={isSearching}
-                          >
-                            {isSearching ? "Searching..." : "Search"}
-                          </button>
+                              </p>
+                            </button>
+                          </div>
+                          {tripType === "RT" && (
+                            <div className="col-lg-3 col-md-4 col-6">
+                              <button
+                                className="select-items"
+                                onClick={() => {
+                                  setIsCalanderModalOpen(true);
+                                  setDateType("return");
+                                }}
+                              >
+                                <h6>RETURN</h6>
+                                <h2>
+                                  {returnDate.getDate()}{" "}
+                                  <span>
+                                    {returnDate.toLocaleString("default", {
+                                      month: "short",
+                                    })}
+                                  </span>
+                                </h2>
+                                <p>
+                                  {returnDate.toLocaleString("default", {
+                                    weekday: "long",
+                                  })}
+                                </p>
+                              </button>
+                            </div>
+                          )}
+                          <div className="col-lg-3 col-md-4">
+                            <button
+                              className="select-items"
+                              onClick={() => setTravellerModalOpen(true)}
+                            >
+                              <h6>Travellers</h6>
+                              <h2>
+                                {adults + children + infants}{" "}
+                                <span>Travellers</span>
+                              </h2>
+                              <p>{travelClass}</p>
+                            </button>
+                          </div>
+                          <div className="col-lg-3">
+                            <button
+                              className="search-btn"
+                              onClick={handleExpressSearch}
+                              disabled={isSearching}
+                            >
+                              {isSearching ? "Searching..." : "Search"}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                   <div className="bookingcheckbox">
                     <ul>
                       <li>

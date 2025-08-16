@@ -16,44 +16,56 @@ const ShowAirports = ({ isOpen, setIsOpen, airports, label, onSelect }) => {
     setIsOpen(false);
   }
 
+  // Handle click outside to close
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      setIsOpen(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed airport-modal inset-0 h-[400px]  w-[400px] rounded-2xl top-0 left-0 bg-black/50  flex items-center justify-center  mx-auto">
-      <div className="bg-white h-full p-4 shadow-lg w-full rounded-2xl max-w-full  relative">
-        <div className="flex justify-between items-center mb-2">
-          <span className="font-semibold">{label}</span>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="text-2xl cursor-pointer"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        <input
-          className="w-full border rounded px-3 py-2 mb-2"
-          placeholder="Enter city or airport"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <div className="text-xs text-green-700 mb-2">Important airports</div>
-        <div className="max-h-60 overflow-y-auto">
-          {filtered.map((a) => (
-            <div
-              key={a.Code}
-              className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
-              onClick={() => handleSelect(a)}
+    <div 
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] p-4"
+      onClick={handleBackdropClick}
+    >
+      <div className="relative bg-white rounded-lg border max-w-sm w-full mx-4">
+        <div className="p-4">
+          <div className="flex justify-between items-center mb-3">
+            <span className="font-semibold text-base">{label}</span>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-2xl cursor-pointer"
             >
-              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold w-12 text-center">
-                {a.Code}
-              </span>
-              <div className="flex-1">
-                <div className="font-semibold text-sm">{a.CityName}</div>
-                <div className="text-xs text-gray-500">{a.Name}</div>
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <input
+            className="w-full border rounded px-3 py-2 mb-3 text-sm"
+            placeholder="Enter city or airport"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <div className="text-xs text-green-700 mb-2">Important airports</div>
+          <div className="max-h-64 overflow-y-auto">
+            {filtered.map((a) => (
+              <div
+                key={a.Code}
+                className="flex items-center gap-2 p-2 hover:bg-gray-100 cursor-pointer rounded"
+                onClick={() => handleSelect(a)}
+              >
+                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold w-12 text-center flex-shrink-0">
+                  {a.Code}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm truncate">{a.CityName}</div>
+                  <div className="text-xs text-gray-500 truncate">{a.Name}</div>
+                </div>
+                <div className="text-xs text-gray-400 flex-shrink-0">{a.Country}</div>
               </div>
-              <div className="text-xs text-gray-400">{a.Country}</div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
