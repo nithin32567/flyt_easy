@@ -27,7 +27,7 @@ export const getSSRServices = async (req, res) => {
             FareType: FareType,
             Trips: [
                 {
-                    Amount: 0, // This will be filled by the API
+                    Amount: req.body.Amount || 0, // Use the NetAmount from GetSPricer
                     Index: "",
                     OrderID: 1,
                     TUI: TUI
@@ -38,6 +38,7 @@ export const getSSRServices = async (req, res) => {
         console.log('SSR Request Payload:', payload);
         console.log('Making SSR request to:', `${process.env.FLIGHT_URL}/Flights/SSR`);
         console.log('FareType being used:', FareType, 'for TUI:', TUI);
+        console.log('Request body received:', req.body);
 
         const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/SSR`, payload, {
             headers: {
@@ -49,18 +50,53 @@ export const getSSRServices = async (req, res) => {
 
         const data = response.data;
         console.log('SSR Response:', data);
+        console.log('SSR Response structure check:');
+        console.log('- Code:', data.Code);
+        console.log('- PaidSSR:', data.PaidSSR);
+        console.log('- Trips exists:', !!data.Trips);
+        console.log('- Trips length:', data.Trips?.length);
+        if (data.Trips && data.Trips.length > 0) {
+            console.log('- First trip Journey length:', data.Trips[0].Journey?.length);
+            if (data.Trips[0].Journey && data.Trips[0].Journey.length > 0) {
+                console.log('- First journey Segments length:', data.Trips[0].Journey[0].Segments?.length);
+                if (data.Trips[0].Journey[0].Segments && data.Trips[0].Journey[0].Segments.length > 0) {
+                    console.log('- First segment SSR length:', data.Trips[0].Journey[0].Segments[0].SSR?.length);
+                }
+            }
+        }
 
         if (data.Code === "200") {
             // Extract SSR services from the response
             const ssrServices = [];
             
+            console.log('Processing SSR response structure:');
+            console.log('Trips length:', data.Trips?.length);
+            
             if (data.Trips && data.Trips.length > 0) {
-                data.Trips.forEach(trip => {
+                data.Trips.forEach((trip, tripIndex) => {
+                    console.log(`Trip ${tripIndex}:`, {
+                        From: trip.From,
+                        To: trip.To,
+                        JourneyLength: trip.Journey?.length
+                    });
+                    
                     if (trip.Journey && trip.Journey.length > 0) {
-                        trip.Journey.forEach(journey => {
+                        trip.Journey.forEach((journey, journeyIndex) => {
+                            console.log(`Journey ${journeyIndex}:`, {
+                                Provider: journey.Provider,
+                                SegmentsLength: journey.Segments?.length
+                            });
+                            
                             if (journey.Segments && journey.Segments.length > 0) {
-                                journey.Segments.forEach(segment => {
+                                journey.Segments.forEach((segment, segmentIndex) => {
+                                    console.log(`Segment ${segmentIndex}:`, {
+                                        VAC: segment.VAC,
+                                        SSRLength: segment.SSR?.length,
+                                        SSR: segment.SSR
+                                    });
+                                    
                                     if (segment.SSR && segment.SSR.length > 0) {
+                                        console.log(`Found ${segment.SSR.length} SSR services in segment ${segmentIndex}`);
                                         ssrServices.push(...segment.SSR);
                                     }
                                 });
@@ -69,6 +105,8 @@ export const getSSRServices = async (req, res) => {
                     }
                 });
             }
+            
+            console.log('Total SSR services found:', ssrServices.length);
 
             // Filter out free services (Charge: 0) - only return paid services
             const paidServices = ssrServices.filter(service => service.Charge > 0);
@@ -132,8 +170,12 @@ export const validateSSRSelection = async (req, res) => {
 
         // Calculate total SSR amount
         const totalSSRAmount = selectedServices.reduce((total, service) => {
-            return total + (service.Charge || 0);
+            const amount = service.SSRNetAmount || service.Charge || 0;
+            console.log(`SSR Service ${service.Code}: Charge=${service.Charge}, SSRNetAmount=${service.SSRNetAmount}, Using=${amount}`);
+            return total + amount;
         }, 0);
+        
+        console.log('Total SSR Amount calculated:', totalSSRAmount);
 
         // Validate service compatibility
         const validationErrors = [];

@@ -12,6 +12,7 @@ import { createItinerary, getExistingItinerary } from "../controllers/createIten
 import { startPay, getItineraryStatus } from "../controllers/bookFlight.controller.js";
 import { getSSRServices, validateSSRSelection } from "../controllers/ssr.controller.js";
 import { retrieveBooking } from "../controllers/retrieveBooking.controller.js";
+import { testGetItineraryStatus, testRetrieveBooking } from "../controllers/test.controller.js";
 
 const router = express.Router();
 
@@ -40,5 +41,9 @@ router.post("/get-ssr-services", getSSRServices);
 router.post("/validate-ssr-selection", validateSSRSelection);
 
 router.post("/retrieve-booking", retrieveBooking);
+
+// Test endpoints
+router.post("/test-get-itinerary-status", testGetItineraryStatus);
+router.post("/test-retrieve-booking", testRetrieveBooking);
 
 export default router;

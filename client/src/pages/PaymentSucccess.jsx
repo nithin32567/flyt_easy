@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import { Link } from 'react-router-dom';
 
 const PaymentSucccess = () => {
     const token = localStorage.getItem("token");
@@ -586,18 +587,14 @@ const PaymentSucccess = () => {
               
             </div>
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mt-8'>
-                <button 
-                    style={{
-                        
-                    }}
-                    className='text-center flex justify-center items-center bg-orange-400 text-white p-2 rounded-xl px-8 py-2 hover:bg-orange-500 transition-colors'>
-                    Go To Home
-                </button>
-                <button 
+                <Link to="/">
+                    <button 
                     onClick={handleRetrieveBooking}
                     className='text-center flex justify-center items-center bg-blue-600 text-white p-2 rounded-xl px-8 py-2 hover:bg-blue-700 transition-colors'>
-                    Retrieve Booking
+                Go To Home
                 </button>
+                </Link>
+                
             </div>
         </div>
 

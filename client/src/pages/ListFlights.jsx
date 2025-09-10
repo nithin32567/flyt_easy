@@ -14,7 +14,9 @@ const ListFlights = () => {
   console.log(trips)
 
   const [flights, setFlights] = useState(trips?.[0]?.Journey || []);
+  const [returnFlights, setReturnFlights] = useState(trips?.[1]?.Journey || []);
   const [selectedFlight, setSelectedFlight] = useState(null)
+  const [selectedReturnFlight, setSelectedReturnFlight] = useState(null)
   const navigate = useNavigate()
   useEffect(() => {
     if (!trips) {
@@ -35,9 +37,33 @@ const ListFlights = () => {
       navigate("/")
       return
     }
-    // console.log(selectedFlight, "selectedFlight=========================")
+
+    // Validate flight selection based on trip type
+    if (tripType === "RT") {
+      if (!selectedFlight || !selectedReturnFlight) {
+        alert("Please select both onward and return flights for round trip")
+        return
+      }
+    } else if (!selectedFlight) {
+      alert("Please select a flight")
+      return
+    }
+
+    // Prepare trips array based on trip type
+    let tripsToSend = [];
+    
+    if (tripType === "RT") {
+      // For round trip, send both onward and return flights
+      tripsToSend = [selectedFlight, selectedReturnFlight];
+    } else {
+      // For one way or multi city, send selected flights
+      tripsToSend = [selectedFlight];
+    }
+
+    console.log("Sending trips:", tripsToSend, "TripType:", tripType)
+    
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, {
-      Trips: [selectedFlight],
+      Trips: tripsToSend,
       ClientID: "FVI6V120g22Ei5ztGK0FIQ==",
       Mode: "AS",
       Options: "",
@@ -83,31 +109,60 @@ const ListFlights = () => {
     }
   }
 
-  useEffect(() => {
-    if (selectedFlight) {
-      handleBookFlight()
-    }
-  }, [selectedFlight])
-
   // console.log(flights[0])
   return (
   <div className="pt-40">
-    <h1 className="text-center text-2xl font-bold mb-4">Flight List</h1>
-<div className=" max-w-7xl mx-auto grid grid- cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <h1 className="text-center text-2xl font-bold mb-4">
+      {tripType === "RT" ? "Select Onward and Return Flights" : "Flight List"}
+    </h1>
+    
+    {/* Onward Flights Section */}
+    <div className="max-w-7xl mx-auto mb-8">
+      <h2 className="text-xl font-semibold mb-4 text-center">
+        {tripType === "RT" ? "Onward Flights" : "Available Flights"}
+      </h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {flights.length > 0 ? flights.map((flight, index) => (
+          <FlightCard 
+            key={`onward-${index}`} 
+            flight={flight} 
+            setSelectedFlight={setSelectedFlight}
+            isSelected={selectedFlight?.Index === flight.Index}
+            tripType="onward"
+          />
+        )) : <div className="text-center text-2xl font-bold col-span-full">No onward flights found</div>}
+      </div>
+    </div>
 
-{
-// if flights is not empty then show the flights
+    {/* Return Flights Section (only for Round Trip) */}
+    {tripType === "RT" && (
+      <div className="max-w-7xl mx-auto mb-8">
+        <h2 className="text-xl font-semibold mb-4 text-center">Return Flights</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {returnFlights.length > 0 ? returnFlights.map((flight, index) => (
+            <FlightCard 
+              key={`return-${index}`} 
+              flight={flight} 
+              setSelectedFlight={setSelectedReturnFlight}
+              isSelected={selectedReturnFlight?.Index === flight.Index}
+              tripType="return"
+            />
+          )) : <div className="text-center text-2xl font-bold col-span-full">No return flights found</div>}
+        </div>
+      </div>
+    )}
 
-flights.length > 0 ? flights.map((flight, index) => (
-  <FlightCard key={index} flight={flight} setSelectedFlight={setSelectedFlight} />
-)) : <div className="text-center text-2xl font-bold">No flights found</div>
-}
-
-
-</div>;
+    {/* Book Flight Button */}
+    <div className="max-w-7xl mx-auto text-center sticky bottom-0 w-full bg-white rounded-lg py-4 mt-4">
+      <button 
+        onClick={handleBookFlight}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg"
+        disabled={!selectedFlight || (tripType === "RT" && !selectedReturnFlight)}
+      >
+        {tripType === "RT" ? "Book Round Trip" : "Book Flight"}
+      </button>
+    </div>
   </div>
-
-
   )
 };
 

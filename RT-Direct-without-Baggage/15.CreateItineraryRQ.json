@@ -1,0 +1,51 @@
+{
+  "TUI": "8cf2d91e-7416-43d4-abe5-58769a1abeda|b5fc868e-7303-4bdd-9174-1cce6e90fd71|20250909223841",
+  "ContactInfo": {
+    "Title": "Mr",
+    "FName": "Nihtin",
+    "LName": "Prathapan",
+    "Mobile": "8848946278",
+    "Phone": "8899776655",
+    "Email": "nithinpr@gmail.com",
+    "Address": "Pulikkarayil H",
+    "CountryCode": "IN",
+    "MobileCountryCode": "+91",
+    "State": "Kerala",
+    "City": "Kochi",
+    "PIN": "886677",
+    "GSTCompanyName": "",
+    "GSTTIN": "",
+    "GSTMobile": "",
+    "GSTEmail": "",
+    "UpdateProfile": false,
+    "IsGuest": false
+  },
+  "Travellers": [
+    {
+      "ID": 1,
+      "Title": "Mr",
+      "FName": "Nihtin",
+      "LName": "asdf",
+      "Age": "26",
+      "DOB": "1999-02-23",
+      "Gender": "F",
+      "PTC": "ADT",
+      "Nationality": "IN",
+      "PassportNo": "67883377",
+      "PLI": "Cochin",
+      "PDOE": "2029-02-23",
+      "VisaType": "Tourist Visa",
+      "PaxID": "",
+      "Operation": "0"
+    }
+  ],
+  "PLP": [],
+  "SSR": [],
+  "CrossSell": [],
+  "NetAmount": 33028,
+  "SSRAmount": 0,
+  "ClientID": "",
+  "DeviceID": "",
+  "AppVersion": "",
+  "CrossSellAmount": 0
+}

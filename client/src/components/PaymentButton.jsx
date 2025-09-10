@@ -81,6 +81,10 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     async function getItineraryStatus(TUI, TransactionID) {
         try {
             console.log('Checking itinerary status...');
+            console.log('TUI:', TUI);
+            console.log('TransactionID:', TransactionID);
+            console.log('API URL:', `${import.meta.env.VITE_BASE_URL}/api/flights/get-itinerary-status`);
+            
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-itinerary-status`, {
                 TUI: TUI,
                 TransactionID: TransactionID
@@ -90,11 +94,14 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             });
             console.log('GetItineraryStatus response:', response.data);
+            console.log('Response status:', response.status);
             
             // Return the response data which contains the status information
             return response.data;
         } catch (error) {
             console.error('GetItineraryStatus error:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
             throw error;
         }
     }
@@ -102,6 +109,11 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     async function retrieveBooking(TUI, TransactionID) {
         try {
             console.log('Retrieving booking details...');
+            console.log('TUI:', TUI);
+            console.log('TransactionID:', TransactionID);
+            console.log('ClientID:', clientID);
+            console.log('API URL:', `${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`);
+            
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, {
                 TUI: TUI,
                 ReferenceNumber: TransactionID,
@@ -113,11 +125,14 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             });
             console.log('RetrieveBooking response:', response.data);
+            console.log('Response status:', response.status);
             
             // Return the response data which contains the booking details
             return response.data;
         } catch (error) {
             console.error('RetrieveBooking error:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
             throw error;
         }
     }
@@ -148,16 +163,35 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 } else if (statusResponse.status === "FAILED") {
                     console.log('Booking failed');
                     return { success: false, message: "Booking failed" };
-                } else {
+                } else if (statusResponse.status === "IN_PROGRESS") {
                     // Still in progress, wait and try again
                     console.log(`Booking still in progress, attempt ${attempts + 1}/${maxAttempts}`);
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+                    attempts++;
+                } else {
+                    // Handle unexpected status
+                    console.log(`Unexpected status: ${statusResponse.status}, attempt ${attempts + 1}/${maxAttempts}`);
                     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
                     attempts++;
                 }
             } catch (error) {
                 console.error('Error polling booking status:', error);
-                attempts++;
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+                console.error('Error details:', {
+                    message: error.message,
+                    response: error.response?.data,
+                    status: error.response?.status
+                });
+                
+                // If it's a network error, continue polling
+                if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+                    console.log('Network error, continuing to poll...');
+                    attempts++;
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                } else {
+                    // For other errors, increment attempts and continue
+                    attempts++;
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
             }
         }
         

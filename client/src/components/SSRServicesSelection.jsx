@@ -92,7 +92,7 @@ const SSRServicesSelection = ({
   };
 
   const calculateTotalAmount = () => {
-    return selectedServicesState.reduce((total, service) => total + service.Charge, 0);
+    return selectedServicesState.reduce((total, service) => total + (service.SSRNetAmount || service.Charge), 0);
   };
 
   const serviceGroups = groupServicesByType(availableServices);
@@ -207,7 +207,7 @@ const SSRServicesSelection = ({
                     </div>
                     <div className="text-right">
                       <div className="text-lg font-bold text-gray-800">
-                        ₹{service.Charge.toLocaleString()}
+                        ₹{(service.SSRNetAmount || service.Charge).toLocaleString()}
                       </div>
                       {service.Discount > 0 && (
                         <div className="text-sm text-green-600">
@@ -246,7 +246,7 @@ const SSRServicesSelection = ({
             {selectedServicesState.map((service, index) => (
               <div key={index} className="flex items-center justify-between text-sm">
                 <span className="text-green-700">{service.Description}</span>
-                <span className="font-medium text-green-800">₹{service.Charge}</span>
+                <span className="font-medium text-green-800">₹{service.SSRNetAmount || service.Charge}</span>
               </div>
             ))}
           </div>

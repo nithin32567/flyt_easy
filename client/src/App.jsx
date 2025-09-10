@@ -20,10 +20,9 @@ import Createitenary from "./pages/Createitenary";
 import Footer1 from "./components/Footer1";
 import HeaderWrapper from "./components/HeaderWrapper";
 import Footer from "./components/Footer";
+import Login from "./pages/Login";
 
 const App = () => {
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const token = localStorage.getItem("token")
   const navigate = useNavigate()
   useEffect(() => {
 
@@ -35,6 +34,7 @@ const App = () => {
         `${import.meta.env.VITE_BASE_URL}/api/signature`
       );
       const data = await response.json();
+      console.log(data, "data");
       // console.log(data, "data");
       localStorage.setItem("token", data.token);
       localStorage.setItem("ClientID", data.ClientID);
@@ -53,6 +53,7 @@ const App = () => {
       <HeaderWrapper />
 
       <Routes>
+      <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
         <Route path="/flight-list" element={<ListFlights />} />
         <Route path="/review" element={<OneWayReview />} />

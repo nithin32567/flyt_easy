@@ -1,6 +1,6 @@
 import React from "react";
 
-const FlightCard = ({ flight, setSelectedFlight }) => {
+const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = "onward" }) => {
   const {
     AirlineName,
     From,
@@ -25,7 +25,16 @@ const FlightCard = ({ flight, setSelectedFlight }) => {
   });
 
   return (
-    <div className="bg-white shadow-sm shadow-black rounded-2xl p-4 flex flex-col gap-3 hover:shadow-md transition-all duration-300">
+    <div className={`bg-white shadow-sm shadow-black rounded-2xl p-4 flex flex-col gap-3 hover:shadow-md transition-all duration-300 ${
+      isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : ''
+    }`}>
+      {/* Trip Type Badge */}
+      {tripType === "return" && (
+        <div className="bg-orange-100 text-orange-800 text-xs font-medium px-2 py-1 rounded-full w-fit">
+          Return Flight
+        </div>
+      )}
+      
       {/* Airline Info */}
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-gray-800">{AirlineName.split("|")[0]}</h2>
@@ -59,9 +68,13 @@ const FlightCard = ({ flight, setSelectedFlight }) => {
         </div>
         <button
           onClick={() => setSelectedFlight(flight)}
-          className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded-md  transition-all duration-300 ease-in cursor-pointer"
+          className={`text-sm px-4 py-2 rounded-md transition-all duration-300 ease-in cursor-pointer ${
+            isSelected 
+              ? 'bg-green-500 hover:bg-green-600 text-white' 
+              : 'bg-orange-500 hover:bg-orange-600 text-white'
+          }`}
         >
-          Book
+          {isSelected ? 'Selected' : 'Select'}
         </button>
       </div>
     </div>

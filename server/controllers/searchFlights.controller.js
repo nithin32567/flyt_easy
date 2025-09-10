@@ -53,7 +53,13 @@ export const expressSearchFlights = async (req, res) => {
       preferedAirlines: preferedAirlines,
       TUI: TUI,
       SecType: "",
-      Trips: FareType === "RT" ? [
+      Trips: FareType === "MC" ? Trips.map(trip => ({
+        From: typeof trip.From === 'object' ? trip.From.Code : trip.From,
+        To: typeof trip.To === 'object' ? trip.To.Code : trip.To,
+        ReturnDate: "",
+        OnwardDate: trip.OnwardDate,
+        TUI: trip.TUI || "",
+      })) : FareType === "RT" ? [
         {
           From: typeof Trips[0].From === 'object' ? Trips[0].From.Code : Trips[0].From,
           To: typeof Trips[0].To === 'object' ? Trips[0].To.Code : Trips[0].To,

@@ -1,0 +1,102 @@
+{
+  "data": {
+    "CeilingInfo": null,
+    "Code": "200",
+    "Completed": "True",
+    "CurrencyCode": "INR",
+    "Msg": ["Success"],
+    "Notices": null,
+    "TUI": "8a124796-f753-4048-bd53-d8813d49747c|dc04cec9-6fa4-4fdc-ae2b-ca3e83456994|20250909114349",
+    "Trips": [
+      {
+        "Journey": [
+          {
+            "ActualFare": 0,
+            "AirCraft": "321",
+            "AirlineName": "IndiGo|IndiGo|IndiGo",
+            "Alliances": "",
+            "Amenities": "",
+            "ArrivalTerminal": "2",
+            "ArrivalTime": "2025-09-10T06:35:00",
+            "Cabin": "E",
+            "ChannelCode": null,
+            "Connections": [
+              {
+                "Airport": "AMD",
+                "ArrAirportName": "Sardar Vallabhbhai Patel International Airport |Ahmedabad",
+                "Duration": "01h 20m ",
+                "FlightNo": "2209",
+                "From": null,
+                "MAC": "6E|IndiGo",
+                "OAC": "6E",
+                "To": null,
+                "Type": "C",
+                "VAC": "6E"
+              }
+            ],
+            "DepartureTerminal": "1",
+            "DepartureTime": "2025-09-10T02:25:00",
+            "Duration": "04h 10m ",
+            "FBC": "N0IP",
+            "FCBegin": "",
+            "FCEnd": "",
+            "FCGroup": "Normal Fare",
+            "FCType": "SAVER",
+            "FareClass": "R",
+            "FareType": "PB-",
+            "Farelink": null,
+            "FlightNo": "5243",
+            "From": "BOM",
+            "FromName": "Chhatrapati Shivaji |Mumbai",
+            "GDSPriority": 0,
+            "GFL": false,
+            "GrossFare": 9261,
+            "GroupCount": 0,
+            "Hold": true,
+            "HoldInfo": "",
+            "Hops": 0,
+            "Inclusions": {
+              "Baggage": null,
+              "Meals": null,
+              "PieceDescription": null
+            },
+            "Index": "6E|120",
+            "IsBusStation": false,
+            "IsSeniorCitizen": false,
+            "JourneyKey": "6E,5243,BOM,AMD,2025-09-10T02:25:00,2025-09-10T03:35:00,1,1,01h 10m ~6E,2209,AMD,DEL,2025-09-10T04:55:00,2025-09-10T06:35:00,1,2,01h 40m ",
+            "MAC": "6E",
+            "MisEShare": "A~7813~1057~8870~~~~0~0",
+            "MoreFltKey": "",
+            "NetFare": 8829,
+            "Notice": "",
+            "NoticeLink": "",
+            "NoticeType": null,
+            "OAC": "6E",
+            "Promo": "ATFLY",
+            "Provider": "6E",
+            "RBD": "N",
+            "Recommended": false,
+            "Refundable": "Y",
+            "Remarks": "",
+            "ReturnIdentifier": 0,
+            "Seats": 2,
+            "Stops": 1,
+            "To": "DEL",
+            "ToName": "Indira Gandhi International |New Delhi",
+            "TotalCommission": 41,
+            "TotalFare": null,
+            "TotalTransactionFee": 0,
+            "TotalVatOnTFee": 0,
+            "TrendFare": 8870,
+            "VAC": "6E",
+            "WPNetFare": 0,
+            "WPRegionCode": "",
+            "WpIndex": null
+          }
+        ]
+      }
+    ],
+    "message": "GETExpSearch fetched successfully",
+    "success": true
+  }
+}

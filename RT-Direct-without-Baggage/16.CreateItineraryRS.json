@@ -1,0 +1,268 @@
+{
+  "data": {
+    "ADT": 1,
+    "AirlineNetFare": 33028,
+    "Auxiliaries": null,
+    "CHD": 0,
+    "CeilingInfo": null,
+    "Code": "8888",
+    "CrossSell": null,
+    "CrossSellAmount": 0,
+    "CurrencyCode": "INR",
+    "EnableFareMasking": false,
+    "GrossAmount": 57687,
+    "Hold": false,
+    "INF": 0,
+    "Mode": null,
+    "Msg": [
+      "We regret an change in the ssr fare for your selected flight! You may  select another flight, or proceed with this fare.Previous Amt:-0 | New Amt:-23265"
+    ],
+    "NetAmount": 56293,
+    "Rules": [
+      {
+        "FUID": "1,2",
+        "FareRuleText": null,
+        "OrginDestination": "BOM-DEL",
+        "Provider": "6E",
+        "Rule": [
+          {
+            "Head": "Cancellation Fee",
+            "Info": [
+              {
+                "AdultAmount": "500",
+                "ChildAmount": "",
+                "CurrencyCode": "",
+                "Description": "4 Days  - 500 Days  To Departure",
+                "InfantAmount": "",
+                "YouthAmount": ""
+              },
+              {
+                "AdultAmount": "3500",
+                "ChildAmount": "",
+                "CurrencyCode": "",
+                "Description": "0 Days  - 4 Days  To Departure",
+                "InfantAmount": "",
+                "YouthAmount": ""
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "SSR": [
+      {
+        "AdditionalInfo": null,
+        "Charge": 23265,
+        "Code": "MISC",
+        "ConfirmedFreeSeat": null,
+        "Description": "",
+        "Discount": 0,
+        "EMDNumber": null,
+        "FUID": "3",
+        "PTC": "ADT",
+        "PaxId": "1",
+        "PieceDescription": "MISC",
+        "SSRCategory": null,
+        "SSRUrl": null,
+        "SectorId": 0,
+        "Type": "100",
+        "VAT": 0
+      },
+      {
+        "AdditionalInfo": null,
+        "Charge": 0,
+        "Code": "BAG",
+        "ConfirmedFreeSeat": null,
+        "Description": "15 Kg, 7 Kg",
+        "Discount": 0,
+        "EMDNumber": null,
+        "FUID": "1",
+        "PTC": "ADT",
+        "PaxId": "1",
+        "PieceDescription": "",
+        "SSRCategory": null,
+        "SSRUrl": null,
+        "SectorId": 0,
+        "Type": "2",
+        "VAT": 0
+      },
+      {
+        "AdditionalInfo": null,
+        "Charge": 0,
+        "Code": "BAG",
+        "ConfirmedFreeSeat": null,
+        "Description": "15 Kg, 7 Kg",
+        "Discount": 0,
+        "EMDNumber": null,
+        "FUID": "2",
+        "PTC": "ADT",
+        "PaxId": "1",
+        "PieceDescription": "",
+        "SSRCategory": null,
+        "SSRUrl": null,
+        "SectorId": 0,
+        "Type": "2",
+        "VAT": 0
+      },
+      {
+        "AdditionalInfo": null,
+        "Charge": 0,
+        "Code": "BAG",
+        "ConfirmedFreeSeat": null,
+        "Description": "40 Kg, 12 Kg",
+        "Discount": 0,
+        "EMDNumber": null,
+        "FUID": "3",
+        "PTC": "ADT",
+        "PaxId": "1",
+        "PieceDescription": "",
+        "SSRCategory": null,
+        "SSRUrl": null,
+        "SectorId": 0,
+        "Type": "2",
+        "VAT": 0
+      }
+    ],
+    "SSRAmount": 23265,
+    "SSRChange": null,
+    "TUI": "8cf2d91e-7416-43d4-abe5-58769a1abeda|b8d1ac2c-3df7-40af-ab7f-d8f90f0de33b|20250909225858",
+    "TransactionID": 0,
+    "TripID": "",
+    "Trips": [
+      {
+        "Journey": [
+          {
+            "GrossFare": 10196.15,
+            "NetFare": 9763,
+            "Notices": null,
+            "Offer": "",
+            "OrderID": 0,
+            "Promo": null,
+            "Provider": "6E",
+            "Segments": [
+              {
+                "Fares": {
+                  "GrossFare": 10196.15,
+                  "NetFare": 9763,
+                  "OldSSRAmount": 0,
+                  "PTCFare": [
+                    {
+                      "API": 0,
+                      "AgentMarkup": 433,
+                      "AtoCharge": 0,
+                      "Fare": 8663,
+                      "GrossFare": 10196,
+                      "K3": 0,
+                      "K7": 0,
+                      "Markup": 0,
+                      "NetFare": 9763,
+                      "OT": "50,100,236,66,441",
+                      "OTT": "PHF,RCF,ASF,UDFA,27GST",
+                      "OldSSRAmount": 0,
+                      "PSF": 0,
+                      "PTC": "ADT",
+                      "ReissueCharge": 0,
+                      "ST": 0,
+                      "Tax": 1100,
+                      "UD": 207,
+                      "VATonServiceCharge": 0,
+                      "VATonTransactionFee": 0,
+                      "YQ": 0,
+                      "YR": 0
+                    }
+                  ],
+                  "TotalAgentMarkup": 433.15,
+                  "TotalAtoCharge": 0,
+                  "TotalBaseFare": 8663,
+                  "TotalCommission": 0,
+                  "TotalReissueCharge": 0,
+                  "TotalServiceTax": 0,
+                  "TotalTax": 1100,
+                  "TotalVATonServiceCharge": 0,
+                  "TotalVATonTransactionFee": 0
+                },
+                "Flight": {
+                  "Aircraft": "AIRBUS JET",
+                  "Airline": "IndiGo|IndiGo|IndiGo",
+                  "Amenities": null,
+                  "ArrAirportName": "Sardar Vallabhbhai Patel International Airport |Ahmedabad",
+                  "ArrivalCode": "AMD",
+                  "ArrivalTerminal": "1",
+                  "ArrivalTime": "2025-09-10T03:35:00",
+                  "Cabin": "E",
+                  "DepAirportName": "Chhatrapati Shivaji |Mumbai",
+                  "DepartureCode": "BOM",
+                  "DepartureTerminal": "1",
+                  "DepartureTime": "2025-09-10T02:25:00",
+                  "Duration": "01h 10m ",
+                  "EquipmentType": "321",
+                  "FBC": "NUIP",
+                  "FUID": "1",
+                  "FlightNo": "5243",
+                  "Hops": null,
+                  "MAC": "6E",
+                  "OAC": "6E",
+                  "RBD": "N",
+                  "Refundable": "Y",
+                  "VAC": "6E"
+                },
+                "MulticityRefID": null
+              },
+              {
+                "Fares": {
+                  "GrossFare": 0,
+                  "NetFare": 0,
+                  "OldSSRAmount": 0,
+                  "PTCFare": [],
+                  "TotalAgentMarkup": 0,
+                  "TotalAtoCharge": 0,
+                  "TotalBaseFare": 0,
+                  "TotalCommission": 0,
+                  "TotalReissueCharge": 0,
+                  "TotalServiceTax": 0,
+                  "TotalTax": 0,
+                  "TotalVATonServiceCharge": 0,
+                  "TotalVATonTransactionFee": 0
+                },
+                "Flight": {
+                  "Aircraft": "AIRBUS JET",
+                  "Airline": "IndiGo|IndiGo|IndiGo",
+                  "Amenities": null,
+                  "ArrAirportName": "Indira Gandhi International |New Delhi",
+                  "ArrivalCode": "DEL",
+                  "ArrivalTerminal": "2",
+                  "ArrivalTime": "2025-09-10T06:35:00",
+                  "Cabin": "E",
+                  "DepAirportName": "Sardar Vallabhbhai Patel International Airport |Ahmedabad",
+                  "DepartureCode": "AMD",
+                  "DepartureTerminal": "1",
+                  "DepartureTime": "2025-09-10T04:55:00",
+                  "Duration": "01h 40m ",
+                  "EquipmentType": "320",
+                  "FBC": "LUIP",
+                  "FUID": "2",
+                  "FlightNo": "2209",
+                  "Hops": null,
+                  "MAC": "6E",
+                  "OAC": "6E",
+                  "RBD": "L",
+                  "Refundable": "Y",
+                  "VAC": "6E"
+                },
+                "MulticityRefID": null
+              }
+            ],
+            "Stops": "1",
+            "WPRegionCode": null
+          }
+        ]
+      },
+      {
+        "Journey": []
+      }
+    ],
+    "YTH": 0
+  },
+  "message": "Itinerary created successfully",
+  "success": true
+}

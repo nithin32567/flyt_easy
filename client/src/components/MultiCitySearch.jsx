@@ -84,6 +84,16 @@ const MultiCitySearch = ({
       return;
     }
 
+    // Validate that segments don't have same from and to
+    const hasInvalidSegment = segments.some(segment => 
+      segment.from.Code === segment.to.Code
+    );
+    
+    if (hasInvalidSegment) {
+      alert("From and To cities cannot be the same in any segment");
+      return;
+    }
+
     // Convert segments to the format expected by the API
     const trips = segments.map(segment => ({
       From: segment.from.Code,
@@ -93,6 +103,7 @@ const MultiCitySearch = ({
       TUI: ""
     }));
 
+    console.log("Multi-city trips:", trips);
     onSearch(trips);
   };
 

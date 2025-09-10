@@ -92,7 +92,7 @@ const SSRToggle = ({ isEnabled, onToggle, availableServices = [] }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 {services.slice(0, 4).map((service, index) => (
                   <div key={index} className="text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded">
-                    {service.Description} - ₹{service.Charge}
+                    {service.Description} - ₹{service.SSRNetAmount || service.Charge}
                   </div>
                 ))}
                 {services.length > 4 && (

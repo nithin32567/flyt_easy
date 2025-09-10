@@ -12,8 +12,8 @@ import axios from "axios";
 const FlightHotelWearchWrapper = () => {
   const [isActiveFlightTab, setIsActiveFlightTab] = useState(true);
   const [tripType, setTripType] = useState("ON");
-  const [from, setFrom] = useState("BOM");
-  const [to, setTo] = useState("DEL");
+  const [from, setFrom] = useState({ Code: "BOM", Name: "Mumbai" });
+  const [to, setTo] = useState({ Code: "DEL", Name: "New Delhi" });
   const [travelClass, setTravelClass] = useState("Economy");
   const [airports, setAirports] = useState([]);
   const [travellerModalOpen, setTravellerModalOpen] = useState(false);
@@ -36,6 +36,9 @@ const FlightHotelWearchWrapper = () => {
   const [isStudentFare, setIsStudentFare] = useState(false);
   const [isSeniorCitizenFare, setIsSeniorCitizenFare] = useState(false);
   const [isNearbyAirport, setIsNearbyAirport] = useState(false);
+  const [searchterm, setSearchterm] = useState("");
+  const [hotelSearchResults, setHotelSearchResults] = useState([]);
+  const [selectedHotelLocation, setSelectedHotelLocation] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("tripType", tripType);
@@ -91,11 +94,11 @@ const FlightHotelWearchWrapper = () => {
     }
   };
 
-  // Express Searchhea
+  // Express Search
   async function handleExpressSearch(e) {
     e.preventDefault();
-    
 
+    // Validation for different trip types
     if (tripType === "ON") {
       if (!from || !to || !departureDate) {
         alert("Please select From, To, and Departure Date");
@@ -104,6 +107,11 @@ const FlightHotelWearchWrapper = () => {
     } else if (tripType === "RT") {
       if (!from || !to || !departureDate || !returnDate) {
         alert("Please select From, To, Departure Date and Return Date");
+        return;
+      }
+      // Ensure return date is after departure date
+      if (returnDate <= departureDate) {
+        alert("Return date must be after departure date");
         return;
       }
     }
@@ -122,8 +130,8 @@ const FlightHotelWearchWrapper = () => {
         travelClass === "Economy"
           ? "E"
           : travelClass === "Premium Economy"
-          ? "PE"
-          : "B",
+            ? "PE"
+            : "B",
       Source: "CF",
       Mode: "AS",
       ClientID: localStorage.getItem("ClientID"),
@@ -134,8 +142,8 @@ const FlightHotelWearchWrapper = () => {
       TUI: "",
       Trips: tripType === "MC" ? [] : [
         {
-          From: from,
-          To: to,
+          From: typeof from === 'object' ? from.Code : from,
+          To: typeof to === 'object' ? to.Code : to,
           OnwardDate: departureDate.toISOString().split("T")[0],
           ReturnDate: tripType === "RT" ? returnDate.toISOString().split("T")[0] : "",
           TUI: "",
@@ -146,6 +154,11 @@ const FlightHotelWearchWrapper = () => {
       IsStudentFare: isStudentFare,
       IsNearbyAirport: isNearbyAirport,
     };
+    console.log("Trip Type:", tripType);
+    console.log("From:", from);
+    console.log("To:", to);
+    console.log("Departure Date:", departureDate);
+    console.log("Return Date:", returnDate);
     console.log(payload, "payload to the backend========================= 221");
     localStorage.removeItem("trips");
     localStorage.removeItem("TUI");
@@ -170,7 +183,9 @@ const FlightHotelWearchWrapper = () => {
       const data = await response.json();
       console.log(data, "data from the backend========================= 221");
       const TUI = data.TUI;
-      await getExpSearch(TUI);
+      await getExpSearch(TUI).then((response) => {
+        console.log(response, "response from the backend========================= 221 get exp search");
+      })
       console.log(TUI, "TUI=========================");
       localStorage.setItem("searchTUI", TUI);
       localStorage.setItem("searchTUI", data.TUI);
@@ -210,8 +225,8 @@ const FlightHotelWearchWrapper = () => {
         travelClass === "Economy"
           ? "E"
           : travelClass === "Premium Economy"
-          ? "PE"
-          : "B",
+            ? "PE"
+            : "B",
       Source: "CF",
       Mode: "AS",
       ClientID: localStorage.getItem("ClientID"),
@@ -227,7 +242,7 @@ const FlightHotelWearchWrapper = () => {
       IsNearbyAirport: isNearbyAirport,
     };
 
-    console.log(payload, "multi-city payload to the backend=========================");
+    console.log(payload, "multi-city payload to the express search=========================");
     localStorage.removeItem("trips");
     localStorage.removeItem("TUI");
     localStorage.removeItem("pricerTUI");
@@ -265,6 +280,103 @@ const FlightHotelWearchWrapper = () => {
       console.log(error, "multi-city error from the backend=========================");
     } finally {
       setIsSearching(false);
+    }
+  }
+
+
+  async function hotelSearch(e) {
+    e.preventDefault();
+    try {
+      const response = await axios.get(`https://travelportalapi.benzyinfotech.com/api/content/autosuggest?term=${searchterm}`,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+
+      })
+      console.log(response, "response from the backend========================= 221 hotel search");
+      setHotelSearchResults(response.data.locations || []);
+    } catch (error) {
+      console.log(error, "error from the backend========================= 221 hotel search");
+    }
+
+  }
+
+  // Function to handle hotel location selection and initiate search
+  const handleHotelLocationSelect = async (location) => {
+    setSelectedHotelLocation(location);
+    try {
+      const searchResults = await initHotelSearch(location);
+      console.log("Hotel search initiated successfully:", searchResults);
+      // You can navigate to hotel results page or update state with results
+      // navigate('/hotel-booking', { state: { searchResults, location } });
+    } catch (error) {
+      console.error("Failed to initiate hotel search:", error);
+    }
+  }
+
+  const initHotelSearch = async (selectedLocation) => {
+    try {
+      // Default values for hotel search
+      const checkInDate = new Date();
+      const checkOutDate = new Date();
+      checkOutDate.setDate(checkInDate.getDate() + 1);
+      
+      const payload = {
+        geoCode: {
+          lat: selectedLocation.coordinates.lat.toString(),
+          long: selectedLocation.coordinates.long.toString()
+        },
+        locationId: selectedLocation.id,
+        currency: "INR",
+        culture: "en-US",
+        checkIn: checkInDate.toLocaleDateString('en-US', { 
+          month: '2-digit', 
+          day: '2-digit', 
+          year: 'numeric' 
+        }),
+        checkOut: checkOutDate.toLocaleDateString('en-US', { 
+          month: '2-digit', 
+          day: '2-digit', 
+          year: 'numeric' 
+        }),
+        rooms: [
+          {
+            adults: adults.toString(),
+            children: children.toString(),
+            childAges: []
+          }
+        ],
+        agentCode: "14005",
+        destinationCountryCode: "IN",
+        nationality: "IN",
+        countryOfResidence: "IN",
+        channelId: "b2bIndiaDeals",
+        affiliateRegion: "B2B_India",
+        segmentId: "",
+        companyId: "1",
+        gstPercentage: 0,
+        tdsPercentage: 0
+      };
+
+      const response = await axios.post(
+        'https://travelportalapi.benzyinfotech.com/api/hotels/search/init',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
+
+      console.log(response.data, "Hotel search init response");
+      return response.data;
+      
+    } catch (error) {
+      console.log(error, "error from the backend========================= hotel search init");
+      throw error;
     }
   }
 
@@ -325,7 +437,7 @@ const FlightHotelWearchWrapper = () => {
                             id="oneway"
                             checked={tripType === "ON"}
                           />{" "}
-                          One Way 
+                          One Way
                         </label>
                       </li>
                       <li>
@@ -540,12 +652,8 @@ const FlightHotelWearchWrapper = () => {
                   <div className="row">
                     <div className="col-lg-5">
                       <div className="row">
-                        <div className="col-lg-7 col-md-6">
-                          <button className="select-items">
-                            <h6>City, Property name or Location</h6>
-                            <h2>Goa</h2>
-                            <p>India</p>
-                          </button>
+                        <div className="col-lg-7 col-md-6 border py-2 px-4 rounded-lg">
+                          <input className="select-items w-full" type="text" placeholder="City, Property name or Location" onChange={(e) => setSearchterm(e.target.value)} />
                         </div>
                         <div className="col-lg-5 col-md-6">
                           <button className="select-items">
@@ -586,7 +694,7 @@ const FlightHotelWearchWrapper = () => {
                           </button>
                         </div>
                         <div className="col-lg-3">
-                          <button className="search-btn">Search</button>
+                          <button onClick={hotelSearch} className="search-btn">Hotel Search</button>
                         </div>
                       </div>
                     </div>
@@ -607,6 +715,7 @@ const FlightHotelWearchWrapper = () => {
                   </div>
                 </div>
               )}
+
             </div>
           </div>
         </div>

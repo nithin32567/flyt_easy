@@ -1,0 +1,15 @@
+{
+  "Trips": [
+    {
+      "Amount": 8829,
+      "Index": "6E|120",
+      "OrderID": "1",
+      "TUI": "8a124796-f753-4048-bd53-d8813d49747c|dc04cec9-6fa4-4fdc-ae2b-ca3e83456994|20250909114349"
+    }
+  ],
+  "ClientID": "",
+  "Mode": "AS",
+  "Options": "",
+  "Source": "SF",
+  "TripType": "ON"
+}

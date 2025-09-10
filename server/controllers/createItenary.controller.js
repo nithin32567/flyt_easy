@@ -85,6 +85,20 @@ export const createItinerary = async (req, res) => {
 
         console.log('Making API call to:', `${process.env.FLIGHT_URL}/Flights/CreateItinerary`);
         console.log('Request payload:', JSON.stringify(finalPayload, null, 2));
+        console.log('SSR Details:', {
+            SSRCount: finalPayload.SSR?.length || 0,
+            SSRAmount: finalPayload.SSRAmount,
+            SSRDetails: finalPayload.SSR?.map(ssr => ({
+                FUID: ssr.FUID,
+                PaxID: ssr.PaxID,
+                SSID: ssr.SSID,
+                // Legacy fields (if present)
+                Code: ssr.Code,
+                Description: ssr.Description,
+                Charge: ssr.Charge,
+                SSRNetAmount: ssr.SSRNetAmount
+            }))
+        });
         
         const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/CreateItinerary`, finalPayload, {
             headers: {

@@ -5,21 +5,55 @@ export const smartPricer = async (req, res) => {
   try {
     const { Trips, ClientID, Mode, Options, Source, TripType, token, TUI } = req.body;
     console.log(TUI, "TUI=========================")
+    console.log("TripType received:", TripType, "Trips count:", Trips?.length)
+    
     // Basic schema validation
     if (!Trips || !Array.isArray(Trips) || Trips.length === 0) {
       return res.status(400).json({ Code: "400", Msg: "Invalid or missing Trips array" });
     }
 
-    const payload = {
-
-      Trips: [
+    // Build trips array based on trip type
+    let tripsArray = [];
+    
+    if (TripType === "RT") {
+      // For Round Trip, we need 2 trips: onward and return
+      // The first trip is onward, we need to create a return trip
+      tripsArray = [
         {
           Amount: Trips[0].NetFare,
           Index: Trips[0].Index,
           OrderID: "1",
           TUI: TUI
         },
-      ],
+        {
+          Amount: Trips[0].NetFare, // Use same fare for return (will be updated by API)
+          Index: Trips[0].Index,    // Use same index for return
+          OrderID: "2",
+          TUI: TUI
+        }
+      ];
+    } else if (TripType === "MC") {
+      // For Multi City, use all provided trips
+      tripsArray = Trips.map((trip, index) => ({
+        Amount: trip.NetFare,
+        Index: trip.Index,
+        OrderID: (index + 1).toString(),
+        TUI: TUI
+      }));
+    } else {
+      // For One Way (ON) or default, use single trip
+      tripsArray = [
+        {
+          Amount: Trips[0].NetFare,
+          Index: Trips[0].Index,
+          OrderID: "1",
+          TUI: TUI
+        }
+      ];
+    }
+
+    const payload = {
+      Trips: tripsArray,
       ClientID: "",
       Mode: Mode || "SS",
       Options: Options || "",

@@ -76,12 +76,15 @@ const Createitenary = () => {
     try {
       const ssrPayload = {
         TUI: currentTUI,
-        PaidSSR: ssrEnabled,
-        FareType: pricerData?.FareType || "ON" // Add FareType from pricerData
+        PaidSSR: true, // Always request paid SSR services when fetching
+        FareType: pricerData?.FareType || "ON", // Add FareType from pricerData
+        Amount: netAmountNumber // Pass the NetAmount from GetSPricer
       };
       
       console.log('SSR Request Payload:', ssrPayload);
       console.log('PricerData FareType:', pricerData?.FareType);
+      console.log('Current TUI:', currentTUI);
+      console.log('PricerData:', pricerData);
       
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
@@ -95,9 +98,17 @@ const Createitenary = () => {
       );
 
       console.log(response.data, '================================= response create itinerary');
+      console.log('SSR Response structure:', {
+        success: response.data.success,
+        hasData: !!response.data.data,
+        servicesLength: response.data.data?.services?.length,
+        services: response.data.data?.services
+      });
 
       if (response.data.success) {
-        setAvailableSSRServices(response.data.data.services || []);
+        const services = response.data.data.services || [];
+        console.log('Setting SSR services:', services);
+        setAvailableSSRServices(services);
       } else {
         console.error('Failed to fetch SSR services:', response.data.message);
       }
@@ -204,14 +215,38 @@ const Createitenary = () => {
 
         // Filter out free services (Charge: 0) - only send paid services
         const paidSSRServices = selectedSSRServices.filter(service => service.Charge > 0);
-        const ssrAmount = paidSSRServices.reduce((total, service) => total + service.Charge, 0);
+        // Calculate SSR amount - each service is applied per passenger
+        const ssrAmount = paidSSRServices.reduce((total, service) => {
+          const amount = service.SSRNetAmount || service.Charge;
+          const totalForService = amount * travelers.length; // Multiply by number of passengers
+          console.log(`SSR Service ${service.Code}: Charge=${service.Charge}, SSRNetAmount=${service.SSRNetAmount}, Using=${amount}, Total for ${travelers.length} passengers=${totalForService}`);
+          return total + totalForService;
+        }, 0);
+        
+        // Convert SSR services to the correct format for the API
+        // The API expects SSR array with FUID, PaxID, and SSID fields
+        // Each SSR service should be mapped to each passenger
+        const ssrForAPI = [];
+        paidSSRServices.forEach(service => {
+          travelers.forEach((traveler, index) => {
+            ssrForAPI.push({
+              FUID: 1, // Flight Unique ID - using 1 for single flight (number, not string)
+              PaxID: traveler.ID || (index + 1), // Passenger ID - use traveler.ID if available, otherwise 1-based index
+              SSID: service.ID // SSR Service ID
+            });
+          });
+        });
+        
+        console.log('Total SSR Amount calculated:', ssrAmount);
+        console.log('Paid SSR Services:', paidSSRServices);
+        console.log('SSR for API:', ssrForAPI);
         
         const payload = {
           TUI: currentTUI,
           ContactInfo: contactInfo,
           Travellers: travelers,
           NetAmount: finalNetAmount,
-          SSR: paidSSRServices.length > 0 ? paidSSRServices : [],
+          SSR: ssrForAPI,
           SSRAmount: ssrAmount,
           ClientID: ""  // Set to empty string to match sample data
         }
@@ -430,7 +465,7 @@ const Createitenary = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className="font-semibold text-green-600">₹{service.Charge.toLocaleString()}</span>
+                            <span className="font-semibold text-green-600">₹{(service.SSRNetAmount || service.Charge).toLocaleString()}{travelers.length > 1 ? ` × ${travelers.length} = ₹${((service.SSRNetAmount || service.Charge) * travelers.length).toLocaleString()}` : ''}</span>
                           </div>
                         </div>
                       </div>
@@ -439,7 +474,7 @@ const Createitenary = () => {
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-gray-700">Total Additional Services:</span>
                         <span className="font-bold text-green-600">
-                          ₹{selectedSSRServices.reduce((total, service) => total + service.Charge, 0).toLocaleString()}
+                          ₹{selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge) * travelers.length, 0).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -459,7 +494,7 @@ const Createitenary = () => {
                     <div className="flex justify-between">
                       <span className="text-blue-700">Additional Services:</span>
                       <span className="font-medium text-blue-800">
-                        ₹{selectedSSRServices.reduce((total, service) => total + service.Charge, 0).toLocaleString()}
+                        ₹{selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge) * travelers.length, 0).toLocaleString()}
                       </span>
                     </div>
                   )}
@@ -467,7 +502,7 @@ const Createitenary = () => {
                     <div className="flex justify-between font-bold">
                       <span className="text-blue-800">Total Amount:</span>
                       <span className="text-blue-800">
-                        ₹{(netAmountNumber + selectedSSRServices.reduce((total, service) => total + service.Charge, 0)).toLocaleString()}
+                        ₹{(netAmountNumber + selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge) * travelers.length, 0)).toLocaleString()}
                       </span>
                     </div>
                   </div>

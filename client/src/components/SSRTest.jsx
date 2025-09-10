@@ -92,7 +92,7 @@ const SSRTest = () => {
                 <span className="font-medium">Selected Services:</span> {selectedServices.length}
               </div>
               <div>
-                <span className="font-medium">Total Amount:</span> ₹{selectedServices.reduce((total, service) => total + service.Charge, 0).toLocaleString()}
+                <span className="font-medium">Total Amount:</span> ₹{selectedServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge), 0).toLocaleString()}
               </div>
               {selectedServices.length > 0 && (
                 <div>
@@ -100,7 +100,7 @@ const SSRTest = () => {
                   <ul className="ml-4 mt-1">
                     {selectedServices.map((service, index) => (
                       <li key={index}>
-                        {service.Description} - ₹{service.Charge}
+                        {service.Description} - ₹{service.SSRNetAmount || service.Charge}
                       </li>
                     ))}
                   </ul>

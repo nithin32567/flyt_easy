@@ -1,0 +1,160 @@
+{
+  "data": {
+    "ADT": 1,
+    "AirlineNetFare": 8788,
+    "Auxiliaries": null,
+    "CHD": 0,
+    "CeilingInfo": null,
+    "Code": "200",
+    "CrossSell": null,
+    "CrossSellAmount": 0,
+    "CurrencyCode": "INR",
+    "EnableFareMasking": false,
+    "GrossAmount": 9261,
+    "Hold": false,
+    "INF": 0,
+    "Mode": null,
+    "Msg": ["Success"],
+    "NetAmount": 8788,
+    "Rules": [
+      {
+        "FUID": "1,2",
+        "FareRuleText": null,
+        "OrginDestination": "BOM-DEL",
+        "Provider": "6E",
+        "Rule": [{}]
+      }
+    ],
+    "SSR": [
+      {
+        "AdditionalInfo": null,
+        "Charge": 0,
+        "Code": "BAG",
+        "ConfirmedFreeSeat": null,
+        "Description": "15 Kg, 7 Kg",
+        "Discount": 0,
+        "EMDNumber": null,
+        "FUID": "1",
+        "PTC": "ADT",
+        "PaxId": "1",
+        "PieceDescription": "",
+        "SSRCategory": null,
+        "SSRUrl": null,
+        "SectorId": 0,
+        "Type": "2",
+        "VAT": 0
+      },
+      {
+        "AdditionalInfo": null,
+        "Charge": 0,
+        "Code": "BAG",
+        "ConfirmedFreeSeat": null,
+        "Description": "15 Kg, 7 Kg",
+        "Discount": 0,
+        "EMDNumber": null,
+        "FUID": "2",
+        "PTC": "ADT",
+        "PaxId": "1",
+        "PieceDescription": "",
+        "SSRCategory": null,
+        "SSRUrl": null,
+        "SectorId": 0,
+        "Type": "2",
+        "VAT": 0
+      }
+    ],
+    "SSRAmount": 0,
+    "SSRChange": null,
+    "TUI": "8a124796-f753-4048-bd53-d8813d49747c|6a438b2b-2090-4ffe-8814-b9dc993b53b9|20250909115800",
+    "TransactionID": 250035300,
+    "TripID": "",
+    "Trips": [
+      {
+        "Journey": [
+          {
+            "GrossFare": 9261,
+            "NetFare": 8788,
+            "Notices": null,
+            "Offer": "",
+            "OrderID": 0,
+            "Promo": "ATFLY",
+            "Provider": "6E",
+            "Segments": [
+              {
+                "Fares": {
+                  "GrossFare": 9261,
+                  "NetFare": 8788,
+                  "OldSSRAmount": 0,
+                  "PTCFare": [
+                    {
+                      "API": 0,
+                      "AgentMarkup": 391,
+                      "AtoCharge": 0,
+                      "Fare": 7813,
+                      "GrossFare": 9261,
+                      "K3": 0,
+                      "K7": 0,
+                      "Markup": 0,
+                      "NetFare": 8788,
+                      "OT": "50,100,236,66,398",
+                      "OTT": "PHF,RCF,ASF,UDFA,27GST",
+                      "OldSSRAmount": 0,
+                      "PSF": 0,
+                      "PTC": "ADT",
+                      "ReissueCharge": 0,
+                      "ST": 0,
+                      "Tax": 1057,
+                      "UD": 207,
+                      "VATonServiceCharge": 0,
+                      "VATonTransactionFee": 0,
+                      "YQ": 0,
+                      "YR": 0
+                    }
+                  ]
+                }
+              },
+              {
+                "Flight": {
+                  "Aircraft": "AIRBUS JET",
+                  "Airline": "IndiGo|IndiGo|IndiGo",
+                  "Amenities": null,
+                  "ArrAirportName": "Sardar Vallabhbhai Patel International Airport |Ahmedabad",
+                  "ArrivalCode": "AMD",
+                  "ArrivalTerminal": "1",
+                  "ArrivalTime": "2025-09-10T03:35:00",
+                  "Cabin": "E",
+                  "DepAirportName": "Chhatrapati Shivaji |Mumbai",
+                  "DepartureCode": "BOM",
+                  "DepartureTerminal": "1",
+                  "DepartureTime": "2025-09-10T02:25:00",
+                  "Duration": "01h 10m ",
+                  "EquipmentType": "321",
+                  "FBC": "N0IP",
+                  "FUID": "1",
+                  "FlightNo": "5243",
+                  "Hops": null,
+                  "MAC": "6E",
+                  "OAC": "6E",
+                  "RBD": "N",
+                  "Refundable": "Y",
+                  "Seats": 2,
+                  "VAC": "6E"
+                },
+                "Fares": {
+                  "GrossFare": 9261,
+                  "NetFare": 8788
+                },
+                "MulticityRefID": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Stops": "1",
+    "WPRegionCode": null,
+    "YTH": 0
+  },
+  "message": "Itinerary created successfully",
+  "success": true
+}
