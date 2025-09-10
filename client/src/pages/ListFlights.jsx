@@ -1,9 +1,24 @@
 import React, { useEffect, useState } from "react";
 import FlightCard from "../components/FlightCard";
+import FlightFilter from "../components/FlightFilter";
+import { useFlight } from "../contexts/FlightContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const ListFlights = () => {
+  const {
+    filteredFlights,
+    filteredReturnFlights,
+    selectedFlight,
+    selectedReturnFlight,
+    setSelectedFlight,
+    setSelectedReturnFlight,
+    setFlights,
+    setReturnFlights,
+    loading,
+    error
+  } = useFlight();
+
   const [trips, setTrips] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("trips")) || null;
@@ -11,26 +26,29 @@ const ListFlights = () => {
       return null;
     }
   });
-  console.log(trips)
-
-  const [flights, setFlights] = useState(trips?.[0]?.Journey || []);
-  const [returnFlights, setReturnFlights] = useState(trips?.[1]?.Journey || []);
-  const [selectedFlight, setSelectedFlight] = useState(null)
-  const [selectedReturnFlight, setSelectedReturnFlight] = useState(null)
-  const navigate = useNavigate()
+  
+  const navigate = useNavigate();
   useEffect(() => {
     if (!trips) {
       navigate("/", { replace: true });
+    } else {
+      // Update context with flight data
+      setFlights(trips[0]?.Journey || []);
+      if (trips.length > 1) {
+        setReturnFlights(trips[1]?.Journey || []);
+      }
     }
-  }, [trips, navigate]);
-  const TUI = localStorage.getItem("TUI")
-  const tripType = localStorage.getItem("tripType")
+  }, [trips, navigate, setFlights, setReturnFlights]);
+
+  const TUI = localStorage.getItem("TUI");
+  const tripType = localStorage.getItem("tripType");
+
   useEffect(() => {
     if (trips == null) {
-      navigate("/")
-      alert("No Flights Found, Please try again!!!")
+      navigate("/");
+      alert("No Flights Found, Please try again!!!");
     }
-  }, [trips, navigate])
+  }, [trips, navigate]);
   const handleBookFlight = async () => {
     if(!tripType){
       alert("No Trip Type Found, Please try again!!!")
@@ -109,48 +127,68 @@ const ListFlights = () => {
     }
   }
 
-  // console.log(flights[0])
-  return (
-  <div className="pt-40">
-    <h1 className="text-center text-2xl font-bold mb-4">
-      {tripType === "RT" ? "Select Onward and Return Flights" : "Flight List"}
-    </h1>
-    
-    {/* Onward Flights Section */}
-    <div className="max-w-7xl mx-auto mb-8">
-      <h2 className="text-xl font-semibold mb-4 text-center">
-        {tripType === "RT" ? "Onward Flights" : "Available Flights"}
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {flights.length > 0 ? flights.map((flight, index) => (
-          <FlightCard 
-            key={`onward-${index}`} 
-            flight={flight} 
-            setSelectedFlight={setSelectedFlight}
-            isSelected={selectedFlight?.Index === flight.Index}
-            tripType="onward"
-          />
-        )) : <div className="text-center text-2xl font-bold col-span-full">No onward flights found</div>}
+  if (loading) {
+    return (
+      <div className="pt-40 flex justify-center items-center">
+        <div className="text-xl">Loading flights...</div>
       </div>
-    </div>
+    );
+  }
 
-    {/* Return Flights Section (only for Round Trip) */}
-    {tripType === "RT" && (
+  if (error) {
+    return (
+      <div className="pt-40 flex justify-center items-center">
+        <div className="text-xl text-red-600">Error: {error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pt-40">
+      <h1 className="text-center text-2xl font-bold mb-4">
+        {tripType === "RT" ? "Select Onward and Return Flights" : "Flight List"}
+      </h1>
+      
+      {/* Flight Filter */}
+      <div className="max-w-7xl mx-auto mb-6">
+        <FlightFilter />
+      </div>
+      
+      {/* Onward Flights Section */}
       <div className="max-w-7xl mx-auto mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-center">Return Flights</h2>
+        <h2 className="text-xl font-semibold mb-4 text-center">
+          {tripType === "RT" ? "Onward Flights" : "Available Flights"}
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {returnFlights.length > 0 ? returnFlights.map((flight, index) => (
+          {filteredFlights.length > 0 ? filteredFlights.map((flight, index) => (
             <FlightCard 
-              key={`return-${index}`} 
+              key={`onward-${index}`} 
               flight={flight} 
-              setSelectedFlight={setSelectedReturnFlight}
-              isSelected={selectedReturnFlight?.Index === flight.Index}
-              tripType="return"
+              setSelectedFlight={setSelectedFlight}
+              isSelected={selectedFlight?.Index === flight.Index}
+              tripType="onward"
             />
-          )) : <div className="text-center text-2xl font-bold col-span-full">No return flights found</div>}
+          )) : <div className="text-center text-2xl font-bold col-span-full">No onward flights found</div>}
         </div>
       </div>
-    )}
+
+      {/* Return Flights Section (only for Round Trip) */}
+      {tripType === "RT" && (
+        <div className="max-w-7xl mx-auto mb-8">
+          <h2 className="text-xl font-semibold mb-4 text-center">Return Flights</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredReturnFlights.length > 0 ? filteredReturnFlights.map((flight, index) => (
+              <FlightCard 
+                key={`return-${index}`} 
+                flight={flight} 
+                setSelectedFlight={setSelectedReturnFlight}
+                isSelected={selectedReturnFlight?.Index === flight.Index}
+                tripType="return"
+              />
+            )) : <div className="text-center text-2xl font-bold col-span-full">No return flights found</div>}
+          </div>
+        </div>
+      )}
 
     {/* Book Flight Button */}
     <div className="max-w-7xl mx-auto text-center sticky bottom-0 w-full bg-white rounded-lg py-4 mt-4">

@@ -21,6 +21,7 @@ import Footer1 from "./components/Footer1";
 import HeaderWrapper from "./components/HeaderWrapper";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
+import { FlightProvider } from "./contexts/FlightContext";
 
 const App = () => {
   const navigate = useNavigate()
@@ -48,37 +49,39 @@ const App = () => {
 
   return (
     // responsivenes
-    <div className="">
+    <FlightProvider>
+      <div className="">
 
-      <HeaderWrapper />
+        <HeaderWrapper />
 
-      <Routes>
-      <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/flight-list" element={<ListFlights />} />
-        <Route path="/review" element={<OneWayReview />} />
-        <Route path="/create-itenary" element={<Createitenary />} />
-        <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-        <Route path="/payment-error" element={<PaymentError />} />
-        <Route path="/hotel-booking" element={<HotelBooking />} />
-        <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
-        <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/dmo" element={<Home />} />
-        <Route path="/demobanner" element={<Demobanner />} />
+        <Routes>
+        <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/flight-list" element={<ListFlights />} />
+          <Route path="/review" element={<OneWayReview />} />
+          <Route path="/create-itenary" element={<Createitenary />} />
+          <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+          <Route path="/payment-error" element={<PaymentError />} />
+          <Route path="/hotel-booking" element={<HotelBooking />} />
+          <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
+          <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/dmo" element={<Home />} />
+          <Route path="/demobanner" element={<Demobanner />} />
 
-        <Route path="/header-section" element={<HeaderSection />} />
-        <Route path="/footer1" element={<Footer1 />} />
-        <Route path="/footer" element={<Footer />} />
-        <Route path="/flight-search" element={<FlightSearch />} />
-        {/* <Route path="/flight-listing" element={<FlightListing />} /> */}
-        <Route path="/one-way-review" element={<OneWayReview />} />
+          <Route path="/header-section" element={<HeaderSection />} />
+          <Route path="/footer1" element={<Footer1 />} />
+          <Route path="/footer" element={<Footer />} />
+          <Route path="/flight-search" element={<FlightSearch />} />
+          {/* <Route path="/flight-listing" element={<FlightListing />} /> */}
+          <Route path="/one-way-review" element={<OneWayReview />} />
 
-      </Routes>
-      <Footer />
+        </Routes>
+        <Footer />
 
 
-    </div>
+      </div>
+    </FlightProvider>
   );
 };
 
