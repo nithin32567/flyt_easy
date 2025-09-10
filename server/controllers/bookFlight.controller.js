@@ -103,46 +103,45 @@ export const startPay = async (req, res) => {
         } = req.body;
 
         const finalPayload = {
-            DepositPayment: true,
-            VPA: "",
-            PaymentAmount: "0",
             TransactionID: TransactionID || 0,
-            TargetCurrency: "",
-            RMSSignature: "",
-            QuickPay: "null",
-            PaymentCharge: "0",
-            CardType: "default",
-            ServiceType: "ITI",
-            NetAmount: NetAmount.toString(),
-            PaymentType: "",
-            TargetAmount: "0",
-            OnlinePayment:  false,
+            PaymentAmount: 0,
+            NetAmount: Number(NetAmount),
             BrowserKey: process.env.BROWSER_KEY,
+            ClientID: ClientID,
             TUI: TUI,
+            Hold: false,
+            Promo: null,
+            PaymentType: "",
             BankCode: "",
+            GateWayCode: "",
             MerchantID: "",
+            PaymentCharge: 0,
             ReleaseDate: "",
-            CardAlias: "",
+            OnlinePayment: false,
+            DepositPayment: true,
             Card: {
-                CHName: "",
-                CVV: "",
-                Address: "",
-                SaveCard: false,
-                LName: "",
-                City: "",
-                FName: "",
                 Number: "",
-                PIN: "",
+                Expiry: "",
+                CVV: "",
+                CHName: "",
+                Address: "",
+                City: "",
                 State: "",
                 Country: "",
-                EMIMonths: "0",
-                Expiry: "",
-                International: false
+                PIN: "",
+                International: false,
+                SaveCard: false,
+                FName: "",
+                LName: "",
+                EMIMonths: "0"
             },
-            Promo: "",
-            GateWayCode: "",
-            ClientID: ClientID,
-            Hold: false
+            VPA: "",
+            CardAlias: "",
+            QuickPay: null,
+            RMSSignature: "",
+            TargetCurrency: "",
+            TargetAmount: 0,
+            ServiceType: "ITI"
         };
         console.log(finalPayload, '================================= finalPayload startpay');
 
@@ -210,6 +209,14 @@ export const startPay = async (req, res) => {
                     message: "Booking failed",
                     status: "FAILED"
                 });
+            } else if (message.includes("Please provide valid reference number")) {
+                return res.status(400).json({
+                    success: false,
+                    data: responseData,
+                    message: "Invalid reference number. Please ensure the itinerary was created successfully before proceeding to payment.",
+                    status: "INVALID_REFERENCE",
+                    errorCode: "6019"
+                });
             }
         }
         
@@ -267,15 +274,20 @@ export const getItineraryStatus = async (req, res) => {
         };
 
         const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/GetItineraryStatus`, payload, { headers });
-        console.log(response.data, '================================= response getItineraryStatus');
+        console.log('=== GET ITINERARY STATUS RESPONSE ===');
         console.log('Response status:', response.status);
         console.log('Response headers:', response.headers);
+        console.log('Response data:', JSON.stringify(response.data, null, 2));
+        console.log('=====================================');
         
         const responseData = response.data;
         
         // Check the current status - this is the key field that determines if booking is complete
         // Handle different case variations of the status
         const currentStatus = responseData.CurrentStatus || responseData.currentStatus;
+        
+        console.log('Current Status from API:', currentStatus);
+        console.log('Payment Status from API:', responseData.PaymentStatus || responseData.paymentStatus);
         
         if (currentStatus === "Success" || currentStatus === "success") {
             return res.status(200).json({
@@ -286,26 +298,44 @@ export const getItineraryStatus = async (req, res) => {
                 shouldPoll: false
             });
         } else if (currentStatus === "Failed" || currentStatus === "failed") {
-            return res.status(400).json({
+            console.log('Booking failed - Full response data:', responseData);
+            console.log('Error details:', {
+                Code: responseData.Code,
+                Msg: responseData.Msg,
+                CurrentStatus: responseData.CurrentStatus,
+                PaymentStatus: responseData.PaymentStatus,
+                TUI: responseData.TUI
+            });
+            
+            return res.status(200).json({
                 success: false,
                 data: responseData,
-                message: "Booking failed",
+                message: `Booking failed. ${responseData.Msg ? responseData.Msg.join(' ') : 'Unknown error'}`,
                 status: "FAILED",
-                shouldPoll: false
+                shouldPoll: false,
+                errorCode: responseData.Code,
+                errorDetails: responseData.Msg
             });
         } else {
-            // Still in progress - continue polling
+            // Still in progress or unknown status - continue polling
+            console.log('Unknown or in-progress status:', currentStatus);
             return res.status(200).json({
                 success: true,
                 data: responseData,
-                message: "Booking still in progress",
+                message: `Booking status: ${currentStatus || 'Unknown'}`,
                 status: "IN_PROGRESS",
                 shouldPoll: true
             });
         }
         
     } catch (error) {
-        console.error("GetItineraryStatus Error:", error?.response?.data || error.message);
+        console.error("=== GET ITINERARY STATUS SERVER ERROR ===");
+        console.error("Error message:", error.message);
+        console.error("Error code:", error.code);
+        console.error("Error response status:", error.response?.status);
+        console.error("Error response data:", JSON.stringify(error.response?.data, null, 2));
+        console.error("Full error object:", error);
+        console.error("=========================================");
         
         // If external API is not available, return a mock response for testing
         if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || !process.env.FLIGHT_URL) {
@@ -332,3 +362,37 @@ export const getItineraryStatus = async (req, res) => {
         });
     }
 }
+
+// Test endpoint for debugging
+export const testGetItineraryStatusSimple = async (req, res) => {
+    try {
+        const { TUI, TransactionID } = req.body;
+        
+        console.log('=== TEST GET ITINERARY STATUS SIMPLE ===');
+        console.log('TUI:', TUI);
+        console.log('TransactionID:', TransactionID);
+        console.log('========================================');
+        
+        // Return a simple test response
+        return res.status(200).json({
+            success: true,
+            data: {
+                TUI: TUI,
+                TransactionID: TransactionID,
+                CurrentStatus: "Success",
+                PaymentStatus: "Success",
+                Code: "200",
+                Msg: ["Test response - booking completed successfully"]
+            },
+            message: "Test GetItineraryStatus response",
+            status: "SUCCESS",
+            shouldPoll: false
+        });
+    } catch (error) {
+        console.error('Test GetItineraryStatus Simple Error:', error);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

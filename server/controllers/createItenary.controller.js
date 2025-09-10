@@ -99,6 +99,23 @@ export const createItinerary = async (req, res) => {
                 SSRNetAmount: ssr.SSRNetAmount
             }))
         });
+
+        // Validate SSR data format
+        if (finalPayload.SSR && finalPayload.SSR.length > 0) {
+            console.log('Validating SSR data format...');
+            const invalidSSR = finalPayload.SSR.filter(ssr => 
+                !ssr.FUID || !ssr.PaxID || !ssr.SSID
+            );
+            
+            if (invalidSSR.length > 0) {
+                console.error('Invalid SSR data found:', invalidSSR);
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid SSR data format. Each SSR must have FUID, PaxID, and SSID.",
+                    invalidSSR: invalidSSR
+                });
+            }
+        }
         
         const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/CreateItinerary`, finalPayload, {
             headers: {

@@ -9,7 +9,7 @@ import { smartPricer } from "../controllers/smartprice.controller.js";
 import { getWebSettings } from "../controllers/websettings.controller.js";
 import { getPricer } from "../controllers/getpricer.controller.js";
 import { createItinerary, getExistingItinerary } from "../controllers/createItenary.controller.js";
-import { startPay, getItineraryStatus } from "../controllers/bookFlight.controller.js";
+import { startPay, getItineraryStatus, testGetItineraryStatusSimple } from "../controllers/bookFlight.controller.js";
 import { getSSRServices, validateSSRSelection } from "../controllers/ssr.controller.js";
 import { retrieveBooking } from "../controllers/retrieveBooking.controller.js";
 import { testGetItineraryStatus, testRetrieveBooking } from "../controllers/test.controller.js";
@@ -44,6 +44,7 @@ router.post("/retrieve-booking", retrieveBooking);
 
 // Test endpoints
 router.post("/test-get-itinerary-status", testGetItineraryStatus);
+router.post("/test-get-itinerary-status-simple", testGetItineraryStatusSimple);
 router.post("/test-retrieve-booking", testRetrieveBooking);
 
 export default router;

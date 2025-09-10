@@ -18,7 +18,6 @@ const ListFlights = () => {
     loading,
     error
   } = useFlight();
-
   const [trips, setTrips] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("trips")) || null;
@@ -80,49 +79,81 @@ const ListFlights = () => {
 
     console.log("Sending trips:", tripsToSend, "TripType:", tripType)
     
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, {
-      Trips: tripsToSend,
-      ClientID: "FVI6V120g22Ei5ztGK0FIQ==",
-      Mode: "AS",
-      Options: "",
-      token: localStorage.getItem("token"),
-      TUI: TUI,
-      TripType: tripType
-    })
-    if (response.statusText === "OK") {
-      console.log("inside the if condition")
-      const pricerTUI = response.data.TUI
-      localStorage.setItem("pricerTUI", pricerTUI)
-      //if success getPricer Api Call
-      console.log(response.data, '================================= response smart price');
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, {
+        Trips: tripsToSend,
+        ClientID: "FVI6V120g22Ei5ztGK0FIQ==",
+        Mode: "AS",
+        Options: "",
+        token: localStorage.getItem("token"),
+        TUI: TUI,
+        TripType: tripType
+      })
+      
+      if (response.status === 200) {
+        console.log("inside the if condition")
+        const pricerTUI = response.data.TUI
+        localStorage.setItem("pricerTUI", pricerTUI)
+        //if success getPricer Api Call
+        console.log(response.data, '================================= response smart price');
 
-      await getPricer()
+        await getPricer()
+      } else {
+        console.error("Smart price API returned non-200 status:", response.status)
+        alert("Failed to process flight pricing. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error calling smart-price API:", error)
+      if (error.response) {
+        // Server responded with error status
+        console.error("Error response:", error.response.data)
+        alert(`Error: ${error.response.data?.Msg || "Failed to process flight pricing. Please try again."}`)
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response received:", error.request)
+        alert("Network error. Please check your connection and try again.")
+      } else {
+        // Something else happened
+        console.error("Error:", error.message)
+        alert("An unexpected error occurred. Please try again.")
+      }
     }
   }
 
   const getPricer = async () => {
-    const pricerTUI = localStorage.getItem("pricerTUI")
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`, {
-      TUI: pricerTUI,
-      token: localStorage.getItem("token")
-    })
-    console.log(response, "response========================= get pricer")
-    if (response.statusText === "OK") {
-      const data = response.data
-      console.log(data, "data=========================")
-      localStorage.setItem("pricerData", JSON.stringify(data.data))
-      localStorage.setItem("netamount", data.data.NetAmount.toString()) 
-      localStorage.setItem("oneWayReviewData", JSON.stringify(data.data))
-      localStorage.setItem("pricerTUI", data.data.TUI)
-      navigate("/one-way-review")
+    try {
+      const pricerTUI = localStorage.getItem("pricerTUI")
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`, {
+        TUI: pricerTUI,
+        token: localStorage.getItem("token")
+      })
+      console.log(response, "response========================= get pricer")
       
-    } else {
-      console.log("inside the else condition")
-      alert("Something went wrong, Please try again!!!")
-      navigate("/")
-    }
-    if (!response) {
-      alert("Something went wrong, Please try again!!!")
+      if (response.status === 200) {
+        const data = response.data
+        console.log(data, "data=========================")
+        localStorage.setItem("pricerData", JSON.stringify(data.data))
+        localStorage.setItem("netamount", data.data.NetAmount.toString()) 
+        localStorage.setItem("oneWayReviewData", JSON.stringify(data.data))
+        localStorage.setItem("pricerTUI", data.data.TUI)
+        navigate("/one-way-review")
+      } else {
+        console.log("inside the else condition")
+        alert("Something went wrong, Please try again!!!")
+        navigate("/")
+      }
+    } catch (error) {
+      console.error("Error calling get-pricer API:", error)
+      if (error.response) {
+        console.error("Error response:", error.response.data)
+        alert(`Error: ${error.response.data?.Msg || "Failed to get pricing details. Please try again."}`)
+      } else if (error.request) {
+        console.error("No response received:", error.request)
+        alert("Network error. Please check your connection and try again.")
+      } else {
+        console.error("Error:", error.message)
+        alert("An unexpected error occurred. Please try again.")
+      }
       navigate("/")
     }
   }

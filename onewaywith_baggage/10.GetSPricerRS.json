@@ -1,0 +1,41 @@
+{
+  "TUI": "8c19095d-032f-4d88-b64d-b5c570127b7e|a4d61ce9-cd70-449b-b609-b1142cef7bfe|20250910154650",
+  "Code": "200",
+  "Msg": ["Success"],
+  "CurrencyCode": "INR",
+  "From": "BOM",
+  "To": "DEL",
+  "FromName": "Chhatrapati Shivaji |Mumbai",
+  "ToName": "Indira Gandhi International |New Delhi",
+  "OnwardDate": "2025-09-10",
+  "ReturnDate": "",
+  "ADT": 1,
+  "CHD": 0,
+  "INF": 0,
+  "YTH": 0,
+  "NetAmount": 5646,
+  "GrossAmount": 5929,
+  "InsPremium": 0,
+  "FareType": "ON",
+  "Source": "LV",
+  "HoldInfo": null,
+  "AlternateTrips": null,
+  "Trips": [
+    {
+      "Journey": ["Array"]
+    }
+  ],
+  "Rules": [
+    {
+      "OrginDestination": "BOM-DEL",
+      "FUID": "1",
+      "Provider": "6E",
+      "FareRuleText": null,
+      "Rule": ["Array"]
+    }
+  ],
+  "SSR": null,
+  "SSRChange": null,
+  "IsPrivateFare": false,
+  "CeilingInfo": ""
+}

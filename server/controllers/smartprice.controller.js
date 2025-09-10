@@ -17,7 +17,7 @@ export const smartPricer = async (req, res) => {
     
     if (TripType === "RT") {
       // For Round Trip, we need 2 trips: onward and return
-      // The first trip is onward, we need to create a return trip
+      // The first trip is onward, second trip is return
       tripsArray = [
         {
           Amount: Trips[0].NetFare,
@@ -26,8 +26,8 @@ export const smartPricer = async (req, res) => {
           TUI: TUI
         },
         {
-          Amount: Trips[0].NetFare, // Use same fare for return (will be updated by API)
-          Index: Trips[0].Index,    // Use same index for return
+          Amount: Trips[1].NetFare, // Use return flight fare
+          Index: Trips[1].Index,    // Use return flight index
           OrderID: "2",
           TUI: TUI
         }
@@ -75,6 +75,11 @@ export const smartPricer = async (req, res) => {
       return res.status(200).json(response.data)
     } catch (error) {
       console.log(error, "error=========================")
+      return res.status(500).json({ 
+        Code: "500", 
+        Msg: "SmartPricer API Error", 
+        error: error.message || "Unknown error occurred" 
+      })
     }
 
 

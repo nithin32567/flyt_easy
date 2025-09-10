@@ -128,6 +128,16 @@ const SSRServicesSelection = ({
             </div>
           </div>
         )}
+
+        {/* SSR Fare Change Warning */}
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+          <div className="text-sm text-orange-800 font-medium mb-1">
+            ⚠️ Important SSR Information
+          </div>
+          <div className="text-xs text-orange-700">
+            SSR fares may change between selection and booking. If this happens, you'll be notified with the new pricing and can choose to proceed or select a different flight.
+          </div>
+        </div>
       </div>
 
       {/* Service Categories */}
@@ -230,9 +240,14 @@ const SSRServicesSelection = ({
           <h3 className="text-lg font-medium text-gray-800 mb-2">
             No Additional Services Available
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             This flight doesn't offer additional services at the moment.
           </p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <p className="text-sm text-yellow-800">
+              <strong>Note:</strong> Some flights may not support SSR services due to airline policies or fare restrictions.
+            </p>
+          </div>
         </div>
       )}
 

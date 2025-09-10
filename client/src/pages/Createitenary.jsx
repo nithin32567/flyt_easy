@@ -18,17 +18,21 @@ const Createitenary = () => {
   const [availableSSRServices, setAvailableSSRServices] = useState([]);
   const [selectedSSRServices, setSelectedSSRServices] = useState([]);
   const [loadingSSR, setLoadingSSR] = useState(false);
+  const [isDataValid, setIsDataValid] = useState(false);
   const pricerTUI = localStorage.getItem("pricerTUI")
-  const pricerData = JSON.parse(localStorage.getItem("pricerData"));
+  const pricerDataString = localStorage.getItem("pricerData");
+  const pricerData = pricerDataString ? JSON.parse(pricerDataString) : null;
   // const reviewData = JSON.parse(localStorage.getItem("oneWayReviewData"));
   const netAmount = localStorage.getItem("netamount") // Use the exact value without parsing
   const [itenarySuccess, setItenarySuccess] = useState(false);
   const navigate = useNavigate();
 
   // Debug logging
+  console.log('PricerDataString from localStorage:', pricerDataString);
   console.log('PricerData:', pricerData);
   console.log('NetAmount from localStorage:', netAmount, 'Type:', typeof netAmount);
   console.log('Original pricerData.NetAmount:', pricerData?.NetAmount, 'Type:', typeof pricerData?.NetAmount);
+  console.log('PricerTUI from localStorage:', pricerTUI);
 
   // Use the TUI from pricerData (GetPricer response) instead of the old pricerTUI
   const currentTUI = pricerData?.TUI || pricerTUI;
@@ -39,13 +43,30 @@ const Createitenary = () => {
   // Use NetAmount directly from pricerData to avoid any conversion issues
   const netAmountNumber = pricerData?.NetAmount || (netAmount ? Number(netAmount) : 0);
   
-  // Ensure we have valid data
-  if (!pricerData || !pricerData.TUI) {
-    console.error('Missing pricerData or TUI');
-    alert('Missing pricing data. Please try searching for flights again.');
-    navigate('/');
-    return;
-  }
+  // Validate data in useEffect to avoid setState during render
+  useEffect(() => {
+    console.log('Validating data in useEffect...');
+    console.log('PricerData exists:', !!pricerData);
+    console.log('PricerData.TUI exists:', !!pricerData?.TUI);
+    console.log('PricerTUI exists:', !!pricerTUI);
+    
+    if (!pricerData) {
+      console.error('Missing pricerData - localStorage item is null or invalid JSON');
+      alert('Missing pricing data. Please try searching for flights again.');
+      navigate('/');
+      return;
+    }
+    
+    if (!pricerData.TUI && !pricerTUI) {
+      console.error('Missing TUI in both pricerData and pricerTUI');
+      alert('Missing pricing TUI. Please try searching for flights again.');
+      navigate('/');
+      return;
+    }
+    
+    console.log('Data validation passed, setting isDataValid to true');
+    setIsDataValid(true);
+  }, [pricerData, pricerTUI, navigate]);
 
   // proper date validation with current date should be added 
 
@@ -130,7 +151,43 @@ const Createitenary = () => {
   };
 
   const handleSSRServiceSelection = (services) => {
+    console.log('SSR Service Selection Changed:', services);
     setSelectedSSRServices(services);
+    
+    // Calculate total SSR amount
+    const totalSSRAmount = services.reduce((total, service) => {
+      const amount = service.SSRNetAmount || service.Charge || 0;
+      return total + (amount * travelers.length); // Multiply by number of passengers
+    }, 0);
+    
+    console.log('Total SSR Amount for', travelers.length, 'passengers:', totalSSRAmount);
+  };
+
+  // Handle SSR fare changes
+  const handleSSRFareChange = (message) => {
+    if (message && message.includes('change in the ssr fare')) {
+      const match = message.match(/Previous Amt:-(\d+)\s*\|\s*New Amt:-(\d+)/);
+      if (match) {
+        const previousAmount = parseInt(match[1]);
+        const newAmount = parseInt(match[2]);
+        const difference = newAmount - previousAmount;
+        
+        console.log('SSR Fare Change Detected:', {
+          previous: previousAmount,
+          new: newAmount,
+          difference: difference
+        });
+        
+        // Show user-friendly message
+        const userMessage = `SSR fare has changed by ₹${difference.toLocaleString()}. ` +
+          `Previous amount: ₹${previousAmount.toLocaleString()}, ` +
+          `New amount: ₹${newAmount.toLocaleString()}. ` +
+          `You can proceed with the new fare or select a different flight.`;
+        
+        return userMessage;
+      }
+    }
+    return message;
   };
 
   const handleNextToSSR = () => {
@@ -227,10 +284,42 @@ const Createitenary = () => {
         // The API expects SSR array with FUID, PaxID, and SSID fields
         // Each SSR service should be mapped to each passenger
         const ssrForAPI = [];
+        
+        // Get FUID from pricer data - extract from Trips structure
+        let fuidMapping = {};
+        if (pricerData && pricerData.Trips) {
+          pricerData.Trips.forEach((trip, tripIndex) => {
+            if (trip.Journey) {
+              trip.Journey.forEach((journey, journeyIndex) => {
+                if (journey.Segments) {
+                  journey.Segments.forEach((segment, segmentIndex) => {
+                    if (segment.FUID) {
+                      // Map FUID to trip and journey for proper SSR assignment
+                      const key = `${tripIndex}-${journeyIndex}-${segmentIndex}`;
+                      fuidMapping[key] = segment.FUID;
+                    }
+                  });
+                }
+              });
+            }
+          });
+        }
+        
+        console.log('FUID Mapping from pricer data:', fuidMapping);
+        
+        // If no FUID mapping found, use default values based on trip type
+        const defaultFUIDs = pricerData?.FareType === 'RT' ? [1, 2] : [1];
+        
         paidSSRServices.forEach(service => {
           travelers.forEach((traveler, index) => {
+            // For round trip, assign SSR to both flights (FUID 1 and 2)
+            // For one way, assign to FUID 1
+            const fuidToUse = defaultFUIDs.length > 1 ? 
+              (index % 2 === 0 ? defaultFUIDs[0] : defaultFUIDs[1]) : 
+              defaultFUIDs[0];
+              
             ssrForAPI.push({
-              FUID: 1, // Flight Unique ID - using 1 for single flight (number, not string)
+              FUID: fuidToUse, // Flight Unique ID from pricer data
               PaxID: traveler.ID || (index + 1), // Passenger ID - use traveler.ID if available, otherwise 1-based index
               SSID: service.ID // SSR Service ID
             });
@@ -266,19 +355,33 @@ const Createitenary = () => {
         
         if (response.data.success) {
           localStorage.setItem("TransactionID", response.data.data.TransactionID);
+          // Store the TUI returned from CreateItinerary response for use in StartPay
+          if (response.data.data.TUI) {
+            localStorage.setItem("itineraryTUI", response.data.data.TUI);
+            console.log('Stored itinerary TUI:', response.data.data.TUI);
+          }
           setItenarySuccess(true);
         } else {
           console.error('API Error:', response.data.message);
           console.error('Error Code:', response.data.errorCode);
           console.error('Full Error Response:', response.data);
-          alert(`Failed to create itinerary: ${response.data.message}`);
+          
+          // Handle SSR fare change messages
+          const errorMessage = response.data.message || 'Unknown error';
+          const userFriendlyMessage = handleSSRFareChange(errorMessage);
+          
+          alert(`Failed to create itinerary: ${userFriendlyMessage}`);
         }
 
       } catch (error) {
         console.log(error, '================================= error');
         console.log('Error response:', error.response?.data);
         const errorMessage = error.response?.data?.message || error.message || 'Failed to create itinerary';
-        alert(`Error: ${errorMessage}`);
+        
+        // Handle SSR fare change messages in catch block too
+        const userFriendlyMessage = handleSSRFareChange(errorMessage);
+        
+        alert(`Error: ${userFriendlyMessage}`);
       }
     } else {
       // Show validation errors
@@ -527,7 +630,7 @@ const Createitenary = () => {
                 ) : (
                   <div className="w-full sm:w-auto">
                     <PaymentButton
-                      TUI={currentTUI}
+                      TUI={localStorage.getItem("itineraryTUI") || currentTUI}
                       amount={netAmountNumber}
                       name={contactInfo.FName}
                       email={contactInfo.Email}
@@ -543,6 +646,18 @@ const Createitenary = () => {
         return null;
     }
   };
+
+  // Show loading state while validating data
+  if (!isDataValid) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-40 flex justify-center items-center">
+        <div className="text-center">
+          <div className="text-xl text-gray-600">Loading itinerary data...</div>
+          <div className="text-sm text-gray-500 mt-2">Please wait while we validate your booking information</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-40">

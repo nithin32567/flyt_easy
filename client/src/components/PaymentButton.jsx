@@ -5,10 +5,18 @@ import { useNavigate } from "react-router-dom";
 const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     const token = localStorage.getItem("token");
     console.log(amount, name, email, contact, '================================= amount, name, email, contact');
+    console.log('PaymentButton received TUI:', TUI);
+    console.log('itineraryTUI from localStorage:', localStorage.getItem("itineraryTUI"));
     const transactionID = JSON.parse(localStorage.getItem("TransactionID"));
     const clientID = localStorage.getItem("ClientID");
+    console.log('TransactionID from localStorage:', transactionID);
+    console.log('ClientID from localStorage:', clientID);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    
+    // Use the itinerary TUI if available, otherwise fall back to the passed TUI
+    const finalTUI = localStorage.getItem("itineraryTUI") || TUI;
+    console.log('Final TUI being used for payment:', finalTUI);
     
     const loadRazorpay = (src) => {
         return new Promise((resolve) => {
@@ -20,51 +28,90 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
         });
     };
 
+    // Test function for debugging get-itinerary-status
+    const testGetItineraryStatus = async () => {
+        try {
+            console.log('=== TESTING GET ITINERARY STATUS ===');
+            const testTUI = finalTUI || "test-tui-123";
+            const testTransactionID = transactionID || "test-transaction-123";
+            
+            console.log('Test TUI:', testTUI);
+            console.log('Test TransactionID:', testTransactionID);
+            
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/test-get-itinerary-status-simple`, {
+                TUI: testTUI,
+                TransactionID: testTransactionID
+            }, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                },
+            });
+            
+            console.log('=== TEST RESPONSE ===');
+            console.log('Response status:', response.status);
+            console.log('Response data:', JSON.stringify(response.data, null, 2));
+            console.log('===================');
+            
+            alert(`Test successful! Status: ${response.data.status}, Message: ${response.data.message}`);
+        } catch (error) {
+            console.error('=== TEST ERROR ===');
+            console.error('Error:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('===============');
+            alert(`Test failed: ${error.message}`);
+        }
+    };
+
     async function startPay() {
         const payload = {
-            DepositPayment: false,
-            VPA: "",
-            PaymentAmount: amount.toString(),
             TransactionID: transactionID,
-            TargetCurrency: "",
-            RMSSignature: "",
-            QuickPay: "null",
-            PaymentCharge: "0",
-            CardType: "default",
-            ServiceType: "ITI",
-            NetAmount: amount.toString(),
-            PaymentType: "",
-            TargetAmount: "0",
-            OnlinePayment: false,
+            PaymentAmount: 0,
+            NetAmount: amount,
             BrowserKey: "caecd3cd30225512c1811070dce615c1",
-            TUI: TUI,
+            ClientID: clientID,
+            TUI: finalTUI,
+            Hold: false,
+            Promo: null,
+            PaymentType: "",
             BankCode: "",
+            GateWayCode: "",
             MerchantID: "",
+            PaymentCharge: 0,
             ReleaseDate: "",
-            CardAlias: "",
+            OnlinePayment: false,
+            DepositPayment: true,
             Card: {
-                CHName: "",
-                CVV: "",
-                Address: "",
-                SaveCard: false,
-                LName: "",
-                City: "",
-                FName: "",
                 Number: "",
-                PIN: "",
+                Expiry: "",
+                CVV: "",
+                CHName: "",
+                Address: "",
+                City: "",
                 State: "",
                 Country: "",
-                EMIMonths: "0",
-                Expiry: "",
-                International: false
+                PIN: "",
+                International: false,
+                SaveCard: false,
+                FName: "",
+                LName: "",
+                EMIMonths: "0"
             },
-            Promo: "",
-            GateWayCode: "",
-            ClientID: clientID,
-            Hold: false
+            VPA: "",
+            CardAlias: "",
+            QuickPay: null,
+            RMSSignature: "",
+            TargetCurrency: "",
+            TargetAmount: 0,
+            ServiceType: "ITI"
         }
         try {
             console.log('Starting payment with payload:', payload);
+            console.log('StartPay payload details:', {
+                TUI: payload.TUI,
+                TransactionID: payload.TransactionID,
+                NetAmount: payload.NetAmount,
+                ClientID: payload.ClientID
+            });
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/startpay`, payload, {
                 headers: {
                     "Authorization": `Bearer ${token}`
@@ -93,15 +140,23 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                     "Authorization": `Bearer ${token}`
                 },
             });
-            console.log('GetItineraryStatus response:', response.data);
+            console.log('=== GET ITINERARY STATUS FRONTEND RESPONSE ===');
             console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            console.log('Response data:', JSON.stringify(response.data, null, 2));
+            console.log('===============================================');
             
             // Return the response data which contains the status information
             return response.data;
         } catch (error) {
-            console.error('GetItineraryStatus error:', error);
-            console.error('Error response:', error.response?.data);
-            console.error('Error status:', error.response?.status);
+            console.error('=== GET ITINERARY STATUS ERROR ===');
+            console.error('Error message:', error.message);
+            console.error('Error code:', error.code);
+            console.error('Error response status:', error.response?.status);
+            console.error('Error response data:', JSON.stringify(error.response?.data, null, 2));
+            console.error('Error response headers:', error.response?.headers);
+            console.error('Full error object:', error);
+            console.error('==================================');
             throw error;
         }
     }
@@ -161,8 +216,9 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                         return { success: false, message: "Failed to retrieve booking details" };
                     }
                 } else if (statusResponse.status === "FAILED") {
-                    console.log('Booking failed');
-                    return { success: false, message: "Booking failed" };
+                    console.log('Booking failed:', statusResponse);
+                    const errorMessage = statusResponse.message || statusResponse.errorDetails?.join(' ') || "Booking failed";
+                    return { success: false, message: errorMessage, errorCode: statusResponse.errorCode };
                 } else if (statusResponse.status === "IN_PROGRESS") {
                     // Still in progress, wait and try again
                     console.log(`Booking still in progress, attempt ${attempts + 1}/${maxAttempts}`);
@@ -244,7 +300,7 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                             if (startPayResponse.shouldPoll) {
                                 // 4. Poll for booking status
                                 console.log('Starting booking status polling...');
-                                const pollingResult = await pollBookingStatus(TUI, transactionID);
+                                const pollingResult = await pollBookingStatus(finalTUI, transactionID);
                                 
                                 if (pollingResult.success) {
                                     alert("✅ Payment and Booking Successful!");
@@ -253,7 +309,10 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                                         navigate("/payment-success");
                                     }, 1000);
                                 } else {
-                                    alert(`❌ Booking Failed: ${pollingResult.message}`);
+                                    const errorMsg = pollingResult.errorCode ? 
+                                        `❌ Booking Failed (Code: ${pollingResult.errorCode}): ${pollingResult.message}` :
+                                        `❌ Booking Failed: ${pollingResult.message}`;
+                                    alert(errorMsg);
                                     navigate("/payment-error");
                                 }
                             } else if (startPayResponse.status === "SUCCESS") {
@@ -301,13 +360,21 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     };
 
     return (
-        <button
-            onClick={handlePayment}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded"
-        >
-            {loading ? "Processing..." : `Pay ₹${amount}`}
-        </button>
+        <div className="flex gap-2">
+            <button
+                onClick={handlePayment}
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+                {loading ? "Processing..." : `Pay ₹${amount}`}
+            </button>
+            <button
+                onClick={testGetItineraryStatus}
+                className="px-4 py-2 bg-green-600 text-white rounded text-sm"
+            >
+                Test API
+            </button>
+        </div>
     );
 };
 

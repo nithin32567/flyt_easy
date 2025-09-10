@@ -58,6 +58,20 @@ export const FlightProvider = ({ children }) => {
     }
   }, []);
 
+  // Update filtered flights when flights or returnFlights change
+  useEffect(() => {
+    // Apply current filters to the updated flight data
+    const filtered = applyFilters(flights, filters);
+    const filteredReturn = applyFilters(returnFlights, filters);
+    
+    // Apply sorting
+    const sorted = sortFlights(filtered, filters.sortBy, filters.sortOrder);
+    const sortedReturn = sortFlights(filteredReturn, filters.sortBy, filters.sortOrder);
+    
+    setFilteredFlights(sorted);
+    setFilteredReturnFlights(sortedReturn);
+  }, [flights, returnFlights, filters]);
+
   // Apply filters function
   const applyFilters = (flightsToFilter, currentFilters) => {
     if (!flightsToFilter || flightsToFilter.length === 0) return [];
@@ -166,25 +180,21 @@ export const FlightProvider = ({ children }) => {
 
   // Update filters and apply them
   const updateFilters = (newFilters) => {
-    const updatedFilters = { ...filters, ...newFilters };
-    setFilters(updatedFilters);
-    
-    // Apply filters
-    const filtered = applyFilters(flights, updatedFilters);
-    const filteredReturn = applyFilters(returnFlights, updatedFilters);
-    
-    // Apply sorting
-    const sorted = sortFlights(filtered, updatedFilters.sortBy, updatedFilters.sortOrder);
-    const sortedReturn = sortFlights(filteredReturn, updatedFilters.sortBy, updatedFilters.sortOrder);
-    
-    setFilteredFlights(sorted);
-    setFilteredReturnFlights(sortedReturn);
+    setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
   // Reset filters
   const resetFilters = () => {
+    // Get price range from current data
+    const allFlights = [...flights, ...returnFlights];
+    const prices = allFlights.map(flight => flight.GrossFare || 0).filter(price => price > 0);
+    const priceRange = prices.length > 0 ? {
+      min: Math.min(...prices),
+      max: Math.max(...prices)
+    } : { min: 0, max: 100000 };
+
     setFilters({
-      priceRange: { min: 0, max: 100000 },
+      priceRange,
       airlines: [],
       stops: 'all',
       refundable: 'all',
@@ -193,8 +203,6 @@ export const FlightProvider = ({ children }) => {
       sortBy: 'price',
       sortOrder: 'asc'
     });
-    setFilteredFlights(flights);
-    setFilteredReturnFlights(returnFlights);
   };
 
   // Get unique airlines

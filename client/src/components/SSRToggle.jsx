@@ -114,6 +114,26 @@ const SSRToggle = ({ isEnabled, onToggle, availableServices = [] }) => {
           </p>
         </div>
       )}
+
+      {/* SSR Status Messages */}
+      {isEnabled && (
+        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="text-sm text-blue-800">
+            <strong>SSR Services Status:</strong>
+          </div>
+          <div className="text-xs text-blue-700 mt-1">
+            {availableServices.length > 0 
+              ? `✓ ${availableServices.length} services available for selection`
+              : "⚠ No services available - this flight may not support additional services"
+            }
+          </div>
+          {availableServices.length > 0 && (
+            <div className="text-xs text-blue-600 mt-1">
+              💡 You can add services like meals, extra baggage, or priority check-in
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
