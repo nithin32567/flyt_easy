@@ -68,60 +68,6 @@ export const retrieveBooking = async (req, res) => {
     } catch (error) {
         console.error('Retrieve Booking Error:', error);
         
-        // If external API is not available, return a mock response for testing
-        if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || !process.env.FLIGHT_URL) {
-            console.log('External API not available, returning mock response for testing');
-            return res.status(200).json({
-                success: true,
-                message: "Booking retrieved successfully (mock response)",
-                data: {
-                    TUI: TUI,
-                    TransactionID: ReferenceNumber,
-                    NetAmount: 39590.00,
-                    GrossAmount: 41220.0,
-                    From: "DEL",
-                    To: "BLR",
-                    FromName: "Indira Gandhi International |New Delhi",
-                    ToName: "Bengaluru International Airport |Bangalore",
-                    OnwardDate: "2025-05-14",
-                    PaymentStatus: "I8",
-                    Status: "TO0",
-                    PGDescription: "Payment Success",
-                    CustomerFare: 41220.0,
-                    Pax: [
-                        {
-                            ID: 20014,
-                            PaxID: 1,
-                            Title: "MR",
-                            FName: "SADIK",
-                            LName: "DEMO",
-                            Age: "29",
-                            DOB: "06/16/1995",
-                            Gender: "F",
-                            PTC: "ADT",
-                            Nationality: "IN",
-                            PassportNo: "RWEWEQ"
-                        }
-                    ],
-                    ContactInfo: [
-                        {
-                            Title: "MR",
-                            FName: "Benzy",
-                            LName: "Infotech",
-                            Mobile: "9999999999",
-                            Email: "test@example.com",
-                            Address: "Test Address",
-                            City: "Test City",
-                            State: "Test State",
-                            PIN: "123456",
-                            CountryCode: "IN"
-                        }
-                    ],
-                    Code: "200",
-                    Msg: ["Success"]
-                }
-            });
-        }
         
         return res.status(500).json({
             success: false,

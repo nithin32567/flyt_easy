@@ -8,6 +8,7 @@ import TravellerAddModal from "./modals/TravellerAddModal";
 import { CalanderModal } from "./modals/CalanderModal";
 import MultiCitySearch from "./MultiCitySearch";
 import axios from "axios";
+import { clearSearchData, clearAllBookingData, debugLocalStorage } from "../utils/clearBookingData";
 
 const FlightHotelWearchWrapper = () => {
   const [isActiveFlightTab, setIsActiveFlightTab] = useState(true);
@@ -39,10 +40,21 @@ const FlightHotelWearchWrapper = () => {
   const [searchterm, setSearchterm] = useState("");
   const [hotelSearchResults, setHotelSearchResults] = useState([]);
   const [selectedHotelLocation, setSelectedHotelLocation] = useState(null);
+  const [ClientID,setClientID]=useState(localStorage.getItem("ClientID"))
 
   useEffect(() => {
     localStorage.setItem("tripType", tripType);
   }, [tripType]);
+
+  // Clear any stale booking data when component mounts (user navigates to home)
+  useEffect(() => {
+    // Clear booking-related localStorage items to prevent conflicts
+    clearSearchData();
+    console.log('✅ Cleared search data on component mount');
+    
+    // Debug: Show what's in localStorage
+    debugLocalStorage();
+  }, []);
 
   // fetch airports
   useEffect(() => {
@@ -72,13 +84,15 @@ const FlightHotelWearchWrapper = () => {
         {
           TUI,
           token,
+          ClientID
         }
       );
 
-      console.log(
-        response,
-        "response from the backend========================= get exp search"
-      );
+      console.log("=== GET EXP SEARCH RESPONSE ===");
+      console.log("Payload sent to API:", response.data.payload);
+      console.log("Response from API:", response.data.response);
+      console.log("Full response data:", response.data);
+      console.log("=================================");
       if (response.statusText === "OK") {
         console.log("inside the if condition");
         const trips = response.data.data.Trips;
@@ -87,6 +101,27 @@ const FlightHotelWearchWrapper = () => {
         const TUI = response.data.data.TUI;
         console.log(TUI, "TUI=========================");
         localStorage.setItem("TUI", TUI);
+        
+        // Call WebSettings after ExpressSearch completes with the ExpressSearch TUI
+        try {
+          const webSettingsResponse = await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/api/flights/web-settings`,
+            {
+              ClientID: localStorage.getItem("ClientID"),
+              TUI: TUI // Use the ExpressSearch TUI
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+              }
+            }
+          );
+          console.log("WebSettings called with ExpressSearch TUI:", webSettingsResponse.data);
+        } catch (webSettingsError) {
+          console.error("Error calling WebSettings:", webSettingsError);
+        }
+        
         navigate("/flight-list");
       }
     } catch (error) {
@@ -109,9 +144,12 @@ const FlightHotelWearchWrapper = () => {
         alert("Please select From, To, Departure Date and Return Date");
         return;
       }
-      // Ensure return date is after departure date
-      if (returnDate <= departureDate) {
-        alert("Return date must be after departure date");
+      // Ensure return date is not before departure date (allows same day round trips)
+      const departureDateOnly = new Date(departureDate.getFullYear(), departureDate.getMonth(), departureDate.getDate());
+      const returnDateOnly = new Date(returnDate.getFullYear(), returnDate.getMonth(), returnDate.getDate());
+      
+      if (returnDateOnly < departureDateOnly) {
+        alert("Return date cannot be before departure date");
         return;
       }
     }
@@ -160,12 +198,8 @@ const FlightHotelWearchWrapper = () => {
     console.log("Departure Date:", departureDate);
     console.log("Return Date:", returnDate);
     console.log(payload, "payload to the backend========================= 221");
-    localStorage.removeItem("trips");
-    localStorage.removeItem("TUI");
-    localStorage.removeItem("pricerTUI");
-    localStorage.removeItem("pricerData");
-    localStorage.removeItem("searchTUI");
-    localStorage.removeItem("searchPayload");
+    // Clear previous search data to prevent conflicts
+    clearSearchData();
     localStorage.setItem("searchPayload", JSON.stringify(payload));
     try {
       const response = await fetch(
@@ -181,7 +215,11 @@ const FlightHotelWearchWrapper = () => {
         }
       );
       const data = await response.json();
-      console.log(data, "data from the backend========================= 221");
+      console.log("=== EXPRESS SEARCH RESPONSE ===");
+      console.log("Payload sent to API:", data.payload);
+      console.log("Response from API:", data.response);
+      console.log("Full response data:", data);
+      console.log("===============================");
       const TUI = data.TUI;
       await getExpSearch(TUI).then((response) => {
         console.log(response, "response from the backend========================= 221 get exp search");
@@ -243,12 +281,8 @@ const FlightHotelWearchWrapper = () => {
     };
 
     console.log(payload, "multi-city payload to the express search=========================");
-    localStorage.removeItem("trips");
-    localStorage.removeItem("TUI");
-    localStorage.removeItem("pricerTUI");
-    localStorage.removeItem("pricerData");
-    localStorage.removeItem("searchTUI");
-    localStorage.removeItem("searchPayload");
+    // Clear previous search data to prevent conflicts
+    clearSearchData();
     localStorage.setItem("searchPayload", JSON.stringify(payload));
 
     try {

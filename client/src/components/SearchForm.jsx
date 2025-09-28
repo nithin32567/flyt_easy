@@ -8,6 +8,7 @@ import ShowAirports from "./modals/ShowAirports";
 import TravellerAddModal from "./modals/TravellerAddModal";
 import { CalanderModal } from "./modals/CalanderModal";
 import { setDate } from "date-fns";
+import { clearSearchData } from "../utils/clearBookingData";
 import axios from "axios";
 
 const SearchForm = () => {
@@ -69,10 +70,11 @@ const SearchForm = () => {
         }
       );
 
-      console.log(
-        response,
-        "response from the backend========================="
-      );
+      console.log("=== GET EXP SEARCH RESPONSE ===");
+      console.log("Payload sent to API:", response.data.payload);
+      console.log("Response from API:", response.data.response);
+      console.log("Full response data:", response.data);
+      console.log("=================================");
       if (response.statusText === "OK") {
         console.log("inside the if condition");
         const trips = response.data.data.Trips;
@@ -81,6 +83,30 @@ const SearchForm = () => {
         const TUI = response.data.data.TUI;
         console.log(TUI, "TUI=========================");
         localStorage.setItem("TUI", TUI);
+        
+        // Call WebSettings after ExpressSearch completes with the ExpressSearch TUI
+        try {
+          const { fetchWebSettings } = await import('../contexts/WebSettingsContext');
+          // We need to get the context instance, but since we're in a component,
+          // we'll call WebSettings via the API directly
+          const webSettingsResponse = await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/api/flights/web-settings`,
+            {
+              ClientID: localStorage.getItem("ClientID"),
+              TUI: TUI // Use the ExpressSearch TUI
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+              }
+            }
+          );
+          console.log("WebSettings called with ExpressSearch TUI:", webSettingsResponse.data);
+        } catch (webSettingsError) {
+          console.error("Error calling WebSettings:", webSettingsError);
+        }
+        
         navigate("/flight-list");
       }
     } catch (error) {
@@ -141,12 +167,8 @@ const SearchForm = () => {
       token: token,
     };
     console.log(payload, "payload to the backend========================= 221");
-    localStorage.removeItem("trips");
-    localStorage.removeItem("TUI");
-    localStorage.removeItem("pricerTUI");
-    localStorage.removeItem("pricerData");
-    localStorage.removeItem("searchTUI");
-    localStorage.removeItem("searchPayload");
+    // Clear previous search data to prevent conflicts
+    clearSearchData();
     localStorage.setItem("searchPayload", JSON.stringify(payload));
     try {
       const response = await fetch(
@@ -162,7 +184,11 @@ const SearchForm = () => {
         }
       );
       const data = await response.json();
-      console.log(data, "data from the backend========================= 221 express search");
+      console.log("=== EXPRESS SEARCH RESPONSE ===");
+      console.log("Payload sent to API:", data.payload);
+      console.log("Response from API:", data.response);
+      console.log("Full response data:", data);
+      console.log("===============================");
       const TUI = data.TUI;
       await getExpSearch(TUI);
       console.log(TUI, "TUI=========================");

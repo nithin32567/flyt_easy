@@ -1,0 +1,8 @@
+{
+  "TUI": "bc2614d7-c4a0-4be3-9c8f-ac9d56ab752f|388f6b39-dd7b-4d33-a93b-ffd4825a47c3|20250925180416",
+  "transactionID": 250035989,
+    "Code": "200",  
+  "Msg": [ "Success" ],
+  "CurrentStatus": "Success",
+  "PaymentStatus": "Success"
+} 

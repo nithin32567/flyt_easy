@@ -3,11 +3,8 @@ import fs from 'fs';
 import path from 'path';
 
 export const getPricer = async (req, res) => {
-  const { TUI, token, saveToFile } = req.body;
-  console.log("______________________________________________________________________________ get pricer function called")
+  const { TUI, token, saveToFile, ClientID } = req.body;
 
-  console.log(TUI, 'TUI get pricer controller*****************');
-  // console.log(token, 'token get pricer controller*****************');
   try {
     const headers = {
       "Content-Type": "application/json",
@@ -15,33 +12,28 @@ export const getPricer = async (req, res) => {
     }
     const payload = {
       TUI: TUI,
-      ClientID: ""
+      ClientID: ClientID || ""
     }
 
-    console.log(payload, "payload get pricer controller");
     const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/GetSPricer`, payload, { headers })
 
-    // console.log(response, 'response get pricer controller*****************');
     const data = await response.data;
-    console.log(data, '=================  ******************data get pricer controller');
+    console.log("[GetSPricer] Payload:", JSON.stringify(payload, null, 2));
+    console.log("[GetSPricer] Response.data:", JSON.stringify(data, null, 2));
 
-    // Save to file if requested
     if (saveToFile) {
       try {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const filename = `getPricer_${TUI}_${timestamp}.json`;
         const filepath = path.join(process.cwd(), 'api_request_response', filename);
         
-        // Ensure directory exists
         const dir = path.dirname(filepath);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
         }
         
-        // Save the complete response data
         fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
         
-        console.log(`Complete getPricer data saved to: ${filepath}`);
         
         return res.status(200).json({
           Code: "200",
@@ -51,7 +43,6 @@ export const getPricer = async (req, res) => {
         });
       } catch (fileError) {
         console.error("Error saving file:", fileError);
-        // Continue with normal response even if file save fails
       }
     }
 
@@ -61,7 +52,6 @@ export const getPricer = async (req, res) => {
       data: data
     })
   } catch (error) {
-    console.log(error, 'error get pricer controller*****************');
     return res.status(400).json({
       Code: "400",
       Msg: "Something went wrong, Please try again!!!",

@@ -1,0 +1,29 @@
+{
+  "TUI": "efde68d4-8ec2-4c10-8ce3-768c159ab006|5959f0db-2130-4bd9-b344-f94985575d50|20250925225343",
+  "From": null,
+  "To": null,
+  "FromName": null,
+  "ToName": null,
+  "OnwardDate": null,
+  "ReturnDate": null,
+  "ADT": 0,
+  "CHD": 0,
+  "INF": 0,
+  "YTH": 0,
+  "NetAmount": 0,
+  "GrossAmount": 0,
+  "InsPremium": 0,
+  "FareType": null,
+  "Hold": false,
+  "HoldInfo": null,
+  "AlternateTrips": null,
+  "Trips": null,
+  "Rules": null,
+  "SSR": null,
+  "IsPrivateFare": false,
+  "CeilingInfo": "",
+  "Code": "200",
+  "Msg": [
+    "Success"
+  ]
+}

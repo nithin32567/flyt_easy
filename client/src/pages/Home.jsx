@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import googleplay from "../assets/img/googleplay.png";
 import appstore from "../assets/img/appstore.png";
@@ -10,8 +10,25 @@ import FlightHotelWearchWrapper from "../components/flight-hotel-search-wrapper"
 import UnveilMagicCarousal from "../components/UnveilMagicCarousal";
 import FlightLogosCarousal from "../components/FlightLogosCarousal";
 import HomeBotttom from "../components/HomeBotttom";
+import { clearSearchData, clearAllBookingData, debugLocalStorage } from "../utils/clearBookingData";
 
 const Home = () => {
+  // Clear any stale booking data when home page loads
+  useEffect(() => {
+    clearSearchData();
+    console.log('✅ Cleared search data on home page load');
+  }, []);
+
+  // Debug functions for testing
+  const handleDebugLocalStorage = () => {
+    debugLocalStorage();
+  };
+
+  const handleClearAllData = () => {
+    clearAllBookingData();
+    alert('All booking data cleared! Check console for details.');
+  };
+
   return (
     <>
       <BannerWrapper />
@@ -55,7 +72,16 @@ const Home = () => {
         </div>
       </div>
       <HomeBotttom />
-     
+      
+      {/* Debug buttons - remove in production */}
+      <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 9999, background: 'white', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
+        <button onClick={handleDebugLocalStorage} style={{ margin: '5px', padding: '5px 10px', background: '#007bff', color: 'white', border: 'none', borderRadius: '3px' }}>
+          Debug localStorage
+        </button>
+        <button onClick={handleClearAllData} style={{ margin: '5px', padding: '5px 10px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '3px' }}>
+          Clear All Data
+        </button>
+      </div>
     </>
   );
 };

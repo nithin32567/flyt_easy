@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { clearBookingData } from '../utils/clearBookingData';
 
 const BookingConfirmation = () => {
   const navigate = useNavigate();
@@ -16,9 +17,8 @@ const BookingConfirmation = () => {
   }, [navigate]);
 
   const handleNewBooking = () => {
-    // Clear booking data and redirect to search
-    localStorage.removeItem('bookingSuccess');
-    localStorage.removeItem('oneWayReviewData');
+    // Clear all booking-related localStorage items to prevent conflicts
+    clearBookingData();
     navigate('/search');
   };
 

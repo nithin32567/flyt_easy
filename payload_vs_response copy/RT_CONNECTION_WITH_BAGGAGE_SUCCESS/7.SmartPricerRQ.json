@@ -1,0 +1,21 @@
+{
+  "Trips": [
+    {
+      "Amount": 22312,
+      "Index": "6E|181",
+      "OrderID": "1",
+      "TUI": "34b9dfca-6569-4ba5-bb10-61baa1febc23|a9820f05-c13d-4cca-887f-cabf6232c9e7|20250925213826"
+    },
+    {
+      "Amount": 18788,
+      "Index": "6E|249",
+      "OrderID": "2",
+      "TUI": "34b9dfca-6569-4ba5-bb10-61baa1febc23|a9820f05-c13d-4cca-887f-cabf6232c9e7|20250925213826"
+    }
+  ],
+  "ClientID": "FVI6V120g22Ei5ztGK0FIQ==",
+  "Mode": "AS",
+  "Options": "",
+  "Source": "SF",
+  "TripType": "RT"
+}

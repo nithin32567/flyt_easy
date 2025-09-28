@@ -36,6 +36,8 @@ export default function TravellerAddModal({
       onClick={handleBackdropClick}
     >
       <div className="relative bg-white rounded-lg border max-w-sm w-full mx-4">
+
+        
         <div className="p-4">
           <div className="flex justify-between items-center mb-4">
             <span className="font-semibold text-base">TRAVELLERS & CLASS</span>

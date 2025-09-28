@@ -1,0 +1,33 @@
+{
+  "FareType": "ON",
+  "ADT": 2,
+  "CHD": 2,
+  "INF": 2,
+  "Cabin": "E",
+  "Source": "CF",
+  "Mode": "AS",
+  "ClientID": "FVI6V120g22Ei5ztGK0FIQ==",
+  "IsMultipleCarrier": false,
+  "IsRefundable": false,
+  "preferedAirlines": null,
+  "TUI": "",
+  "SecType": "",
+  "Trips": [
+    {
+      "From": "BOM",
+      "To": "DEL",
+      "ReturnDate": "",
+      "OnwardDate": "2025-09-25",
+      "TUI": ""
+    }
+  ],
+  "Parameters": {
+    "Airlines": "",
+    "GroupType": "",
+    "Refundable": "",
+    "IsDirect": true,
+    "IsStudentFare": false,
+    "IsNearbyAirport": false,
+    "IsExtendedSearch": false
+  }
+}

@@ -59,6 +59,13 @@ const TravelerDetailsModal = ({ isOpen, setIsOpen, onSave, traveler, isEdit = fa
     }
   };
 
+  // Re-validate age when passenger type changes
+  useEffect(() => {
+    if (touched.Age && travelerData.Age) {
+      validateFieldRealTime('Age', travelerData.Age);
+    }
+  }, [travelerData.PTC]);
+
   const handleBlur = (field, value) => {
     setTouched(prev => ({ ...prev, [field]: true }));
     validateFieldRealTime(field, value);
@@ -69,7 +76,7 @@ const TravelerDetailsModal = ({ isOpen, setIsOpen, onSave, traveler, isEdit = fa
 
     switch (field) {
       case 'Age':
-        validationResult = validateField(field, value, 'age');
+        validationResult = validateField(field, value, 'age', travelerData.PTC);
         break;
       case 'DOB':
         validationResult = validateField(field, value, 'dob');

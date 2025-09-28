@@ -1,0 +1,10 @@
+{
+  "TUI": "efde68d4-8ec2-4c10-8ce3-768c159ab006|8b317828-3895-4a78-b41a-4d0cf8688892|20250925225244",
+  "Completed": "True",
+  "CeilingInfo": null,
+  "CurrencyCode": "INR",
+  "Notices": null,
+  "Trips": [{"Journey": ["Array"]}, {"Journey": ["Array"]}],
+  "Code": "200",
+  "Msg": ["Success"]
+}

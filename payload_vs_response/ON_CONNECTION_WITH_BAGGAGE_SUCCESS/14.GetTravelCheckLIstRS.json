@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "data": {
+    "TUI": "adaef287-3376-4087-a3ee-eb88fc9c2790|0d67ec1c-38da-4adb-96d1-45dff4c494e9|20250925200952",
+    "Code": "200",
+    "Msg": [  
+      "Success"
+    ],
+    "TravellerCheckList": [
+      {
+        "Nationality": 1,
+        "VisaType": 1,
+        "PDOE": 1,
+        "PLI": 1,
+        "PassportNo": 1,
+        "DOB": 1,
+        "PDOI": 1,
+        "PANNo": 0,
+        "EmigCheck": 0
+      }
+    ],
+    "SSRCheckList": {
+      "Trips": [
+        null
+      ]
+    },
+    "FnuLnuSettings": [
+      {
+        "AirlineCode": "6E",
+        "TitleMandatory": true,
+        "Fnumessage": "Please enter your First Name. If First Name is not available then please enter your last name twice both in last name and first name column",
+        "Lnumessage": "Please enter your Last Name. If the last name is not available, enter the first name again in the last name field, to proceed further with the booking"
+      }
+    ],
+    "IsHRMSMandatory": false
+  },
+  "message": "Travel checklist retrieved successfully"
+}

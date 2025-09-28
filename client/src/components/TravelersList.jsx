@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, User } from 'lucide-react';
+import { Plus, Edit, Trash2, User, Database, RefreshCw } from 'lucide-react';
 import TravelerDetailsModal from './modals/TravelerDetailsModal';
+import { generateDummyTravelers, generateRandomDummyTravelers } from '../utils/dummyTravelerData';
 
-const TravelersList = ({ travelers, onTravelersChange }) => {
+const TravelersList = ({ travelers, onTravelersChange, searchPayload }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedTraveler, setSelectedTraveler] = useState(null);
@@ -34,6 +35,25 @@ const TravelersList = ({ travelers, onTravelersChange }) => {
     setShowEditModal(true);
   };
 
+  // Load dummy data based on search payload
+  const handleLoadDummyData = () => {
+    if (searchPayload) {
+      const dummyTravelers = generateDummyTravelers(searchPayload);
+      onTravelersChange(dummyTravelers);
+    } else {
+      // If no search payload, load some default dummy data
+      const dummyTravelers = generateRandomDummyTravelers(2, 1, 0); // 2 adults, 1 child
+      onTravelersChange(dummyTravelers);
+    }
+  };
+
+  // Clear all travelers
+  const handleClearAllTravelers = () => {
+    if (window.confirm('Are you sure you want to clear all travelers?')) {
+      onTravelersChange([]);
+    }
+  };
+
   const getGenderDisplay = (gender) => {
     switch (gender) {
       case 'M': return 'Male';
@@ -56,21 +76,57 @@ const TravelersList = ({ travelers, onTravelersChange }) => {
     <div className="max-w-6xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Travelers</h2>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-[#f48f22] hover:bg-[#16437c] text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Add Traveler
-          </button>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">Travelers</h2>
+            {travelers.length > 0 && travelers.some(t => !t.FName || !t.LName) && (
+              <p className="text-sm text-gray-600 mt-1">
+                Travelers have been pre-filled based on your search. Click "Edit" on each traveler to fill in their details.
+              </p>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleLoadDummyData}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
+              title="Load dummy data for testing"
+            >
+              <Database className="w-4 h-4" />
+              Load Dummy Data
+            </button>
+            {travelers.length > 0 && (
+              <button
+                onClick={handleClearAllTravelers}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
+                title="Clear all travelers"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Clear All
+              </button>
+            )}
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="bg-[#f48f22] hover:bg-[#16437c] text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add Traveler
+            </button>
+          </div>
         </div>
 
         {travelers.length === 0 ? (
           <div className="text-center py-8">
             <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-600 mb-2">No travelers added yet</h3>
-            <p className="text-gray-500">Click "Add Traveler" to get started</p>
+            <p className="text-gray-500 mb-4">Click "Add Traveler" to get started or use "Load Dummy Data" for testing</p>
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={handleLoadDummyData}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
+              >
+                <Database className="w-4 h-4" />
+                Load Dummy Data
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
@@ -87,6 +143,9 @@ const TravelersList = ({ travelers, onTravelersChange }) => {
                       </div>
                       <h3 className="text-lg font-semibold text-gray-800">
                         {traveler.Title} {traveler.FName} {traveler.LName}
+                        {(!traveler.FName || !traveler.LName) && (
+                          <span className="text-sm text-orange-600 ml-2">(Click Edit to fill details)</span>
+                        )}
                       </h3>
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
                         {getPtcDisplay(traveler.PTC)}

@@ -39,6 +39,7 @@ export const generateToken = async (req, res) => {
       success: true,
       token: token,
       ClientID: data?.ClientID,
+      TUI: data?.TUI, // Include TUI from signature response
       message: "Token generated successfully",
     });
   } catch (err) {

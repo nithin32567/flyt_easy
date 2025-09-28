@@ -8,6 +8,8 @@ import { validateItinerary } from '../utils/validation';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import PaymentButton from '../components/PaymentButton';
+import TravelCheckListDisplay from '../components/TravelCheckListDisplay';
+import { useWebSettingsData } from '../hooks/useWebSettingsData';
 
 const Createitenary = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -25,48 +27,128 @@ const Createitenary = () => {
   // const reviewData = JSON.parse(localStorage.getItem("oneWayReviewData"));
   const netAmount = localStorage.getItem("netamount") // Use the exact value without parsing
   const [itenarySuccess, setItenarySuccess] = useState(false);
+  const [travelCheckListData, setTravelCheckListData] = useState(null);
   const navigate = useNavigate();
+  
+  // Get search payload to determine traveler count
+  const searchPayloadString = localStorage.getItem("searchPayload");
+  const searchPayload = searchPayloadString ? JSON.parse(searchPayloadString) : null;
+  
+  // WebSettings hook for airline feature support
+  const { isAirlineSupported, getAirlineFeatures, webSettings } = useWebSettingsData();
 
-  // Debug logging
-  console.log('PricerDataString from localStorage:', pricerDataString);
-  console.log('PricerData:', pricerData);
-  console.log('NetAmount from localStorage:', netAmount, 'Type:', typeof netAmount);
-  console.log('Original pricerData.NetAmount:', pricerData?.NetAmount, 'Type:', typeof pricerData?.NetAmount);
-  console.log('PricerTUI from localStorage:', pricerTUI);
+  // Function to generate travelers based on search payload
+  const generateTravelersFromSearchPayload = () => {
+    if (!searchPayload) return [];
+    
+    const generatedTravelers = [];
+    let travelerId = 1;
+    
+    // Add adults
+    for (let i = 0; i < searchPayload.ADT; i++) {
+      generatedTravelers.push({
+        ID: travelerId++,
+        Title: '',
+        FName: '',
+        LName: '',
+        PTC: 'ADT',
+        Age: '',
+        Gender: '',
+        Nationality: '',
+        DOB: '',
+        PassportNo: '',
+        PLI: '',
+        PDOE: '',
+        VisaType: ''
+      });
+    }
+    
+    // Add children
+    for (let i = 0; i < searchPayload.CHD; i++) {
+      generatedTravelers.push({
+        ID: travelerId++,
+        Title: '',
+        FName: '',
+        LName: '',
+        PTC: 'CHD',
+        Age: '',
+        Gender: '',
+        Nationality: '',
+        DOB: '',
+        PassportNo: '',
+        PLI: '',
+        PDOE: '',
+        VisaType: ''
+      });
+    }
+    
+    // Add infants
+    for (let i = 0; i < searchPayload.INF; i++) {
+      generatedTravelers.push({
+        ID: travelerId++,
+        Title: '',
+        FName: '',
+        LName: '',
+        PTC: 'INF',
+        Age: '',
+        Gender: '',
+        Nationality: '',
+        DOB: '',
+        PassportNo: '',
+        PLI: '',
+        PDOE: '',
+        VisaType: ''
+      });
+    }
+    
+    return generatedTravelers;
+  };
+
 
   // Use the TUI from pricerData (GetPricer response) instead of the old pricerTUI
   const currentTUI = pricerData?.TUI || pricerTUI;
-  console.log('Current TUI being used:', currentTUI);
-  console.log('PricerData TUI:', pricerData?.TUI);
-  console.log('PricerTUI from localStorage:', pricerTUI);
   
   // Use NetAmount directly from pricerData to avoid any conversion issues
   const netAmountNumber = pricerData?.NetAmount || (netAmount ? Number(netAmount) : 0);
   
-  // Validate data in useEffect to avoid setState during render
+  // Calculate total amount including SSR services
+  const calculateTotalAmount = () => {
+    const baseAmount = netAmountNumber;
+    const paidSSRServices = selectedSSRServices.filter(service => service.Charge > 0);
+    // Since SSR is applied to first passenger only, don't multiply by travelers.length
+    const ssrAmount = paidSSRServices.reduce((total, service) => {
+      const amount = service.SSRNetAmount || service.Charge;
+      return total + amount; // Don't multiply by travelers.length
+    }, 0);
+    return baseAmount + ssrAmount;
+  };
+  
+  const totalAmountWithSSR = calculateTotalAmount();
+  
+  
+  // Validate data and generate travelers in useEffect to avoid setState during render
   useEffect(() => {
-    console.log('Validating data in useEffect...');
-    console.log('PricerData exists:', !!pricerData);
-    console.log('PricerData.TUI exists:', !!pricerData?.TUI);
-    console.log('PricerTUI exists:', !!pricerTUI);
     
     if (!pricerData) {
-      console.error('Missing pricerData - localStorage item is null or invalid JSON');
       alert('Missing pricing data. Please try searching for flights again.');
       navigate('/');
       return;
     }
     
     if (!pricerData.TUI && !pricerTUI) {
-      console.error('Missing TUI in both pricerData and pricerTUI');
       alert('Missing pricing TUI. Please try searching for flights again.');
       navigate('/');
       return;
     }
     
-    console.log('Data validation passed, setting isDataValid to true');
+    // Generate travelers based on search payload if travelers array is empty
+    if (travelers.length === 0 && searchPayload) {
+      const generatedTravelers = generateTravelersFromSearchPayload();
+      setTravelers(generatedTravelers);
+    }
+    
     setIsDataValid(true);
-  }, [pricerData, pricerTUI, navigate]);
+  }, [pricerData, pricerTUI, navigate, searchPayload, travelers.length]);
 
   // proper date validation with current date should be added 
 
@@ -93,8 +175,23 @@ const Createitenary = () => {
   const fetchSSRServices = async () => {
     if (!currentTUI) return;
     
+    // Check if session is too old (more than 30 minutes)
+    const sessionStartTime = localStorage.getItem('sessionStartTime');
+    if (sessionStartTime) {
+      const sessionAge = Date.now() - parseInt(sessionStartTime);
+      const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
+      
+      if (sessionAge > thirtyMinutes) {
+        alert('Your session has expired. Please search for flights again to get fresh pricing.');
+        navigate('/');
+        return;
+      }
+    }
+    
     setLoadingSSR(true);
     try {
+      // WebSettings is now called after ExpressSearch, no need to call it here
+      
       const ssrPayload = {
         TUI: currentTUI,
         PaidSSR: true, // Always request paid SSR services when fetching
@@ -102,10 +199,8 @@ const Createitenary = () => {
         Amount: netAmountNumber // Pass the NetAmount from GetSPricer
       };
       
-      console.log('SSR Request Payload:', ssrPayload);
-      console.log('PricerData FareType:', pricerData?.FareType);
-      console.log('Current TUI:', currentTUI);
-      console.log('PricerData:', pricerData);
+      console.log("=== SSR API CALL (fetchSSRServices) ===");
+      console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
       
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
@@ -117,30 +212,34 @@ const Createitenary = () => {
           }
         }
       );
-
-      console.log(response.data, '================================= response create itinerary');
-      console.log('SSR Response structure:', {
-        success: response.data.success,
-        hasData: !!response.data.data,
-        servicesLength: response.data.data?.services?.length,
-        services: response.data.data?.services
-      });
+      
+      console.log("SSR Response Data:", JSON.stringify(response.data, null, 2));
+      console.log("=====================================");
 
       if (response.data.success) {
         const services = response.data.data.services || [];
-        console.log('Setting SSR services:', services);
         setAvailableSSRServices(services);
-      } else {
-        console.error('Failed to fetch SSR services:', response.data.message);
       }
     } catch (error) {
-      console.error('Error fetching SSR services:', error);
+      // Error fetching SSR services
     } finally {
       setLoadingSSR(false);
     }
   };
 
   const handleSSRToggle = (enabled) => {
+    // Check if airline supports SSR before enabling
+    if (enabled && pricerData?.Trips) {
+      const trip = pricerData.Trips[0]; // Get first trip
+      const airlineCode = trip?.Segments?.[0]?.AirlineCode;
+      const isDomestic = trip?.IsDomestic;
+      
+      if (airlineCode && !isAirlineSupported(airlineCode, 'SSR', isDomestic)) {
+        alert(`SSR services are not available for ${airlineCode} airline`);
+        return;
+      }
+    }
+    
     setSsrEnabled(enabled);
     if (enabled) {
       fetchSSRServices();
@@ -151,38 +250,27 @@ const Createitenary = () => {
   };
 
   const handleSSRServiceSelection = (services) => {
-    console.log('SSR Service Selection Changed:', services);
     setSelectedSSRServices(services);
-    
-    // Calculate total SSR amount
-    const totalSSRAmount = services.reduce((total, service) => {
-      const amount = service.SSRNetAmount || service.Charge || 0;
-      return total + (amount * travelers.length); // Multiply by number of passengers
-    }, 0);
-    
-    console.log('Total SSR Amount for', travelers.length, 'passengers:', totalSSRAmount);
   };
 
   // Handle SSR fare changes
   const handleSSRFareChange = (message) => {
     if (message && message.includes('change in the ssr fare')) {
-      const match = message.match(/Previous Amt:-(\d+)\s*\|\s*New Amt:-(\d+)/);
+      const match = message.match(/Previous Amt:-?(\d+\.?\d*)\s*\|\s*New Amt:-?(\d+\.?\d*)/);
       if (match) {
-        const previousAmount = parseInt(match[1]);
-        const newAmount = parseInt(match[2]);
+        const previousAmount = parseFloat(match[1]);
+        const newAmount = parseFloat(match[2]);
         const difference = newAmount - previousAmount;
         
-        console.log('SSR Fare Change Detected:', {
-          previous: previousAmount,
-          new: newAmount,
-          difference: difference
-        });
-        
-        // Show user-friendly message
-        const userMessage = `SSR fare has changed by ₹${difference.toLocaleString()}. ` +
+        // Show user-friendly message with better guidance
+        const userMessage = `SSR fare has changed by ₹${Math.abs(difference).toLocaleString()}. ` +
           `Previous amount: ₹${previousAmount.toLocaleString()}, ` +
           `New amount: ₹${newAmount.toLocaleString()}. ` +
-          `You can proceed with the new fare or select a different flight.`;
+          `\n\nThis usually happens when:\n` +
+          `• The pricing session has expired\n` +
+          `• The airline has updated their SSR prices\n` +
+          `• There's a temporary pricing issue\n\n` +
+          `Please try refreshing the page and selecting your services again, or choose a different flight.`;
         
         return userMessage;
       }
@@ -204,6 +292,19 @@ const Createitenary = () => {
     setValidationErrors(validation.errors);
 
     if (validation.isValid) {
+      // Check if session is too old (more than 30 minutes)
+      const sessionStartTime = localStorage.getItem('sessionStartTime');
+      if (sessionStartTime) {
+        const sessionAge = Date.now() - parseInt(sessionStartTime);
+        const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
+        
+        if (sessionAge > thirtyMinutes) {
+          alert('Your session has expired. Please search for flights again to get fresh pricing.');
+          navigate('/');
+          return;
+        }
+      }
+      
       // Additional validation for required data
       if (!currentTUI) {
         alert('Missing pricing data. Please try searching for flights again.');
@@ -220,7 +321,6 @@ const Createitenary = () => {
         Travellers: travelers
       };
 
-      console.log('Itinerary Data:', itineraryData);
       try {
         const headers = {
           "Content-Type": "application/json",
@@ -228,19 +328,22 @@ const Createitenary = () => {
         }
 
         // Get fresh pricing data to ensure NetAmount is correct
-        console.log('Getting fresh pricing data for TUI:', currentTUI);
-        console.log('Current stored NetAmount:', netAmountNumber);
-        console.log('PricerData from localStorage:', pricerData);
         
         let finalNetAmount = netAmountNumber;
         try {
-          console.log('Making fresh getPricer API call...');
+          const payload = {
+            TUI: currentTUI,
+            token: localStorage.getItem("token"),
+            ClientID: localStorage.getItem("ClientID")
+          };
+          
+          console.log("=== GET PRICER API CALL (CreateItinerary) ===");
+          console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
+          console.log("=============================================");
+          
           const pricingResponse = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`,
-            {
-              TUI: currentTUI,
-              token: localStorage.getItem("token")
-            },
+            payload,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -249,36 +352,107 @@ const Createitenary = () => {
             }
           );
 
-          console.log('Pricing response:', pricingResponse.data);
+          console.log("=== GET PRICER API RESPONSE (CreateItinerary) ===");
+          console.log("Response Status:", pricingResponse.status);
+          console.log("Response Headers:", pricingResponse.headers);
+          console.log("Response Data:", JSON.stringify(pricingResponse.data, null, 2));
+          console.log("Full Response Object:", pricingResponse);
+          console.log("===============================================");
           
           if (pricingResponse.data.Code === "200" && pricingResponse.data.data) {
             finalNetAmount = Number(pricingResponse.data.data.NetAmount) || netAmountNumber;
-            console.log('Fresh NetAmount from API:', finalNetAmount);
-            console.log('Fresh NetAmount type:', typeof finalNetAmount);
-            console.log('API response data:', pricingResponse.data.data);
             
             // Update localStorage with fresh data
             localStorage.setItem("pricerData", JSON.stringify(pricingResponse.data.data));
             localStorage.setItem("netamount", pricingResponse.data.data.NetAmount.toString());
-          } else {
-            console.log('Using stored NetAmount:', netAmountNumber);
-            console.log('Response code:', pricingResponse.data.Code);
-            console.log('Response data:', pricingResponse.data.data);
           }
         } catch (pricingError) {
-          console.error('Error getting fresh pricing:', pricingError);
-          console.log('Using stored NetAmount as fallback:', netAmountNumber);
+          console.log("=== GET PRICER API ERROR (CreateItinerary) ===");
+          console.error("Error calling get-pricer API:", pricingError);
+          console.log("Error object:", JSON.stringify(pricingError, null, 2));
+          console.log("=============================================");
+          // Error getting fresh pricing, using stored amount
+        }
+
+        // Get Travel Check List after getPricer (REQUIRED before CreateItinerary)
+        let travelCheckListData = null;
+        try {
+          const checkListPayload = {
+            TUI: currentTUI,
+            ClientID: localStorage.getItem("ClientID")
+          };
+          
+          
+          const checkListResponse = await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/api/flights/get-travel-check-list`,
+            checkListPayload,
+            { headers }
+          );
+          
+          
+          if (checkListResponse.data.success) {
+            travelCheckListData = checkListResponse.data.data;
+            setTravelCheckListData(travelCheckListData);
+            
+            // Store travel checklist data for potential use
+            localStorage.setItem("travelCheckList", JSON.stringify(travelCheckListData));
+          } else {
+          }
+        } catch (checkListError) {
+          console.error('Failed to fetch travel checklist', {
+            message: checkListError.message,
+            response: checkListError.response?.data,
+            status: checkListError.response?.status
+          });
+          // Continue with CreateItinerary even if travel checklist fails
+        }
+
+        // Refresh SSR services to get updated pricing before creating itinerary
+        let updatedSSRServices = selectedSSRServices;
+        if (selectedSSRServices.length > 0) {
+          try {
+            
+            // WebSettings is now called after ExpressSearch, no need to call it here
+            
+            const ssrPayload = {
+              TUI: currentTUI,
+              PaidSSR: true,
+              FareType: pricerData?.FareType || "ON",
+              Amount: finalNetAmount
+            };
+            
+            console.log("=== SSR API CALL (handleSubmit - refresh SSR) ===");
+            console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
+            
+            const ssrResponse = await axios.post(
+              `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
+              ssrPayload,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+              }
+            );
+            
+            console.log("SSR Response Data:", JSON.stringify(ssrResponse.data, null, 2));
+            console.log("==================================================");
+
+            if (ssrResponse.data.success) {
+              const freshServices = ssrResponse.data.data.services || [];
+              // Update selected services with fresh pricing
+              updatedSSRServices = selectedSSRServices.map(selectedService => {
+                const freshService = freshServices.find(service => service.ID === selectedService.ID);
+                return freshService || selectedService;
+              });
+            }
+          } catch (ssrError) {
+          }
         }
 
         // Filter out free services (Charge: 0) - only send paid services
-        const paidSSRServices = selectedSSRServices.filter(service => service.Charge > 0);
-        // Calculate SSR amount - each service is applied per passenger
-        const ssrAmount = paidSSRServices.reduce((total, service) => {
-          const amount = service.SSRNetAmount || service.Charge;
-          const totalForService = amount * travelers.length; // Multiply by number of passengers
-          console.log(`SSR Service ${service.Code}: Charge=${service.Charge}, SSRNetAmount=${service.SSRNetAmount}, Using=${amount}, Total for ${travelers.length} passengers=${totalForService}`);
-          return total + totalForService;
-        }, 0);
+        const paidSSRServices = updatedSSRServices.filter(service => service.Charge > 0);
+        // Note: SSR amount will be calculated by the API based on SSR data
         
         // Convert SSR services to the correct format for the API
         // The API expects SSR array with FUID, PaxID, and SSID fields
@@ -305,87 +479,131 @@ const Createitenary = () => {
           });
         }
         
-        console.log('FUID Mapping from pricer data:', fuidMapping);
         
         // If no FUID mapping found, use default values based on trip type
         const defaultFUIDs = pricerData?.FareType === 'RT' ? [1, 2] : [1];
         
+        // Apply SSR services per passenger selection
+        // If user selected 1 baggage, it should only apply to 1 passenger, not all
         paidSSRServices.forEach(service => {
-          travelers.forEach((traveler, index) => {
-            // For round trip, assign SSR to both flights (FUID 1 and 2)
-            // For one way, assign to FUID 1
-            const fuidToUse = defaultFUIDs.length > 1 ? 
-              (index % 2 === 0 ? defaultFUIDs[0] : defaultFUIDs[1]) : 
-              defaultFUIDs[0];
-              
-            ssrForAPI.push({
-              FUID: fuidToUse, // Flight Unique ID from pricer data
-              PaxID: traveler.ID || (index + 1), // Passenger ID - use traveler.ID if available, otherwise 1-based index
-              SSID: service.ID // SSR Service ID
-            });
+          // For now, apply the service to the first passenger only
+          // This matches the user's expectation: "1 baggage for 1 passenger"
+          const firstTraveler = travelers[0];
+          const fuidToUse = defaultFUIDs[0]; // Use first FUID for simplicity
+          
+          ssrForAPI.push({
+            FUID: fuidToUse, // Flight Unique ID from pricer data
+            PaxID: firstTraveler.ID || 1, // Apply to first passenger only
+            SSID: service.ID // SSR Service ID
           });
         });
         
-        console.log('Total SSR Amount calculated:', ssrAmount);
-        console.log('Paid SSR Services:', paidSSRServices);
-        console.log('SSR for API:', ssrForAPI);
         
+        // Calculate SSR amount - since we're applying to first passenger only, 
+        // the amount should be the cost of one service, not multiplied by passengers
+        const ssrAmount = paidSSRServices.reduce((total, service) => {
+          const serviceAmount = service.SSRNetAmount || service.Charge || 0;
+          return total + serviceAmount;
+        }, 0);
+        
+
+        // Get additional pricing data from localStorage
+        const storedPricerData = localStorage.getItem("pricerData");
+        const freshPricerData = storedPricerData ? JSON.parse(storedPricerData) : null;
+        
+        // Calculate passenger counts
+        const passengerCounts = travelers.reduce((counts, traveler) => {
+          counts[traveler.PTC] = (counts[traveler.PTC] || 0) + 1;
+          return counts;
+        }, {});
+
+        // Calculate AirlineNetFare (NetAmount - SSRAmount)
+        const airlineNetFare = finalNetAmount - ssrAmount;
+        
+        // Calculate GrossAmount (NetAmount + any additional charges)
+        const grossAmount = finalNetAmount;
+
         const payload = {
           TUI: currentTUI,
           ContactInfo: contactInfo,
           Travellers: travelers,
-          NetAmount: finalNetAmount,
+          PLP: null,
           SSR: ssrForAPI,
+          CrossSell: [],
+          NetAmount: finalNetAmount,
           SSRAmount: ssrAmount,
-          ClientID: ""  // Set to empty string to match sample data
-        }
+          ClientID: "",
+          DeviceID: "",
+          AppVersion: "",
+          CrossSellAmount: 0
+        };
 
-        // Double-check that we're using the correct NetAmount
-        console.log('Final payload NetAmount:', payload.NetAmount);
-        console.log('Final payload NetAmount type:', typeof payload.NetAmount);
-
-        console.log('Sending payload with NetAmount:', finalNetAmount, 'Type:', typeof finalNetAmount);
-        console.log('Full payload:', payload);
-        console.log('Original pricerData NetAmount:', pricerData?.NetAmount, 'Type:', typeof pricerData?.NetAmount);
-        console.log('TUI being sent:', currentTUI);
-        console.log('Final NetAmount being sent:', finalNetAmount);
+        console.log("=== CREATE ITINERARY FINAL PAYLOAD (FRONTEND) ===");
+        console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
+        console.log("=============================================");
         
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/create-itinerary`, payload, { headers });
-        console.log(response.data, '================================= response create itinerary');
+        
+        console.log("=== CREATE ITINERARY RESPONSE (FRONTEND) ===");
+        console.log("Response Status:", response.status);
+        console.log("Response Headers:", response.headers);
+        console.log("Response Data:", JSON.stringify(response.data, null, 2));
+        console.log("Full Response Object:", response);
+        console.log("==========================================");
+        
         
         if (response.data.success) {
+          
           localStorage.setItem("TransactionID", response.data.data.TransactionID);
-          // Store the TUI returned from CreateItinerary response for use in StartPay
           if (response.data.data.TUI) {
             localStorage.setItem("itineraryTUI", response.data.data.TUI);
-            console.log('Stored itinerary TUI:', response.data.data.TUI);
           }
           setItenarySuccess(true);
         } else {
-          console.error('API Error:', response.data.message);
-          console.error('Error Code:', response.data.errorCode);
-          console.error('Full Error Response:', response.data);
           
           // Handle SSR fare change messages
           const errorMessage = response.data.message || 'Unknown error';
           const userFriendlyMessage = handleSSRFareChange(errorMessage);
           
+          // Check if it's an SSR fare change error and offer retry
+          if (errorMessage.includes('change in the ssr fare')) {
+            const shouldRetry = confirm(`${userFriendlyMessage}\n\nWould you like to retry with updated pricing?`);
+            if (shouldRetry) {
+              // Clear selected SSR services and refresh
+              setSelectedSSRServices([]);
+              setSsrEnabled(false);
+              // Refresh the page to get fresh pricing
+              window.location.reload();
+              return;
+            }
+          }
+          
           alert(`Failed to create itinerary: ${userFriendlyMessage}`);
         }
 
       } catch (error) {
-        console.log(error, '================================= error');
-        console.log('Error response:', error.response?.data);
         const errorMessage = error.response?.data?.message || error.message || 'Failed to create itinerary';
         
         // Handle SSR fare change messages in catch block too
         const userFriendlyMessage = handleSSRFareChange(errorMessage);
         
+        // Check if it's an SSR fare change error and offer retry
+        if (errorMessage.includes('change in the ssr fare')) {
+          const shouldRetry = confirm(`${userFriendlyMessage}\n\nWould you like to retry with updated pricing?`);
+          if (shouldRetry) {
+            // Clear selected SSR services and refresh
+            setSelectedSSRServices([]);
+            setSsrEnabled(false);
+            // Refresh the page to get fresh pricing
+            window.location.reload();
+            return;
+          }
+        }
+        
         alert(`Error: ${userFriendlyMessage}`);
       }
     } else {
       // Show validation errors
-      console.log('Validation Errors:', validation.errors);
       alert('Please fix the validation errors before submitting.');
     }
   };
@@ -409,6 +627,7 @@ const Createitenary = () => {
             <TravelersList
               travelers={travelers}
               onTravelersChange={handleTravelersChange}
+              searchPayload={searchPayload}
             />
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row gap-4 justify-end">
@@ -568,7 +787,7 @@ const Createitenary = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className="font-semibold text-green-600">₹{(service.SSRNetAmount || service.Charge).toLocaleString()}{travelers.length > 1 ? ` × ${travelers.length} = ₹${((service.SSRNetAmount || service.Charge) * travelers.length).toLocaleString()}` : ''}</span>
+                            <span className="font-semibold text-green-600">₹{(service.SSRNetAmount || service.Charge).toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
@@ -577,8 +796,11 @@ const Createitenary = () => {
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-gray-700">Total Additional Services:</span>
                         <span className="font-bold text-green-600">
-                          ₹{selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge) * travelers.length, 0).toLocaleString()}
+                          ₹{selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge), 0).toLocaleString()}
                         </span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        * Applied to first passenger only. Final amount will be calculated by the airline
                       </div>
                     </div>
                   </div>
@@ -597,7 +819,7 @@ const Createitenary = () => {
                     <div className="flex justify-between">
                       <span className="text-blue-700">Additional Services:</span>
                       <span className="font-medium text-blue-800">
-                        ₹{selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge) * travelers.length, 0).toLocaleString()}
+                        ₹{selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge), 0).toLocaleString()}
                       </span>
                     </div>
                   )}
@@ -605,7 +827,7 @@ const Createitenary = () => {
                     <div className="flex justify-between font-bold">
                       <span className="text-blue-800">Total Amount:</span>
                       <span className="text-blue-800">
-                        ₹{(netAmountNumber + selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge) * travelers.length, 0)).toLocaleString()}
+                        ₹{(netAmountNumber + selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge), 0)).toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -631,7 +853,7 @@ const Createitenary = () => {
                   <div className="w-full sm:w-auto">
                     <PaymentButton
                       TUI={localStorage.getItem("itineraryTUI") || currentTUI}
-                      amount={netAmountNumber}
+                      amount={totalAmountWithSSR}
                       name={contactInfo.FName}
                       email={contactInfo.Email}
                       contact={contactInfo.Mobile}
@@ -666,7 +888,21 @@ const Createitenary = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Create Itinerary</h1>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">Enter contact information and add travelers for your trip</p>
+          {searchPayload && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Good news!</strong> We've automatically created {searchPayload.ADT + searchPayload.CHD + searchPayload.INF} traveler form{searchPayload.ADT + searchPayload.CHD + searchPayload.INF > 1 ? 's' : ''} based on your search selection 
+                ({searchPayload.ADT} Adult{searchPayload.ADT > 1 ? 's' : ''}{searchPayload.CHD > 0 ? `, ${searchPayload.CHD} Child${searchPayload.CHD > 1 ? 'ren' : ''}` : ''}{searchPayload.INF > 0 ? `, ${searchPayload.INF} Infant${searchPayload.INF > 1 ? 's' : ''}` : ''}). 
+                Just click "Edit" on each traveler to fill in their details, or use "Load Dummy Data" for quick testing.
+              </p>
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Travel Checklist Display */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <TravelCheckListDisplay travelCheckListData={travelCheckListData} />
       </div>
 
       {/* Step Indicator */}

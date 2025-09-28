@@ -1,0 +1,33 @@
+{
+  FareType: 'RT',
+  ADT: 2,
+  CHD: 2,
+  INF: 2,
+  Cabin: 'E',
+  Source: 'CF',
+  Mode: 'AS',
+  ClientID: 'FVI6V120g22Ei5ztGK0FIQ==',
+  IsMultipleCarrier: false,
+  IsRefundable: false,
+  preferedAirlines: null,
+  TUI: '',
+  SecType: '',
+  Trips: [
+    {
+      From: 'BOM',
+      To: 'DEL',
+      ReturnDate: '2025-10-08',
+      OnwardDate: '2025-09-30',
+      TUI: ''
+    }
+  ],
+  Parameters: {
+    Airlines: '',
+    GroupType: '',
+    Refundable: '',
+    IsDirect: false,
+    IsStudentFare: false,
+    IsNearbyAirport: false,
+    IsExtendedSearch: false
+  }
+}

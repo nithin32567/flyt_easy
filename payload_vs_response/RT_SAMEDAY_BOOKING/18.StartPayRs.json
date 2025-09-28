@@ -1,0 +1,16 @@
+{
+  "TUI": "efde68d4-8ec2-4c10-8ce3-768c159ab006|9ae7de72-7ac1-479e-b5a7-277b62dddea3|20250925225650",
+  "Code": "6033",
+  "Msg": ["BOOKING  INPROGRESS !"],
+  "PaymentID": null,
+  "TransactionID": 250036004,
+  "RedirectMode": "R",
+  "PostData": null,
+  "CRSPNR": null,
+  "BookStatus": null,
+  "TUTransactionID": 0,
+  "ClientID": "FVI6V120g22Ei5ztGK0FIQ==",
+  "GatewayCode": "",
+  "RedirectUrl": " https://b2bapiportal.benzyinfotech.com/flight/confirmation/efde68d4-8ec2-4c10-8ce3-768c159ab006|9ae7de72-7ac1-479e-b5a7-277b62dddea3|20250925225650/250036004",
+  "CFOrderId": null
+}

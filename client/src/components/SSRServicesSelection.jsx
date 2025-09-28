@@ -124,7 +124,7 @@ const SSRServicesSelection = ({
               Booking for {travelers.length} traveler{travelers.length > 1 ? 's' : ''}
             </div>
             <div className="text-xs text-blue-700">
-              Services will be applied to all passengers in your booking
+              Services will be applied to the first passenger only
             </div>
           </div>
         )}

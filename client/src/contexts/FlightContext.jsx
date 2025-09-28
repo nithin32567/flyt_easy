@@ -51,6 +51,15 @@ export const FlightProvider = ({ children }) => {
               max: Math.max(...prices)
             }
           }));
+        } else {
+          // If no prices found, set a default range
+          setFilters(prev => ({
+            ...prev,
+            priceRange: {
+              min: 0,
+              max: 100000
+            }
+          }));
         }
       }
     } catch (error) {
@@ -77,22 +86,50 @@ export const FlightProvider = ({ children }) => {
     if (!flightsToFilter || flightsToFilter.length === 0) return [];
 
     return flightsToFilter.filter(flight => {
-      // Price filter
-      if (flight.GrossFare < currentFilters.priceRange.min || flight.GrossFare > currentFilters.priceRange.max) {
+      // Skip flights that don't have the required properties for filtering
+      // This handles the simplified flight objects that only have basic properties
+      if (!flight.GrossFare && !flight.AirlineName && !flight.DepartureTime) {
+        // For simplified flight objects, we'll include them by default
+        // and let the stops filter handle them if needed
+        if (currentFilters.stops !== 'all') {
+          const stops = String(flight.Stops || 0);
+          switch (currentFilters.stops) {
+            case 'direct':
+              if (stops !== '0') return false;
+              break;
+            case '1-stop':
+              if (stops !== '1') return false;
+              break;
+            case '2-stops':
+              if (stops !== '2') return false;
+              break;
+          }
+        }
+        return true;
+      }
+
+      // Price filter - only apply if GrossFare exists
+      if (flight.GrossFare && (flight.GrossFare < currentFilters.priceRange.min || flight.GrossFare > currentFilters.priceRange.max)) {
         return false;
       }
 
-      // Airline filter
+      // Airline filter - only apply if AirlineName or Provider exists
       if (currentFilters.airlines.length > 0) {
-        const airlineCode = flight.AirlineName?.split('|')[0] || '';
-        if (!currentFilters.airlines.includes(airlineCode)) {
+        let airlineCode = '';
+        if (flight.AirlineName) {
+          airlineCode = flight.AirlineName.split('|')[0] || '';
+        } else if (flight.Provider) {
+          airlineCode = flight.Provider;
+        }
+        
+        if (airlineCode && !currentFilters.airlines.includes(airlineCode)) {
           return false;
         }
       }
 
-      // Stops filter
+      // Stops filter - handle both string and number types
       if (currentFilters.stops !== 'all') {
-        const stops = flight.Stops || '0';
+        const stops = String(flight.Stops || 0);
         switch (currentFilters.stops) {
           case 'direct':
             if (stops !== '0') return false;
@@ -106,15 +143,15 @@ export const FlightProvider = ({ children }) => {
         }
       }
 
-      // Refundable filter
-      if (currentFilters.refundable !== 'all') {
+      // Refundable filter - only apply if Refundable exists
+      if (currentFilters.refundable !== 'all' && flight.Refundable) {
         const isRefundable = flight.Refundable === 'Y';
         if (currentFilters.refundable === 'refundable' && !isRefundable) return false;
         if (currentFilters.refundable === 'non-refundable' && isRefundable) return false;
       }
 
-      // Departure time filter
-      if (currentFilters.departureTime !== 'all') {
+      // Departure time filter - only apply if DepartureTime exists
+      if (currentFilters.departureTime !== 'all' && flight.DepartureTime) {
         const departureTime = new Date(flight.DepartureTime);
         const hour = departureTime.getHours();
         
@@ -213,6 +250,9 @@ export const FlightProvider = ({ children }) => {
       if (flight.AirlineName) {
         const airlineCode = flight.AirlineName.split('|')[0];
         airlines.add(airlineCode);
+      } else if (flight.Provider) {
+        // For simplified flight objects, use Provider field
+        airlines.add(flight.Provider);
       }
     });
     return Array.from(airlines).sort();
@@ -223,7 +263,9 @@ export const FlightProvider = ({ children }) => {
     const allFlights = [...flights, ...returnFlights];
     if (allFlights.length === 0) return { min: 0, max: 100000 };
     
-    const prices = allFlights.map(flight => flight.GrossFare || 0);
+    const prices = allFlights.map(flight => flight.GrossFare || 0).filter(price => price > 0);
+    if (prices.length === 0) return { min: 0, max: 100000 };
+    
     return {
       min: Math.min(...prices),
       max: Math.max(...prices)

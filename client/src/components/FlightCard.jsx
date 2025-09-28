@@ -28,14 +28,15 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
   });
 
   const getStopsText = () => {
-    const stops = Stops || '0';
+    const stops = String(Stops || 0);
     if (stops === '0') return 'Non-stop';
     if (stops === '1') return '1 Stop';
     return `${stops} Stops`;
   };
 
   const getConnectionInfo = () => {
-    if (Stops === '0' || !Connections || Connections.length === 0) return null;
+    const stops = String(Stops || 0);
+    if (stops === '0' || !Connections || Connections.length === 0) return null;
     
     return Connections.map((connection, index) => {
       if (!connection || Object.keys(connection).length === 0) return null;
@@ -82,7 +83,9 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
       {/* Airline Info */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold text-gray-800">{AirlineName?.split("|")[0] || 'Unknown Airline'}</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            {AirlineName?.split("|")[0] || flight.Provider || 'Unknown Airline'}
+          </h2>
           <p className="text-xs text-gray-500">{getCabinClass()}</p>
         </div>
         <div className="text-right">
@@ -95,8 +98,10 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
       <div className="flex flex-col">
         <div className="flex justify-between">
           <div>
-            <p className="text-lg font-bold">{From}</p>
-            <p className="text-sm text-gray-500">{formatTime(DepartureTime)}</p>
+            <p className="text-lg font-bold">{From || 'N/A'}</p>
+            <p className="text-sm text-gray-500">
+              {DepartureTime ? formatTime(DepartureTime) : 'N/A'}
+            </p>
           </div>
           <div className="flex flex-col items-center justify-center text-xs text-gray-500">
             <span>{Duration?.trim() || 'N/A'}</span>
@@ -105,8 +110,10 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
             {getConnectionInfo()}
           </div>
           <div className="text-right">
-            <p className="text-lg font-bold">{To}</p>
-            <p className="text-sm text-gray-500">{formatTime(ArrivalTime)}</p>
+            <p className="text-lg font-bold">{To || 'N/A'}</p>
+            <p className="text-sm text-gray-500">
+              {ArrivalTime ? formatTime(ArrivalTime) : 'N/A'}
+            </p>
           </div>
         </div>
       </div>
@@ -125,12 +132,14 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
         <div>
           <p className="text-xl font-bold text-green-600">₹ {GrossFare || 'N/A'}</p>
           <div className="flex flex-col">
-            <p className="text-xs text-gray-400">
-              {Refundable === "Y" ? "Refundable" : "Non-refundable"}
-            </p>
-            {Stops && Stops !== '0' && (
+            {Refundable && (
+              <p className="text-xs text-gray-400">
+                {Refundable === "Y" ? "Refundable" : "Non-refundable"}
+              </p>
+            )}
+            {Stops && String(Stops) !== '0' && (
               <p className="text-xs text-blue-600 font-medium">
-                {Stops} {Stops === '1' ? 'Stop' : 'Stops'}
+                {Stops} {String(Stops) === '1' ? 'Stop' : 'Stops'}
               </p>
             )}
           </div>

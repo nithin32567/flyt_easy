@@ -32,12 +32,36 @@ export const validatePIN = (pin) => {
   return { isValid: true, message: '' };
 };
 
-// Age validation
-export const validateAge = (age) => {
+// Age validation with passenger type consideration
+export const validateAge = (age, passengerType = null) => {
   if (!age) return { isValid: false, message: 'Age is required' };
   const ageNum = parseInt(age);
   if (isNaN(ageNum)) return { isValid: false, message: 'Age must be a number' };
-  if (ageNum < 0 || ageNum > 120) return { isValid: false, message: 'Age must be between 0 and 120' };
+  
+  // Validate age based on passenger type
+  if (passengerType) {
+    switch (passengerType.toUpperCase()) {
+      case 'ADT': // Adult
+        if (ageNum < 12) return { isValid: false, message: 'Adult age must be 12 or above' };
+        if (ageNum > 120) return { isValid: false, message: 'Age must be 120 or below' };
+        break;
+      case 'CHD': // Child
+        if (ageNum < 2) return { isValid: false, message: 'Child age must be 2 or above' };
+        if (ageNum >= 12) return { isValid: false, message: 'Child age must be below 12' };
+        break;
+      case 'INF': // Infant
+        if (ageNum < 0) return { isValid: false, message: 'Infant age cannot be negative' };
+        if (ageNum >= 2) return { isValid: false, message: 'Infant age must be below 2' };
+        break;
+      default:
+        // Generic validation for unknown passenger types
+        if (ageNum < 0 || ageNum > 120) return { isValid: false, message: 'Age must be between 0 and 120' };
+    }
+  } else {
+    // Generic validation when passenger type is not specified
+    if (ageNum < 0 || ageNum > 120) return { isValid: false, message: 'Age must be between 0 and 120' };
+  }
+  
   return { isValid: true, message: '' };
 };
 
@@ -226,7 +250,7 @@ export const validateTraveler = (traveler) => {
     isValid = false;
   }
 
-  const ageValidation = validateAge(traveler.Age);
+  const ageValidation = validateAge(traveler.Age, traveler.PTC);
   if (!ageValidation.isValid) {
     errors.Age = ageValidation.message;
     isValid = false;
@@ -305,7 +329,7 @@ export const validateItinerary = (contactInfo, travelers) => {
 };
 
 // Real-time validation helpers
-export const validateField = (fieldName, value, validationType) => {
+export const validateField = (fieldName, value, validationType, passengerType = null) => {
   switch (validationType) {
     case 'email':
       return validateEmail(value);
@@ -316,7 +340,7 @@ export const validateField = (fieldName, value, validationType) => {
     case 'pin':
       return validatePIN(value);
     case 'age':
-      return validateAge(value);
+      return validateAge(value, passengerType);
     case 'dob':
       return validateDOB(value);
     case 'passportExpiry':

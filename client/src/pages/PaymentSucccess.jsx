@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
+import { clearBookingData } from '../utils/clearBookingData';
 
 const PaymentSucccess = () => {
     const token = localStorage.getItem("token");
@@ -13,27 +14,19 @@ const PaymentSucccess = () => {
         contact: false
     });
 
-    console.log('PaymentSuccess component loaded');
-    console.log('TransactionID:', transactionID);
-    console.log('ClientID:', clientID);
-    console.log('TUI:', TUI);
 
     useEffect(() => {
-        console.log('PaymentSuccess useEffect triggered');
         // First try to get booking data from localStorage (from payment process)
         const storedBookingData = localStorage.getItem("bookingDetails");
         if (storedBookingData) {
-            console.log('Found booking data in localStorage');
             setBookingData(JSON.parse(storedBookingData));
         } else {
             // If not in localStorage, fetch from API
-            console.log('No booking data in localStorage, fetching from API...');
             fetchBookingDetails();
         }
     }, []);
 
     const fetchBookingDetails = async () => {
-        console.log('Fetching booking details...');
         try {
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, {
                 ReferenceType: 'T',
@@ -45,13 +38,10 @@ const PaymentSucccess = () => {
                     "Authorization": `Bearer ${token}`
                 }
             });
-            console.log('Retrieve booking response:', response.data);
             
             if (response.data.success) {
                 setBookingData(response.data.data);
                 localStorage.setItem("bookingDetails", JSON.stringify(response.data.data));
-            } else {
-                console.error('Failed to retrieve booking:', response.data.message);
             }
         } catch (error) {
             console.error('Error fetching booking details:', error);
@@ -104,7 +94,6 @@ const PaymentSucccess = () => {
                 // Store the retrieved booking data
                 setBookingData(response.data.data);
                 localStorage.setItem('bookingDetails', JSON.stringify(response.data.data));
-                console.log(response.data.data, '================================= response retrieve booking');
                 alert('Booking retrieved successfully! Check your booking details above.');
             } else {
                 alert('Failed to retrieve booking: ' + response.data.message);
@@ -589,7 +578,12 @@ const PaymentSucccess = () => {
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mt-8'>
                 <Link to="/">
                     <button 
-                    onClick={handleRetrieveBooking}
+                    onClick={() => {
+                        // Clear all booking-related localStorage items to prevent conflicts
+                        clearBookingData();
+                        // Navigate to home
+                        window.location.href = '/';
+                    }}
                     className='text-center flex justify-center items-center bg-blue-600 text-white p-2 rounded-xl px-8 py-2 hover:bg-blue-700 transition-colors'>
                 Go To Home
                 </button>

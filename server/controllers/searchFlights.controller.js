@@ -7,7 +7,6 @@ import path from 'path';
 
 
 export const expressSearchFlights = async (req, res) => {
-  console.log("callingggg ===============================5 express search");
 
   try {
     const {
@@ -27,9 +26,6 @@ export const expressSearchFlights = async (req, res) => {
       TUI,
       token,
     } = req.body;
-    console.log(Trips, 'trips')
-    console.log(token, "token========================= 221");
-    // console.log(req.body, "body==========================================24 express search paylod from backend");
 
     if (!ClientID) {
       return res.status(401).json({
@@ -38,7 +34,6 @@ export const expressSearchFlights = async (req, res) => {
       });
     }
 
-    // Only send required fields to upstream API
     const payload = {
       FareType: FareType,
       ADT: ADT,
@@ -104,28 +99,17 @@ export const expressSearchFlights = async (req, res) => {
         },
       }
     );
-    console.log(response, "response from the backend========================= poll");
     const data = await response.json();
-    console.log(data, "response.data======================================78");
-    console.log(
-      data.TUI,
-      "data.TUI=======================inside the express search"
-    );
+    console.log(data, "express search response data=======================");
     return res.status(200).json({
       success: true,
       message: "Express Search Results Retrieved",
+      payload: payload,
+      response: data,
       data: data,
       TUI: data.TUI,
     });
   } catch (error) {
-    console.error("=== UPSTREAM API ERROR ===");
-    console.error("Status:", error?.response?.status);
-    console.error("Status Text:", error?.response?.statusText);
-    console.error("Response Data:", error?.response?.data);
-    console.error("Request URL:", error?.config?.url);
-    console.error("Request Method:", error?.config?.method);
-    console.error("Request Headers:", error?.config?.headers);
-    console.error("Request Data:", error?.config?.data);
 
     return res.status(500).json({
       success: false,
@@ -141,7 +125,7 @@ export const expressSearchFlights = async (req, res) => {
 };
 
 export const getExpSearchFlights = async (req, res) => {
-  const { token, TUI, saveToFile } = req.body;
+  const { token, TUI, saveToFile, ClientID } = req.body;
 
   if (!token || !TUI) {
     return res.status(400).json({
@@ -151,11 +135,10 @@ export const getExpSearchFlights = async (req, res) => {
   }
 
   const body = {
-    ClientID: "", // Ensure this is dynamically set or configured as needed
+    ClientID: ClientID || "",
     TUI: TUI
   };
 
-  console.log(body, "body getExpSearchFlights");
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
@@ -165,15 +148,18 @@ export const getExpSearchFlights = async (req, res) => {
   const delayMs = 1000;       // 1 second between attempts
 
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  const payload = {
+    ClientID: ClientID || "",
+    TUI: TUI
+  };
+  console.log(payload, "get exp search payload=======================");
 
   try {
     const pollExpSearch = async (retries = 0) => {
-      console.log(body, "body from the backend========================= poll");
-      console.log(headers, "headers from the backend========================= poll");
       const response = await fetch(`${process.env.FLIGHT_URL}/flights/GetExpSearch`, {
         method: "POST",
         headers: headers,
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -191,50 +177,46 @@ export const getExpSearchFlights = async (req, res) => {
       return pollExpSearch(retries + 1);
     };
 
-    console.log(pollExpSearch, "pollExpSearch from the backend========================= poll");
 
     const data = await pollExpSearch();
+    console.log(data, "get exp search response data=======================");
 
-    console.log(data, "data from the backend========================= poll");
-
-    // Save to file if requested
     if (saveToFile) {
       try {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const filename = `getExpSearch_${TUI}_${timestamp}.json`;
         const filepath = path.join(process.cwd(), 'api_request_response', filename);
         
-        // Ensure directory exists
         const dir = path.dirname(filepath);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
         }
         
-        // Save the complete response data
         fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
         
-        console.log(`Complete getExpSearch data saved to: ${filepath}`);
         
         return res.status(200).json({
           success: true,
           message: "GETExpSearch fetched successfully and saved to file",
+          payload: payload,
+          response: data,
           data: data,
           savedFile: filename
         });
       } catch (fileError) {
         console.error("Error saving file:", fileError);
-        // Continue with normal response even if file save fails
       }
     }
 
     return res.status(200).json({
       success: true,
       message: "GETExpSearch fetched successfully",
+      payload: payload,
+      response: data,
       data: data,
     });
 
   } catch (error) {
-    console.error(error, "error from the backend========================= poll");
     return res.status(500).json({
       success: false,
       message: "ExpSearch fetch failed",

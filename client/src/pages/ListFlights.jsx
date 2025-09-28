@@ -80,15 +80,29 @@ const ListFlights = () => {
     console.log("Sending trips:", tripsToSend, "TripType:", tripType)
     
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, {
+      const clientID = localStorage.getItem("ClientID");
+      const payload = {
         Trips: tripsToSend,
-        ClientID: "FVI6V120g22Ei5ztGK0FIQ==",
+        ClientID: clientID,
         Mode: "AS",
         Options: "",
         token: localStorage.getItem("token"),
         TUI: TUI,
         TripType: tripType
-      })
+      };
+      
+      console.log("=== SMART PRICE API CALL ===");
+      console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
+      console.log("=============================");
+      
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, payload)
+      
+      console.log("=== SMART PRICE API RESPONSE ===");
+      console.log("Response Status:", response.status);
+      console.log("Response Headers:", response.headers);
+      console.log("Response Data:", JSON.stringify(response.data, null, 2));
+      console.log("Full Response Object:", response);
+      console.log("================================");
       
       if (response.status === 200) {
         console.log("inside the if condition")
@@ -103,18 +117,32 @@ const ListFlights = () => {
         alert("Failed to process flight pricing. Please try again.")
       }
     } catch (error) {
-      console.error("Error calling smart-price API:", error)
+      console.log("=== SMART PRICE API ERROR ===");
+      console.error("Error calling smart-price API:", error);
+      console.log("Error object:", JSON.stringify(error, null, 2));
+      console.log("=============================");
+      
       if (error.response) {
         // Server responded with error status
-        console.error("Error response:", error.response.data)
+        console.log("=== ERROR RESPONSE DETAILS ===");
+        console.error("Error Status:", error.response.status);
+        console.error("Error Headers:", error.response.headers);
+        console.error("Error Data:", JSON.stringify(error.response.data, null, 2));
+        console.log("==============================");
         alert(`Error: ${error.response.data?.Msg || "Failed to process flight pricing. Please try again."}`)
       } else if (error.request) {
         // Request was made but no response received
-        console.error("No response received:", error.request)
+        console.log("=== NO RESPONSE ERROR ===");
+        console.error("No response received:", error.request);
+        console.log("Request details:", JSON.stringify(error.request, null, 2));
+        console.log("==========================");
         alert("Network error. Please check your connection and try again.")
       } else {
         // Something else happened
-        console.error("Error:", error.message)
+        console.log("=== UNKNOWN ERROR ===");
+        console.error("Error:", error.message);
+        console.error("Full error:", JSON.stringify(error, null, 2));
+        console.log("=====================");
         alert("An unexpected error occurred. Please try again.")
       }
     }
@@ -123,11 +151,24 @@ const ListFlights = () => {
   const getPricer = async () => {
     try {
       const pricerTUI = localStorage.getItem("pricerTUI")
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`, {
+      const payload = {
         TUI: pricerTUI,
-        token: localStorage.getItem("token")
-      })
-      console.log(response, "response========================= get pricer")
+        token: localStorage.getItem("token"),
+        ClientID: localStorage.getItem("ClientID")
+      };
+      
+      console.log("=== GET PRICER API CALL ===");
+      console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
+      console.log("===========================");
+      
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`, payload)
+      
+      console.log("=== GET PRICER API RESPONSE ===");
+      console.log("Response Status:", response.status);
+      console.log("Response Headers:", response.headers);
+      console.log("Response Data:", JSON.stringify(response.data, null, 2));
+      console.log("Full Response Object:", response);
+      console.log("===============================");
       
       if (response.status === 200) {
         const data = response.data
@@ -143,15 +184,29 @@ const ListFlights = () => {
         navigate("/")
       }
     } catch (error) {
-      console.error("Error calling get-pricer API:", error)
+      console.log("=== GET PRICER API ERROR ===");
+      console.error("Error calling get-pricer API:", error);
+      console.log("Error object:", JSON.stringify(error, null, 2));
+      console.log("=============================");
+      
       if (error.response) {
-        console.error("Error response:", error.response.data)
+        console.log("=== ERROR RESPONSE DETAILS ===");
+        console.error("Error Status:", error.response.status);
+        console.error("Error Headers:", error.response.headers);
+        console.error("Error Data:", JSON.stringify(error.response.data, null, 2));
+        console.log("==============================");
         alert(`Error: ${error.response.data?.Msg || "Failed to get pricing details. Please try again."}`)
       } else if (error.request) {
-        console.error("No response received:", error.request)
+        console.log("=== NO RESPONSE ERROR ===");
+        console.error("No response received:", error.request);
+        console.log("Request details:", JSON.stringify(error.request, null, 2));
+        console.log("==========================");
         alert("Network error. Please check your connection and try again.")
       } else {
-        console.error("Error:", error.message)
+        console.log("=== UNKNOWN ERROR ===");
+        console.error("Error:", error.message);
+        console.error("Full error:", JSON.stringify(error, null, 2));
+        console.log("=====================");
         alert("An unexpected error occurred. Please try again.")
       }
       navigate("/")

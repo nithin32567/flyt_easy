@@ -41,28 +41,11 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // Google OAuth implementation
-      console.log('Google login initiated');
-      
-      // Initialize Google OAuth
-      if (window.google) {
-        const googleAuth = window.google.accounts.oauth2.initTokenClient({
-          client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID || 'your-google-client-id',
-          scope: 'email profile',
-          callback: (response) => {
-            console.log('Google OAuth response:', response);
-            // Handle successful Google authentication
-            // You can decode the JWT token and extract user info
-            setIsLoading(false);
-          },
-        });
-        
-        googleAuth.requestAccessToken();
-      } else {
-        // Fallback for when Google API is not loaded
-        console.log('Google API not available, using fallback');
-        setIsLoading(false);
-      }
+      const response =await axios.get(`${import.meta.env.VITE_BASE_URL}/api/login/google-login`,
+        {
+          withCredentials: true,
+        }
+      )
       
     } catch (error) {
       console.error('Google login error:', error);

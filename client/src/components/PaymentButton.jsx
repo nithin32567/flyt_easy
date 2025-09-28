@@ -1,22 +1,31 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useWebSettingsData } from "../hooks/useWebSettingsData";
 
 const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     const token = localStorage.getItem("token");
-    console.log(amount, name, email, contact, '================================= amount, name, email, contact');
-    console.log('PaymentButton received TUI:', TUI);
-    console.log('itineraryTUI from localStorage:', localStorage.getItem("itineraryTUI"));
     const transactionID = JSON.parse(localStorage.getItem("TransactionID"));
     const clientID = localStorage.getItem("ClientID");
-    console.log('TransactionID from localStorage:', transactionID);
-    console.log('ClientID from localStorage:', clientID);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     
+    // WebSettings hook for payment gateway ordering
+    const { getPaymentGateways } = useWebSettingsData();
+    
+    // Get payment gateway order from WebSettings
+    const paymentGatewayOrder = getPaymentGateways();
+    
+    // Get the primary payment gateway code
+    const getPrimaryGatewayCode = () => {
+        if (paymentGatewayOrder && paymentGatewayOrder.length > 0) {
+            return paymentGatewayOrder[0].Code || "";
+        }
+        return ""; // Default to empty if no gateway specified
+    };
+    
     // Use the itinerary TUI if available, otherwise fall back to the passed TUI
     const finalTUI = localStorage.getItem("itineraryTUI") || TUI;
-    console.log('Final TUI being used for payment:', finalTUI);
     
     const loadRazorpay = (src) => {
         return new Promise((resolve) => {
@@ -31,12 +40,8 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     // Test function for debugging get-itinerary-status
     const testGetItineraryStatus = async () => {
         try {
-            console.log('=== TESTING GET ITINERARY STATUS ===');
             const testTUI = finalTUI || "test-tui-123";
             const testTransactionID = transactionID || "test-transaction-123";
-            
-            console.log('Test TUI:', testTUI);
-            console.log('Test TransactionID:', testTransactionID);
             
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/test-get-itinerary-status-simple`, {
                 TUI: testTUI,
@@ -47,26 +52,23 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             });
             
-            console.log('=== TEST RESPONSE ===');
-            console.log('Response status:', response.status);
-            console.log('Response data:', JSON.stringify(response.data, null, 2));
-            console.log('===================');
             
             alert(`Test successful! Status: ${response.data.status}, Message: ${response.data.message}`);
         } catch (error) {
-            console.error('=== TEST ERROR ===');
-            console.error('Error:', error);
-            console.error('Error response:', error.response?.data);
-            console.error('===============');
             alert(`Test failed: ${error.message}`);
         }
     };
 
     async function startPay() {
+        // Validate TransactionID
+        if (!transactionID || transactionID === 0) {
+            throw new Error('Invalid TransactionID. Please create itinerary first.');
+        }
+        
         const payload = {
             TransactionID: transactionID,
-            PaymentAmount: 0,
-            NetAmount: amount,
+            PaymentAmount: String(amount), // Fixed: Should be string with double quotes
+            NetAmount: String(amount), // Fixed: Should be string with double quotes
             BrowserKey: "caecd3cd30225512c1811070dce615c1",
             ClientID: clientID,
             TUI: finalTUI,
@@ -74,9 +76,9 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             Promo: null,
             PaymentType: "",
             BankCode: "",
-            GateWayCode: "",
+            GateWayCode: getPrimaryGatewayCode(), // Use primary gateway from WebSettings
             MerchantID: "",
-            PaymentCharge: 0,
+            PaymentCharge: "0", // Fixed: Should be string
             ReleaseDate: "",
             OnlinePayment: false,
             DepositPayment: true,
@@ -101,50 +103,43 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             QuickPay: null,
             RMSSignature: "",
             TargetCurrency: "",
-            TargetAmount: 0,
+            TargetAmount: "0", // Fixed: Should be string
             ServiceType: "ITI"
         }
+        
+        // Enhanced logging for StartPay
+        
         try {
-            console.log('Starting payment with payload:', payload);
-            console.log('StartPay payload details:', {
-                TUI: payload.TUI,
-                TransactionID: payload.TransactionID,
-                NetAmount: payload.NetAmount,
-                ClientID: payload.ClientID
-            });
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/startpay`, payload, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 },
             });
-            console.log('StartPay response:', response.data);
+            
+            
             return response.data;
         } catch (error) {
-            console.error('StartPay error:', error);
             throw error;
         }
     }
 
     async function getItineraryStatus(TUI, TransactionID) {
         try {
-            console.log('Checking itinerary status...');
-            console.log('TUI:', TUI);
-            console.log('TransactionID:', TransactionID);
-            console.log('API URL:', `${import.meta.env.VITE_BASE_URL}/api/flights/get-itinerary-status`);
-            
-            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-itinerary-status`, {
+            const payload = {
                 TUI: TUI,
-                TransactionID: TransactionID
-            }, {
+                TransactionID: TransactionID,
+                ClientID: clientID // Add ClientID
+            };
+            
+            // Enhanced logging for GetItineraryStatus
+            
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-itinerary-status`, payload, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 },
             });
-            console.log('=== GET ITINERARY STATUS FRONTEND RESPONSE ===');
-            console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
-            console.log('Response data:', JSON.stringify(response.data, null, 2));
-            console.log('===============================================');
+            
+            // Enhanced logging for GetItineraryStatus response
             
             // Return the response data which contains the status information
             return response.data;
@@ -163,31 +158,46 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
 
     async function retrieveBooking(TUI, TransactionID) {
         try {
-            console.log('Retrieving booking details...');
-            console.log('TUI:', TUI);
-            console.log('TransactionID:', TransactionID);
-            console.log('ClientID:', clientID);
-            console.log('API URL:', `${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`);
-            
-            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, {
+            const payload = {
                 TUI: TUI,
                 ReferenceNumber: TransactionID,
                 ReferenceType: "T",
                 ClientID: clientID
-            }, {
+            };
+            
+            // Enhanced logging for RetrieveBooking
+            console.log('=== RETRIEVE BOOKING REQUEST ===');
+            console.log('Endpoint:', `${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`);
+            console.log('Request Payload:', JSON.stringify(payload, null, 2));
+            console.log('Request Headers:', JSON.stringify({
+                "Authorization": `Bearer ${token}`
+            }, null, 2));
+            console.log('=================================');
+            
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, payload, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 },
             });
-            console.log('RetrieveBooking response:', response.data);
-            console.log('Response status:', response.status);
+            
+            // Enhanced logging for RetrieveBooking response
+            console.log('=== RETRIEVE BOOKING RESPONSE ===');
+            console.log('Response Status:', response.status);
+            console.log('Response Headers:', JSON.stringify(response.headers, null, 2));
+            console.log('Response Data:', JSON.stringify(response.data, null, 2));
+            console.log('=================================');
             
             // Return the response data which contains the booking details
             return response.data;
         } catch (error) {
-            console.error('RetrieveBooking error:', error);
-            console.error('Error response:', error.response?.data);
-            console.error('Error status:', error.response?.status);
+            console.error('=== RETRIEVE BOOKING ERROR ===');
+            console.error('Error message:', error.message);
+            console.error('Error code:', error.code);
+            console.error('Error response status:', error.response?.status);
+            console.error('Error response data:', JSON.stringify(error.response?.data, null, 2));
+            console.error('Error response headers:', error.response?.headers);
+            console.error('Full error object:', error);
+            console.error('==============================');
             throw error;
         }
     }
@@ -195,43 +205,57 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     async function pollBookingStatus(TUI, TransactionID, maxAttempts = 30) {
         let attempts = 0;
         
+        console.log('=== STARTING BOOKING STATUS POLLING ===');
+        console.log('TUI:', TUI);
+        console.log('TransactionID:', TransactionID);
+        console.log('Max Attempts:', maxAttempts);
+        console.log('=======================================');
+        
         while (attempts < maxAttempts) {
             try {
-                console.log(`Polling attempt ${attempts + 1}/${maxAttempts}...`);
+                console.log(`\n--- Polling Attempt ${attempts + 1}/${maxAttempts} ---`);
                 const statusResponse = await getItineraryStatus(TUI, TransactionID);
                 
-                console.log('Status response:', statusResponse);
+                console.log('Status Response Analysis:');
+                console.log('- Status:', statusResponse.status);
+                console.log('- Success:', statusResponse.success);
+                console.log('- Should Poll:', statusResponse.shouldPoll);
+                console.log('- Message:', statusResponse.message);
+                console.log('- CurrentStatus from API:', statusResponse.data?.CurrentStatus);
+                console.log('- PaymentStatus from API:', statusResponse.data?.PaymentStatus);
+                console.log('- Code from API:', statusResponse.data?.Code);
+                console.log('- Waiting for CurrentStatus to be Success or Failed...');
                 
                 // Check if the status response indicates completion
                 if (statusResponse.status === "SUCCESS") {
-                    console.log('Booking completed successfully, retrieving booking details...');
+                    console.log('✅ Booking completed successfully! Calling RetrieveBooking...');
                     // Only call RetrieveBooking after GetItineraryStatus returns Success
                     const bookingResponse = await retrieveBooking(TUI, TransactionID);
                     if (bookingResponse.success) {
-                        console.log('Booking details retrieved successfully:', bookingResponse.data);
                         localStorage.setItem("bookingDetails", JSON.stringify(bookingResponse.data));
+                        console.log('✅ Booking details retrieved and stored successfully');
                         return { success: true, bookingData: bookingResponse.data };
                     } else {
-                        console.error('Failed to retrieve booking details:', bookingResponse);
+                        console.error('❌ Failed to retrieve booking details:', bookingResponse);
                         return { success: false, message: "Failed to retrieve booking details" };
                     }
                 } else if (statusResponse.status === "FAILED") {
-                    console.log('Booking failed:', statusResponse);
                     const errorMessage = statusResponse.message || statusResponse.errorDetails?.join(' ') || "Booking failed";
+                    console.log('❌ Booking failed:', errorMessage);
                     return { success: false, message: errorMessage, errorCode: statusResponse.errorCode };
-                } else if (statusResponse.status === "IN_PROGRESS") {
+                } else if (statusResponse.status === "IN_PROGRESS" || statusResponse.shouldPoll) {
                     // Still in progress, wait and try again
-                    console.log(`Booking still in progress, attempt ${attempts + 1}/${maxAttempts}`);
+                    console.log('⏳ Booking still in progress, waiting 2 seconds before next attempt...');
                     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
                     attempts++;
                 } else {
                     // Handle unexpected status
-                    console.log(`Unexpected status: ${statusResponse.status}, attempt ${attempts + 1}/${maxAttempts}`);
+                    console.log('⚠️ Unexpected status received, continuing to poll...');
                     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
                     attempts++;
                 }
             } catch (error) {
-                console.error('Error polling booking status:', error);
+                console.error('❌ Error polling booking status:', error);
                 console.error('Error details:', {
                     message: error.message,
                     response: error.response?.data,
@@ -240,17 +264,19 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 
                 // If it's a network error, continue polling
                 if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
-                    console.log('Network error, continuing to poll...');
+                    console.log('🔄 Network error detected, continuing to poll...');
                     attempts++;
                     await new Promise(resolve => setTimeout(resolve, 2000));
                 } else {
                     // For other errors, increment attempts and continue
+                    console.log('🔄 Error occurred, continuing to poll...');
                     attempts++;
                     await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
         }
         
+        console.log('⏰ Polling timeout reached after', maxAttempts, 'attempts');
         return { success: false, message: "Booking status polling timeout" };
     }
 
@@ -266,11 +292,9 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             }
 
             // 1. Create order on backend
-            console.log('Creating Razorpay order...');
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/razorpay/bookFlight`, {
                 amount: amount,
             });
-            console.log('Razorpay order created:', response.data.order);
 
             const options = {
                 key: "rzp_test_9Hi6wVlmuLeJ77",
@@ -280,7 +304,6 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 description: "Flight Payment",
                 order_id: response.data.order.id,
                 handler: async function (response) {
-                    console.log('Payment successful, verifying...', response);
                     try {
                         // 2. Verify payment signature
                         const verify = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/razorpay/verifyPayment`, {
@@ -288,40 +311,40 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature
                         });
-                        console.log('Payment verification response:', verify.data);
-                        
                         if (verify.data.success) {
-                            console.log('Payment verified successfully, starting payment...');
                             
                             // 3. Start payment process
-                            const startPayResponse = await startPay();
-                            console.log('StartPay completed:', startPayResponse);
+                            try {
+                                const startPayResponse = await startPay();
                             
-                            if (startPayResponse.shouldPoll) {
-                                // 4. Poll for booking status
-                                console.log('Starting booking status polling...');
-                                const pollingResult = await pollBookingStatus(finalTUI, transactionID);
-                                
-                                if (pollingResult.success) {
-                                    alert("✅ Payment and Booking Successful!");
-                                    console.log('Navigating to payment success page...');
+                                if (startPayResponse.shouldPoll) {
+                                    // 4. Poll for booking status
+                                    const pollingResult = await pollBookingStatus(finalTUI, transactionID);
+                                    
+                                    if (pollingResult.success) {
+                                        alert("✅ Payment and Booking Successful!");
+                                        setTimeout(() => {
+                                            navigate("/payment-success");
+                                        }, 1000);
+                                    } else {
+                                        const errorMsg = pollingResult.errorCode ? 
+                                            `❌ Booking Failed (Code: ${pollingResult.errorCode}): ${pollingResult.message}` :
+                                            `❌ Booking Failed: ${pollingResult.message}`;
+                                        alert(errorMsg);
+                                        navigate("/payment-error");
+                                    }
+                                } else if (startPayResponse.status === "SUCCESS") {
+                                    alert("✅ Payment Successful!");
                                     setTimeout(() => {
                                         navigate("/payment-success");
                                     }, 1000);
                                 } else {
-                                    const errorMsg = pollingResult.errorCode ? 
-                                        `❌ Booking Failed (Code: ${pollingResult.errorCode}): ${pollingResult.message}` :
-                                        `❌ Booking Failed: ${pollingResult.message}`;
-                                    alert(errorMsg);
+                                    alert("❌ Payment Failed!");
                                     navigate("/payment-error");
                                 }
-                            } else if (startPayResponse.status === "SUCCESS") {
-                                alert("✅ Payment Successful!");
-                                setTimeout(() => {
-                                    navigate("/payment-success");
-                                }, 1000);
-                            } else {
-                                alert("❌ Payment Failed!");
+                            } catch (startPayError) {
+                                console.error('StartPay error:', startPayError);
+                                alert(`❌ Payment Processing Failed: ${startPayError.message}`);
                                 navigate("/payment-error");
                             }
                         } else {
@@ -343,7 +366,6 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             };
 
-            console.log('Opening Razorpay with options:', options);
             const rzp = new window.Razorpay(options);
             rzp.open();
 
