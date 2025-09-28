@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import GoogleLoginButton from '../components/GoogleLoginButton';
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +12,17 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, navigate, location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -171,7 +186,7 @@ const Login = () => {
 
           {/* Google Sign In Button */}
           <div className="mt-6">
-            <button
+            {/* <button
               type="button"
               onClick={handleGoogleSubmitLogin}
               disabled={isLoading}
@@ -196,7 +211,8 @@ const Login = () => {
                 />
               </svg>
               {isLoading ? 'Signing in...' : 'Sign in with Google'}
-            </button>
+            </button> */}
+            <GoogleLoginButton />
           </div>
 
           {/* Sign Up Link */}

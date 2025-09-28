@@ -21,8 +21,10 @@ import Footer1 from "./components/Footer1";
 import HeaderWrapper from "./components/HeaderWrapper";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { FlightProvider } from "./contexts/FlightContext";
 import { WebSettingsProvider, useWebSettings } from "./contexts/WebSettingsContext";
+import { AuthProvider } from "./contexts/AuthContext";
 
 // Component to handle app initialization
 const AppContent = () => {
@@ -71,26 +73,72 @@ const AppContent = () => {
       <HeaderWrapper />
 
       <Routes>
+        {/* Public routes - accessible without authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
-        <Route path="/flight-list" element={<ListFlights />} />
-        <Route path="/review" element={<OneWayReview />} />
-        <Route path="/create-itenary" element={<Createitenary />} />
-        <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-        <Route path="/payment-error" element={<PaymentError />} />
-        <Route path="/hotel-booking" element={<HotelBooking />} />
-        <Route path="/hotel-details/:hotelId" element={<HotelDetails />} />
-        <Route path="/hotel-payment-success" element={<HotelPaymentSuccess />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/dmo" element={<Home />} />
         <Route path="/demobanner" element={<Demobanner />} />
-
         <Route path="/header-section" element={<HeaderSection />} />
         <Route path="/footer1" element={<Footer1 />} />
         <Route path="/footer" element={<Footer />} />
-        <Route path="/flight-search" element={<FlightSearch />} />
+        
+        {/* Protected routes - require authentication */}
+        <Route path="/flight-search" element={
+          <ProtectedRoute>
+            <FlightSearch />
+          </ProtectedRoute>
+        } />
+        <Route path="/flight-list" element={
+          <ProtectedRoute>
+            <ListFlights />
+          </ProtectedRoute>
+        } />
+        <Route path="/review" element={
+          <ProtectedRoute>
+            <OneWayReview />
+          </ProtectedRoute>
+        } />
+        <Route path="/create-itenary" element={
+          <ProtectedRoute>
+            <Createitenary />
+          </ProtectedRoute>
+        } />
+        <Route path="/booking-confirmation" element={
+          <ProtectedRoute>
+            <BookingConfirmation />
+          </ProtectedRoute>
+        } />
+        <Route path="/payment-error" element={
+          <ProtectedRoute>
+            <PaymentError />
+          </ProtectedRoute>
+        } />
+        <Route path="/hotel-booking" element={
+          <ProtectedRoute>
+            <HotelBooking />
+          </ProtectedRoute>
+        } />
+        <Route path="/hotel-details/:hotelId" element={
+          <ProtectedRoute>
+            <HotelDetails />
+          </ProtectedRoute>
+        } />
+        <Route path="/hotel-payment-success" element={
+          <ProtectedRoute>
+            <HotelPaymentSuccess />
+          </ProtectedRoute>
+        } />
+        <Route path="/payment-success" element={
+          <ProtectedRoute>
+            <PaymentSuccess />
+          </ProtectedRoute>
+        } />
+        <Route path="/one-way-review" element={
+          <ProtectedRoute>
+            <OneWayReview />
+          </ProtectedRoute>
+        } />
         {/* <Route path="/flight-listing" element={<FlightListing />} /> */}
-        <Route path="/one-way-review" element={<OneWayReview />} />
       </Routes>
       <Footer />
     </div>
@@ -99,11 +147,13 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <WebSettingsProvider>
-      <FlightProvider>
-        <AppContent />
-      </FlightProvider>
-    </WebSettingsProvider>
+    <AuthProvider>
+      <WebSettingsProvider>
+        <FlightProvider>
+          <AppContent />
+        </FlightProvider>
+      </WebSettingsProvider>
+    </AuthProvider>
   );
 };
 

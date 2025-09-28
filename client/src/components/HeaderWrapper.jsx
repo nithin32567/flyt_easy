@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import flyteasyLogo from "../assets/img/flyteasy-logo.png";
+import LogoutButton from "./LogoutButton";
 
 const HeaderWrapper = () => {
   const [isFixed, setIsFixed] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -76,8 +81,19 @@ const HeaderWrapper = () => {
                 </a>
               </div>
               <div className="col-lg-6 col-md-6">
-                <button className="register-btn">register</button>
-                <button className="signin-btn">Sign in</button>
+                {isAuthenticated ? (
+                  <LogoutButton />
+                ) : (
+                  <>
+                    <button className="register-btn">register</button>
+                    <button 
+                      className="signin-btn"
+                      onClick={() => navigate('/login')}
+                    >
+                      Sign in
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
