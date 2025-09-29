@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import PaymentButton from '../components/PaymentButton';
 import TravelCheckListDisplay from '../components/TravelCheckListDisplay';
 import { useWebSettingsData } from '../hooks/useWebSettingsData';
+import { clearBookingData } from '../utils/clearBookingData';
 
 const Createitenary = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -140,6 +141,10 @@ const Createitenary = () => {
       navigate('/');
       return;
     }
+    
+    // Clear any existing booking data to avoid conflicts
+    localStorage.removeItem("TransactionID");
+    localStorage.removeItem("itineraryTUI");
     
     // Generate travelers based on search payload if travelers array is empty
     if (travelers.length === 0 && searchPayload) {
@@ -327,9 +332,15 @@ const Createitenary = () => {
           "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
 
+        // Clear any existing Transaction ID to avoid duplicate ID errors
+        localStorage.removeItem("TransactionID");
+        localStorage.removeItem("itineraryTUI");
+        
         // Get fresh pricing data to ensure NetAmount is correct
+        // This is critical to avoid TUI/NetAmount mismatch errors
         
         let finalNetAmount = netAmountNumber;
+        let freshTUI = currentTUI;
         try {
           const payload = {
             TUI: currentTUI,
@@ -361,10 +372,12 @@ const Createitenary = () => {
           
           if (pricingResponse.data.Code === "200" && pricingResponse.data.data) {
             finalNetAmount = Number(pricingResponse.data.data.NetAmount) || netAmountNumber;
+            freshTUI = pricingResponse.data.data.TUI || currentTUI;
             
             // Update localStorage with fresh data
             localStorage.setItem("pricerData", JSON.stringify(pricingResponse.data.data));
             localStorage.setItem("netamount", pricingResponse.data.data.NetAmount.toString());
+            localStorage.setItem("pricerTUI", freshTUI);
           }
         } catch (pricingError) {
           console.log("=== GET PRICER API ERROR (CreateItinerary) ===");
@@ -378,7 +391,7 @@ const Createitenary = () => {
         let travelCheckListData = null;
         try {
           const checkListPayload = {
-            TUI: currentTUI,
+            TUI: freshTUI,
             ClientID: localStorage.getItem("ClientID")
           };
           
@@ -415,7 +428,7 @@ const Createitenary = () => {
             // WebSettings is now called after ExpressSearch, no need to call it here
             
             const ssrPayload = {
-              TUI: currentTUI,
+              TUI: freshTUI,
               PaidSSR: true,
               FareType: pricerData?.FareType || "ON",
               Amount: finalNetAmount
@@ -524,7 +537,7 @@ const Createitenary = () => {
         const grossAmount = finalNetAmount;
 
         const payload = {
-          TUI: currentTUI,
+          TUI: freshTUI,
           ContactInfo: contactInfo,
           Travellers: travelers,
           PLP: null,
@@ -539,6 +552,9 @@ const Createitenary = () => {
         };
 
         console.log("=== CREATE ITINERARY FINAL PAYLOAD (FRONTEND) ===");
+        console.log("Using Fresh TUI:", freshTUI);
+        console.log("Using Fresh NetAmount:", finalNetAmount);
+        console.log("Cleared Transaction ID to avoid duplicates");
         console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
         console.log("=============================================");
         
@@ -578,6 +594,17 @@ const Createitenary = () => {
             }
           }
           
+          // Handle duplicate Transaction ID error
+          if (errorMessage.includes('6688') || errorMessage.includes('duplicate') || errorMessage.includes('already exists')) {
+            const shouldRetry = confirm(`Transaction ID conflict detected. This usually happens when a previous booking attempt is still in progress.\n\nWould you like to clear the booking data and try again?`);
+            if (shouldRetry) {
+              // Clear all booking data and refresh
+              clearBookingData();
+              window.location.reload();
+              return;
+            }
+          }
+          
           alert(`Failed to create itinerary: ${userFriendlyMessage}`);
         }
 
@@ -595,6 +622,17 @@ const Createitenary = () => {
             setSelectedSSRServices([]);
             setSsrEnabled(false);
             // Refresh the page to get fresh pricing
+            window.location.reload();
+            return;
+          }
+        }
+        
+        // Handle duplicate Transaction ID error in catch block too
+        if (errorMessage.includes('6688') || errorMessage.includes('duplicate') || errorMessage.includes('already exists')) {
+          const shouldRetry = confirm(`Transaction ID conflict detected. This usually happens when a previous booking attempt is still in progress.\n\nWould you like to clear the booking data and try again?`);
+          if (shouldRetry) {
+            // Clear all booking data and refresh
+            clearBookingData();
             window.location.reload();
             return;
           }

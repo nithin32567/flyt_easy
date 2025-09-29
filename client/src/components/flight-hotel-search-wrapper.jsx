@@ -48,9 +48,17 @@ const FlightHotelWearchWrapper = () => {
 
   // Clear any stale booking data when component mounts (user navigates to home)
   useEffect(() => {
-    // Clear booking-related localStorage items to prevent conflicts
-    clearSearchData();
-    console.log('✅ Cleared search data on component mount');
+    // Only clear search data if starting a completely new search
+    // Don't clear if user is in middle of booking flow
+    const hasExistingTrips = localStorage.getItem('trips');
+    const isBookingComplete = localStorage.getItem('bookingSuccess');
+    
+    if (!hasExistingTrips || isBookingComplete) {
+      clearSearchData();
+      console.log('✅ Cleared search data on component mount (new search)');
+    } else {
+      console.log('✅ Preserving existing search data (user in booking flow)');
+    }
     
     // Debug: Show what's in localStorage
     debugLocalStorage();

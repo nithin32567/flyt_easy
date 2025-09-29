@@ -32,8 +32,11 @@ const AppContent = () => {
   const { fetchWebSettings, loading: webSettingsLoading } = useWebSettings();
 
   useEffect(() => {
+   
     const initializeApp = async () => {
       try {
+        // Only clear authentication-related data if needed, not all localStorage
+        // localStorage.clear() // Removed this line as it was clearing trips data
         // First fetch signature for authentication
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/api/signature`

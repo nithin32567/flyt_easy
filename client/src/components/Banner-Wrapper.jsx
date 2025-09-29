@@ -1,7 +1,9 @@
 import React from "react";
 import banner01 from "../assets/img/banner-01.jpg";
+import { useAuth } from "../contexts/AuthContext";
 
 const BannerWrapper = () => {
+  const { isAuthenticated, user } = useAuth();
   return (
     <div>
       <section className="banner-wrapper">
@@ -24,9 +26,13 @@ const BannerWrapper = () => {
                           prices, choose from top airlines, and take off on your
                           dream journey in just a few clicks.
                         </p>
-                        <button className="signin-btn">
-                          Sign In / Register
-                        </button>
+                      {
+                        isAuthenticated ? (
+                          <button className="signin-btn">Welcome {user?.name}</button>
+                        ):  <button className="signin-btn">
+                        Sign In / Register
+                      </button>
+                      }
                       </div>
                     </div>
                   </div>

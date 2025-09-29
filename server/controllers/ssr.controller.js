@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export const getSSRServices = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
-    
+
     try {
         const { TUI, PaidSSR = true, ClientID, Source = "SF", FareType } = req.body;
 
@@ -50,17 +50,17 @@ export const getSSRServices = async (req, res) => {
 
         if (data.Code === "200") {
             const ssrServices = [];
-            
-            
+
+
             if (data.Trips && data.Trips.length > 0) {
                 data.Trips.forEach((trip, tripIndex) => {
-                    
+
                     if (trip.Journey && trip.Journey.length > 0) {
                         trip.Journey.forEach((journey, journeyIndex) => {
-                            
+
                             if (journey.Segments && journey.Segments.length > 0) {
                                 journey.Segments.forEach((segment, segmentIndex) => {
-                                    
+
                                     if (segment.SSR && segment.SSR.length > 0) {
                                         ssrServices.push(...segment.SSR);
                                     }
@@ -70,13 +70,13 @@ export const getSSRServices = async (req, res) => {
                     }
                 });
             }
-            
+
 
             const paidServices = ssrServices.filter(service => service.Charge > 0);
-            
-            const uniqueServices = paidServices.filter((service, index, self) => 
-                index === self.findIndex(s => 
-                    s.Code === service.Code && 
+
+            const uniqueServices = paidServices.filter((service, index, self) =>
+                index === self.findIndex(s =>
+                    s.Code === service.Code &&
                     s.Description === service.Description &&
                     s.Charge === service.Charge
                 )
@@ -110,7 +110,7 @@ export const getSSRServices = async (req, res) => {
 
 export const validateSSRSelection = async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
-    
+
     try {
         const { TUI, selectedServices = [], travelers = [] } = req.body;
 
@@ -132,15 +132,15 @@ export const validateSSRSelection = async (req, res) => {
             const amount = service.SSRNetAmount || service.Charge || 0;
             return total + amount;
         }, 0);
-        
+
 
         const validationErrors = [];
-        
+
         selectedServices.forEach(service => {
             if (!service.ID || !service.Code) {
                 validationErrors.push(`Invalid service: ${service.Description || 'Unknown'}`);
             }
-            
+
             const duplicates = selectedServices.filter(s => s.Code === service.Code);
             if (duplicates.length > 1) {
                 validationErrors.push(`Duplicate service: ${service.Description}`);

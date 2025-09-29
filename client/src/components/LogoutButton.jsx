@@ -21,13 +21,20 @@ const LogoutButton = () => {
   }
 
   return (
-    <div className="flex items-center space-x-4">
+    <div className="flex items-center justify-end gap-2">
+      <button style={{borderRadius: '5px'}}
+        onClick={handleLogout}
+        className="flex items-center space-x-2 px-3 py-2 text-sm  font-medium text-white bg-orange-600 hover:bg-blue-900 transition duration-200"
+      >
+        <LogOut className="w-4 h-4" />
+        <span>Logout</span>
+      </button>
       {/* User info */}
-      <div className="flex items-center space-x-2 text-white">
+      <div className="flex items-end space-x-2 text-white">
         {user?.picture ? (
-          <img 
-            src={user.picture} 
-            alt={user.name} 
+          <img
+            src={user.picture}
+            alt={user.name}
             className="w-8 h-8 rounded-full"
           />
         ) : (
@@ -35,17 +42,11 @@ const LogoutButton = () => {
             <User className="w-5 h-5 text-blue-600" />
           </div>
         )}
-        <span className="text-sm font-medium">{user?.name || 'User'}</span>
+        {/* <span className="text-sm font-medium">{user?.name || 'User'}</span> */}
       </div>
-      
+
       {/* Logout button */}
-      <button
-        onClick={handleLogout}
-        className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition duration-200"
-      >
-        <LogOut className="w-4 h-4" />
-        <span>Logout</span>
-      </button>
+
     </div>
   );
 };

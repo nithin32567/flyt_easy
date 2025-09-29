@@ -44,6 +44,19 @@ const ListFlights = () => {
 
   useEffect(() => {
     if (trips == null) {
+      // Try to reload trips from localStorage one more time
+      const storedTrips = localStorage.getItem("trips");
+      if (storedTrips) {
+        try {
+          const parsedTrips = JSON.parse(storedTrips);
+          setTrips(parsedTrips);
+          return; // Don't navigate away if we found trips
+        } catch (error) {
+          console.error("Error parsing trips from localStorage:", error);
+        }
+      }
+      
+      // If still no trips, navigate away
       navigate("/");
       alert("No Flights Found, Please try again!!!");
     }

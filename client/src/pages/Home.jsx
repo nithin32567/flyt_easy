@@ -14,10 +14,17 @@ import AuthStatus from "../components/AuthStatus";
 import { clearSearchData, clearAllBookingData, debugLocalStorage } from "../utils/clearBookingData";
 
 const Home = () => {
-  // Clear any stale booking data when home page loads
+  // Only clear search data if user is starting a new search (not in middle of booking)
   useEffect(() => {
-    clearSearchData();
-    console.log('✅ Cleared search data on home page load');
+    // Check if user is coming from a completed booking or starting fresh
+    const isNewSearch = !localStorage.getItem('trips') || localStorage.getItem('bookingSuccess');
+    
+    if (isNewSearch) {
+      clearSearchData();
+      console.log('✅ Cleared search data on home page load (new search)');
+    } else {
+      console.log('✅ Preserving existing search data (user in booking flow)');
+    }
   }, []);
 
   // Debug functions for testing
