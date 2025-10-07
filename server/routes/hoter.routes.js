@@ -14,7 +14,7 @@ import {
 const router = express.Router();
 
 // Hotel Signature API - Generate token for hotel APIs
-router.post("/signature", generateHotelToken);
+// router.post("/signature", generateHotelToken);
 
 // Hotel Search API
 router.post("/search", authenticateToken, searchHotels);
