@@ -39,6 +39,7 @@ const FlightHotelWearchWrapper = () => {
   const [isNearbyAirport, setIsNearbyAirport] = useState(false);
   const [searchterm, setSearchterm] = useState("");
   const [hotelSearchResults, setHotelSearchResults] = useState([]);
+  console.log(hotelSearchResults, "hotelSearchResults========================= hotel search");
   const [selectedHotelLocation, setSelectedHotelLocation] = useState(null);
   const [ClientID,setClientID]=useState(localStorage.getItem("ClientID"))
 
@@ -328,19 +329,24 @@ const FlightHotelWearchWrapper = () => {
 
   async function hotelSearch(e) {
     e.preventDefault();
+    console.log(searchterm, "searchterm========================= hotel search");
+    if(!searchterm){
+      alert("Please enter a valid search term");
+      return;
+    }
     try {
-      const response = await axios.get(`https://travelportalapi.benzyinfotech.com/api/content/autosuggest?term=${searchterm}`,{
+      const response=await axios.get(`${import.meta.env.VITE_BASE_URL}/api/hotel/autosuggest?term=${searchterm}`,{
         headers: {
           Authorization: `Bearer ${token}`,
         },
         withCredentials: true,
-
       })
-      console.log(response, "response from the backend========================= 221 hotel search");
+      console.log(response, "response from the backend========================= hotel search");
       setHotelSearchResults(response.data.locations || []);
     } catch (error) {
-      console.log(error, "error from the backend========================= 221 hotel search");
+      console.log(error, "error from the backend========================= hotel search");
     }
+
 
   }
 

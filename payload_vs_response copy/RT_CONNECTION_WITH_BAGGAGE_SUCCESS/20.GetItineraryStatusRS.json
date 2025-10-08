@@ -1,8 +1,0 @@
-{
-  TUI: '34b9dfca-6569-4ba5-bb10-61baa1febc23|ae26b371-5195-4ad8-a5f0-9b41f7b4228e|20250925214654',
-  transactionID: 250035996,
-  Code: '200',
-  Msg: [ 'Success' ],
-  CurrentStatus: 'Success',
-  PaymentStatus: 'Success'
-} 
