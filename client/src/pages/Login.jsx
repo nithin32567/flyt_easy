@@ -14,11 +14,12 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
+      console.log('User already authenticated, redirecting...');
       const from = location.state?.from?.pathname || '/';
       navigate(from, { replace: true });
     }
@@ -67,6 +68,18 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#16437c] to-[#f3f7fccb] flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#16437c] to-[#f3f7fccb] flex items-center justify-center p-4">

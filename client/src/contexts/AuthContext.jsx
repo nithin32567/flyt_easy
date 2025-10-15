@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
       if (response.data.user) {
         setUser(response.data.user);
         setIsAuthenticated(true);
+        console.log('User authenticated:', response.data.user.email);
       }
     } catch (error) {
       console.log('Not authenticated:', error.response?.status);

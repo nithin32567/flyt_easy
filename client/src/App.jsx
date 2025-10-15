@@ -6,7 +6,7 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 import PaymentError from "./pages/PaymentError";
 import PaymentSuccess from "./pages/PaymentSucccess";
 import HotelBooking from "./pages/HotelBooking";
-import HotelDetails from "./pages/HotelDetails";
+import HotelDetails from "./pages/hotel/HotelDetails";
 import HotelPaymentSuccess from "./pages/HotelPaymentSuccess";
 import Home from "./pages/Home";
 import ListFlights from "./pages/ListFlights";
@@ -17,11 +17,12 @@ import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { FlightProvider } from "./contexts/FlightContext";
 import { WebSettingsProvider, useWebSettings } from "./contexts/WebSettingsContext";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 const AppContent = () => {
   const navigate = useNavigate();
   const { fetchWebSettings, loading: webSettingsLoading } = useWebSettings();
+  const { loading: authLoading } = useAuth();
 
   useEffect(() => {
 
@@ -46,12 +47,12 @@ const AppContent = () => {
     initializeApp();
   }, []); 
 
-  if (webSettingsLoading) {
+  if (webSettingsLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading application settings...</p>
+          <p className="text-gray-600">Loading application...</p>
         </div>
       </div>
     );

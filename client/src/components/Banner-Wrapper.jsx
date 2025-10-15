@@ -29,7 +29,7 @@ const BannerWrapper = () => {
                       {
                         isAuthenticated ? (
                           <button className="signin-btn">Welcome {user?.name}</button>
-                        ):  <button className="signin-btn">
+                        ):  <button onClick={() => navigate("/login")} className="signin-btn">
                         Sign In / Register
                       </button>
                       }
