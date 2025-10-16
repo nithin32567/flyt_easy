@@ -56,6 +56,8 @@ const FlightHotelWearchWrapper = () => {
                   token={token}
                   adults={adults}
                   children={children}
+                  setAdults={setAdults}
+                  setChildren={setChildren}
                 />
               )}
             </div>

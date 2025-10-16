@@ -6,7 +6,9 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 import PaymentError from "./pages/PaymentError";
 import PaymentSuccess from "./pages/PaymentSucccess";
 import HotelBooking from "./pages/HotelBooking";
-import HotelDetails from "./pages/hotel/HotelDetails";
+// import HotelDetails from "./pages/hotel/HotelDetails";
+import HotelDetailsNew from "./pages/hotel/HotelDetailsNew";
+import HotelResults from "./pages/hotel/HotelResults";
 import HotelPaymentSuccess from "./pages/HotelPaymentSuccess";
 import Home from "./pages/Home";
 import ListFlights from "./pages/ListFlights";
@@ -100,9 +102,14 @@ const AppContent = () => {
             <HotelBooking />
           </ProtectedRoute>
         } />
+        <Route path="/hotel-results" element={
+          <ProtectedRoute>
+            <HotelResults />
+          </ProtectedRoute>
+        } />
         <Route path="/hotel-details/:hotelId" element={
           <ProtectedRoute>
-            <HotelDetails />
+            <HotelDetailsNew />
           </ProtectedRoute>
         } />
         <Route path="/hotel-payment-success" element={

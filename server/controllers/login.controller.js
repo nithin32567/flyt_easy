@@ -37,7 +37,7 @@ export const googleLogin = async (req, res) => {
         email,
         name,
         picture,
-        googleId,
+        googleId, 
         lastLogin: new Date()
       });
       await user.save();

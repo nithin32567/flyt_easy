@@ -4,7 +4,7 @@ import flightRoutes from "./flight.routes.js";
 // import hotelRoutes from "./hoter.routes.js";
 import razorpayRoutes from "./razorpay.routes.js";
 import loginRoutes from "./login.routes.js";
-import hotelRoutes from "./hoter.routes.js";
+import hotelRoutes from "./hotel.routes.js";
 const router = express.Router();
 
 router.get("/signature", generateToken);
@@ -12,8 +12,9 @@ router.get("/signature", generateToken);
 router.use("/flights", flightRoutes);
 // router.use("/hotels", hotelRoutes);
 router.use("/razorpay", razorpayRoutes);
-
 router.use("/hotel", hotelRoutes);
+// router.use("/hotel", hotelRoutes);
+
 
 
 router.use("/login", loginRoutes);
