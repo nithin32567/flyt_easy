@@ -28,10 +28,10 @@ const Createitenary = () => {
   // const reviewData = JSON.parse(localStorage.getItem("oneWayReviewData"));
   const netAmount = localStorage.getItem("netamount") // Use the exact value without parsing
   
-  // Hotel booking detection
+  // Hotel booking detection - only true if we're specifically in hotel booking flow
   const hotelSearchDataString = localStorage.getItem("hotelSearchData");
   const hotelSearchData = hotelSearchDataString ? JSON.parse(hotelSearchDataString) : null;
-  const isHotelBooking = !!hotelSearchData;
+  const isHotelBooking = !!hotelSearchData && localStorage.getItem("bookingType") === "hotel";
   const hotelSearchTracingKey = localStorage.getItem("searchTracingKey");
   const [itenarySuccess, setItenarySuccess] = useState(false);
   const [travelCheckListData, setTravelCheckListData] = useState(null);
@@ -408,7 +408,7 @@ const Createitenary = () => {
           GSTTIN: contactInfo?.GSTTIN || "",
           GSTMobile: contactInfo?.GSTMobile || "",
           GSTEmail: contactInfo?.GSTEmail || "",
-          UpdateProfile: contactInfo?.UpdateProfile || true,
+          UpdateProfile: false,
           IsGuest: contactInfo?.IsGuest || false,
           CountryCode: contactInfo?.CountryCode || "IN",
           MobileCountryCode: contactInfo?.MobileCountryCode || "+91",
@@ -1166,7 +1166,7 @@ const Createitenary = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-40">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">

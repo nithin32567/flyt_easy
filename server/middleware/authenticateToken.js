@@ -55,7 +55,7 @@ export const authenticateUser = async (req, res, next) => {
     
     // Attach user object to request
     req.user = {
-      id: user._id,
+      id: user._id.toString(),
       email: user.email,
       name: user.name,
       picture: user.picture,

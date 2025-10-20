@@ -1177,10 +1177,18 @@ a:hover {
 .content-with-header {
   padding-top: 194px; /* Default header height */
   transition: padding-top 0.3s ease;
+  min-height: calc(100vh - 194px);
 }
 
-.f-nav ~ .content-with-header {
+.f-nav .content-with-header {
   padding-top: 66px; /* Fixed header height */
+  min-height: calc(100vh - 66px);
+}
+
+/* Ensure all pages have proper spacing */
+.content-with-header > * {
+  position: relative;
+  z-index: 1;
 }
 
 .carousel-control-prev,

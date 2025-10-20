@@ -540,24 +540,24 @@
   .hotel-name {
     font-size: 2rem;
   }
-  
+
   .main-image-container {
     height: 250px;
   }
-  
+
   .hotel-header {
     padding: 1rem;
   }
-  
+
   .hotel-info-card {
     position: static;
     margin-top: 2rem;
   }
-  
+
   .image-thumbnails {
     padding: 0.5rem;
   }
-  
+
   .thumbnail {
     width: 60px;
     height: 45px;

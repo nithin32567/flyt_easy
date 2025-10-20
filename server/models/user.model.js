@@ -37,6 +37,44 @@ const userSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  defaultAddressId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Address',
+    default: null
+  },
+  profile: {
+    firstName: {
+      type: String,
+      trim: true
+      
+    },
+    lastName: {
+      type: String,
+      trim: true
+    },
+    phone: {
+      type: String,
+      trim: true
+    },
+    dateOfBirth: {
+      type: Date
+    },
+    gender: {
+      type: String,
+      enum: ['Male', 'Female', 'Other', 'Prefer not to say']
+    },
+    nationality: {
+      type: String,
+      default: 'Indian'
+    },
+    passportNumber: {
+      type: String,
+      trim: true
+    },
+    passportExpiry: {
+      type: Date
+    }
   }
 }, {
   timestamps: true // automatically manages createdAt and updatedAt

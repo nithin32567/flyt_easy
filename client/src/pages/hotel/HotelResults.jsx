@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Filter, MapPin, Star, SortAsc, Grid, List } from 'lucide-react';
 import { Pagination, PaginationItem } from '@mui/material';
 import HotelCard from '../../components/hotel/HotelCard';
@@ -27,54 +27,103 @@ const HotelResults = () => {
     guests: 2,
     rooms: 1
   });
+  const initialLoadTriggered = useRef(false);
+  const fetchTimeoutRef = useRef(null);
 
-  const fetchHotelPage = async (page, limit = 20) => {
-    if (!searchId) {
-      // Fallback to client-side pagination if no searchId
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      setFilteredHotels(allHotels.slice(startIndex, endIndex));
-      setCurrentPage(page);
+  const fetchHotelPage = async (page, limit = 50) => {
+    // Prevent multiple simultaneous calls
+    if (loading) {
+      console.log('=== FRONTEND: ALREADY LOADING, SKIPPING REQUEST ===');
       return;
     }
-    
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`/api/hotel/page`, {
-        params: { searchId, page, limit },
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      const { content, pagination } = response.data;
-      
-      if (content?.hotels) {
-        setFilteredHotels(content.hotels);
-        setTotalPages(pagination.totalPages);
-        setTotalHotels(pagination.total);
-        
-        // Store all hotels in localStorage for client-side pagination
-        const existingHotels = JSON.parse(localStorage.getItem('allHotels') || '[]');
-        const newHotels = content.hotels.filter(hotel => 
-          !existingHotels.some(existing => existing.id === hotel.id)
-        );
-        const updatedHotels = [...existingHotels, ...newHotels];
-        localStorage.setItem('allHotels', JSON.stringify(updatedHotels));
-        setAllHotels(updatedHotels);
-      }
-    } catch (error) {
-      console.error('Error fetching hotel page:', error);
-      // Fallback to client-side pagination on error
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      setFilteredHotels(allHotels.slice(startIndex, endIndex));
-    } finally {
-      setLoading(false);
+
+    // Clear any existing timeout
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
     }
+
+    // Debounce the API call
+    fetchTimeoutRef.current = setTimeout(async () => {
+      if (!searchId) {
+        // Fallback to client-side pagination if no searchId
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        setFilteredHotels(allHotels.slice(startIndex, endIndex));
+        setCurrentPage(page);
+        return;
+      }
+      
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const searchTracingKey = localStorage.getItem('searchTracingKey');
+        
+        console.log('=== FRONTEND: FETCHING HOTEL PAGE ===');
+        console.log('Search ID:', searchId);
+        console.log('Page:', page, 'Limit:', limit);
+        console.log('Search Tracing Key:', searchTracingKey);
+        
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/hotel/page`, {
+          params: { searchId, page, limit },
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'search-tracing-key': searchTracingKey || ''
+          }
+        });
+        
+        console.log('=== FRONTEND: HOTEL PAGE RESPONSE ===');
+        console.log('Status:', response.status);
+        console.log('Data:', JSON.stringify(response.data, null, 2));
+        
+        const { content, pagination } = response.data;
+        
+        if (content?.hotels) {
+          setFilteredHotels(content.hotels);
+          setTotalPages(pagination.totalPages);
+          setTotalHotels(pagination.total);
+          
+          // Store all hotels in localStorage for client-side pagination (only if not already stored)
+          const existingHotels = JSON.parse(localStorage.getItem('allHotels') || '[]');
+          const newHotels = content.hotels.filter(hotel => 
+            !existingHotels.some(existing => existing.id === hotel.id)
+          );
+          
+          // Only update localStorage if we have new hotels
+          if (newHotels.length > 0) {
+            const updatedHotels = [...existingHotels, ...newHotels];
+            localStorage.setItem('allHotels', JSON.stringify(updatedHotels));
+            setAllHotels(updatedHotels);
+          } else {
+            // Use existing hotels if no new ones
+            setAllHotels(existingHotels);
+          }
+          
+          console.log('=== FRONTEND: HOTELS UPDATED ===');
+          console.log('New hotels count:', newHotels.length);
+          console.log('Total hotels in localStorage:', existingHotels.length + newHotels.length);
+        }
+      } catch (error) {
+        console.error('=== FRONTEND: HOTEL PAGE ERROR ===');
+        console.error('Error:', error.message);
+        if (error.response) {
+          console.error('Response Status:', error.response.status);
+          console.error('Response Data:', error.response.data);
+        }
+        // Fallback to client-side pagination on error
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        setFilteredHotels(allHotels.slice(startIndex, endIndex));
+      } finally {
+        setLoading(false);
+      }
+    }, 300); // 300ms debounce
   };
 
   // Function to handle pagination change
   const handlePageChange = (event, page) => {
+    console.log('=== FRONTEND: PAGINATION CHANGE ===');
+    console.log('Changing to page:', page);
+    console.log('Current page:', currentPage);
     setCurrentPage(page);
     fetchHotelPage(page);
   };
@@ -96,6 +145,9 @@ const HotelResults = () => {
         
         // Set pagination info
         if (results.pagination) {
+          console.log('=== FRONTEND: SETTING PAGINATION FROM RESULTS ===');
+          console.log('Total Pages:', results.pagination.totalPages);
+          console.log('Total Hotels:', results.pagination.total);
           setTotalPages(results.pagination.totalPages);
           setTotalHotels(results.pagination.total);
         }
@@ -104,16 +156,22 @@ const HotelResults = () => {
         if (storedAllHotels) {
           const allHotelsData = JSON.parse(storedAllHotels);
           setAllHotels(allHotelsData);
-          setFilteredHotels(allHotelsData.slice(0, 20)); // Show first 20 hotels
+          setFilteredHotels(allHotelsData.slice(0, 50)); // Show first 50 hotels
           // Set client-side pagination
-          setTotalPages(Math.ceil(allHotelsData.length / 20));
+          setTotalPages(Math.ceil(allHotelsData.length / 50));
           setTotalHotels(allHotelsData.length);
         } else {
           const hotels = results.content?.hotels || [];
           setFilteredHotels(hotels);
           setAllHotels(hotels);
-          setTotalPages(Math.ceil(hotels.length / 20));
-          setTotalHotels(hotels.length);
+          // Use server-side pagination info if available, otherwise calculate client-side
+          if (results.pagination) {
+            setTotalPages(results.pagination.totalPages);
+            setTotalHotels(results.pagination.total);
+          } else {
+            setTotalPages(Math.ceil(hotels.length / 50));
+            setTotalHotels(hotels.length);
+          }
         }
         
         // Update search params from stored data
@@ -135,7 +193,7 @@ const HotelResults = () => {
         const hotels = mockSearchResults.content?.hotels || [];
         setFilteredHotels(hotels);
         setAllHotels(hotels);
-        setTotalPages(Math.ceil(hotels.length / 20));
+        setTotalPages(Math.ceil(hotels.length / 50));
         setTotalHotels(hotels.length);
       }
     } catch (error) {
@@ -146,93 +204,173 @@ const HotelResults = () => {
       const hotels = mockSearchResults.content?.hotels || [];
       setFilteredHotels(hotels);
       setAllHotels(hotels);
-      setTotalPages(Math.ceil(hotels.length / 20));
+      setTotalPages(Math.ceil(hotels.length / 50));
       setTotalHotels(hotels.length);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const handleFilterChange = (newFilters) => {
+  // Trigger initial page load if we have searchId but no hotels loaded yet
+  useEffect(() => {
+    if (searchId && filteredHotels.length === 0 && !loading && !initialLoadTriggered.current) {
+      console.log('=== FRONTEND: TRIGGERING INITIAL PAGE LOAD ===');
+      console.log('Search ID:', searchId);
+      console.log('Current filtered hotels:', filteredHotels.length);
+      initialLoadTriggered.current = true;
+      fetchHotelPage(1);
+    }
+  }, [searchId, filteredHotels.length, loading]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleFilterChange = async (newFilters) => {
     console.log('Filter changed:', newFilters);
     
-    // Use allHotels if available, otherwise fallback to searchResults
-    const hotelsToFilter = allHotels.length > 0 ? allHotels : (searchResults?.content?.hotels || []);
-    
-    if (hotelsToFilter.length === 0) return;
-    
-    let filtered = [...hotelsToFilter];
-    
-    // Apply filters
-    Object.entries(newFilters).forEach(([category, value]) => {
-      if (!value || (Array.isArray(value) && value.length === 0)) return;
+    if (!searchId) {
+      console.log('No searchId available, using client-side filtering');
+      // Fallback to client-side filtering if no searchId
+      const hotelsToFilter = allHotels.length > 0 ? allHotels : (searchResults?.content?.hotels || []);
       
-      switch (category) {
-        case 'HotelName':
-          if (value) {
-            filtered = filtered.filter(hotel => 
-              hotel.name.toLowerCase().includes(value.toLowerCase())
-            );
-          }
-          break;
-          
-        case 'PriceGroup':
-          if (value && value.min !== undefined && value.max !== undefined) {
-            filtered = filtered.filter(hotel => {
-              if (!hotel.rate) return false;
-              const price = hotel.rate.total;
-              return price >= value.min && (value.max === -1 || price <= value.max);
-            });
-          }
-          break;
-          
-        case 'StarRating':
-          if (Array.isArray(value) && value.length > 0) {
-            filtered = filtered.filter(hotel => 
-              value.includes(hotel.starRating.toString())
-            );
-          }
-          break;
-          
-        case 'Distance':
-          if (value && value.min !== undefined && value.max !== undefined) {
-            filtered = filtered.filter(hotel => 
-              hotel.distance >= value.min && hotel.distance <= value.max
-            );
-          }
-          break;
-          
-        case 'Facilities':
-          if (Array.isArray(value) && value.length > 0) {
-            filtered = filtered.filter(hotel => 
-              value.some(facilityId => 
-                hotel.facilities.some(facility => 
-                  facility.id.toString() === facilityId
+      if (hotelsToFilter.length === 0) return;
+      
+      let filtered = [...hotelsToFilter];
+      
+      // Apply filters
+      Object.entries(newFilters).forEach(([category, value]) => {
+        if (!value || (Array.isArray(value) && value.length === 0)) return;
+        
+        switch (category) {
+          case 'HotelName':
+            if (value) {
+              filtered = filtered.filter(hotel => 
+                hotel.name.toLowerCase().includes(value.toLowerCase())
+              );
+            }
+            break;
+            
+          case 'PriceGroup':
+            if (value && value.min !== undefined && value.max !== undefined) {
+              filtered = filtered.filter(hotel => {
+                if (!hotel.rate) return false;
+                const price = hotel.rate.total;
+                return price >= value.min && (value.max === -1 || price <= value.max);
+              });
+            }
+            break;
+            
+          case 'StarRating':
+            if (Array.isArray(value) && value.length > 0) {
+              filtered = filtered.filter(hotel => 
+                value.includes(hotel.starRating.toString())
+              );
+            }
+            break;
+            
+          case 'Distance':
+            if (value && value.min !== undefined && value.max !== undefined) {
+              filtered = filtered.filter(hotel => 
+                hotel.distance >= value.min && hotel.distance <= value.max
+              );
+            }
+            break;
+            
+          case 'Facilities':
+            if (Array.isArray(value) && value.length > 0) {
+              filtered = filtered.filter(hotel => 
+                value.some(facilityId => 
+                  hotel.facilities.some(facility => 
+                    facility.id.toString() === facilityId
+                  )
                 )
-              )
-            );
-          }
-          break;
-          
-        case 'HotelChain':
-          if (Array.isArray(value) && value.length > 0) {
-            filtered = filtered.filter(hotel => 
-              value.includes(hotel.chainName || 'Independent')
-            );
-          }
-          break;
-          
-        case 'PropertyType':
-          if (Array.isArray(value) && value.length > 0) {
-            filtered = filtered.filter(hotel => 
-              value.includes(hotel.propertyType?.toLowerCase() || 'hotel')
-            );
-          }
-          break;
-      }
-    });
+              );
+            }
+            break;
+            
+          case 'HotelChain':
+            if (Array.isArray(value) && value.length > 0) {
+              filtered = filtered.filter(hotel => 
+                value.includes(hotel.chainName || 'Independent')
+              );
+            }
+            break;
+            
+          case 'PropertyType':
+            if (Array.isArray(value) && value.length > 0) {
+              filtered = filtered.filter(hotel => 
+                value.includes(hotel.propertyType?.toLowerCase() || 'hotel')
+              );
+            }
+            break;
+        }
+      });
+      
+      setFilteredHotels(filtered);
+      return;
+    }
     
-    setFilteredHotels(filtered);
+    // Use server-side filtering with the new API
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      const searchTracingKey = localStorage.getItem('searchTracingKey');
+      
+      console.log('=== FRONTEND: CALLING FILTER API ===');
+      console.log('Search ID:', searchId);
+      console.log('Filters:', JSON.stringify(newFilters, null, 2));
+      
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/hotel/filter/${searchId}`,
+        { filters: newFilters },
+        {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'search-tracing-key': searchTracingKey || '',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log('=== FRONTEND: FILTER API RESPONSE ===');
+      console.log('Status:', response.status);
+      console.log('Data:', JSON.stringify(response.data, null, 2));
+      
+      const { hotels } = response.data;
+      
+      if (hotels?.hotels) {
+        setFilteredHotels(hotels.hotels);
+        setTotalPages(Math.ceil(hotels.total / 50));
+        setTotalHotels(hotels.total);
+        
+        // Update allHotels with filtered results (don't overwrite localStorage)
+        setAllHotels(hotels.hotels);
+        // Don't overwrite localStorage with filtered results - keep original data
+        
+        console.log('=== FRONTEND: FILTERED HOTELS UPDATED ===');
+        console.log('Filtered hotels count:', hotels.hotels.length);
+        console.log('Total hotels:', hotels.total);
+      }
+    } catch (error) {
+      console.error('=== FRONTEND: FILTER API ERROR ===');
+      console.error('Error:', error.message);
+      if (error.response) {
+        console.error('Response Status:', error.response.status);
+        console.error('Response Data:', error.response.data);
+      }
+      // Fallback to client-side filtering on error
+      console.log('Falling back to client-side filtering');
+      const hotelsToFilter = allHotels.length > 0 ? allHotels : (searchResults?.content?.hotels || []);
+      setFilteredHotels(hotelsToFilter);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSortChange = (sortType) => {
@@ -396,6 +534,13 @@ const HotelResults = () => {
             )}
 
             {/* Pagination */}
+            {console.log('=== FRONTEND: PAGINATION DEBUG ===', {
+              filteredHotelsLength: filteredHotels.length,
+              totalPages: totalPages,
+              currentPage: currentPage,
+              totalHotels: totalHotels,
+              showPagination: filteredHotels.length > 0 && totalPages > 1
+            })}
             {filteredHotels.length > 0 && totalPages > 1 && (
               <div className="flex justify-center mt-8 bg-white p-6 rounded-lg shadow-sm">
                 {loading ? (
@@ -404,37 +549,80 @@ const HotelResults = () => {
                     <span className="ml-2 text-gray-600">Loading page...</span>
                   </div>
                 ) : (
-                  <Pagination
-                    count={totalPages}
-                    page={currentPage}
-                    onChange={handlePageChange}
-                    color="primary"
-                    size="large"
-                    showFirstButton
-                    showLastButton
-                    renderItem={(item) => (
-                      <PaginationItem
-                        {...item}
-                        sx={{
-                          '&.Mui-selected': {
-                            backgroundColor: '#3b82f6',
-                            color: 'white',
-                            '&:hover': {
-                              backgroundColor: '#2563eb',
-                            },
-                          },
-                          '&:hover': {
-                            backgroundColor: '#f3f4f6',
-                          },
-                          '&.MuiPaginationItem-root': {
-                            margin: '0 4px',
-                            borderRadius: '8px',
-                            fontWeight: '500',
-                          },
-                        }}
+                  <>
+                    {/* Custom Pagination */}
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handlePageChange(null, Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Previous
+                      </button>
+                      
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                          const pageNum = Math.max(1, Math.min(totalPages, currentPage - 2 + i));
+                          return (
+                            <button
+                              key={pageNum}
+                              onClick={() => handlePageChange(null, pageNum)}
+                              className={`px-3 py-2 border rounded-md text-sm font-medium ${
+                                currentPage === pageNum
+                                  ? 'bg-indigo-600 text-white border-indigo-600'
+                                  : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                              }`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      
+                      <button
+                        onClick={() => handlePageChange(null, Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Next
+                      </button>
+                    </div>
+                    
+                    {/* Material-UI Pagination (fallback) */}
+                    <div className="ml-4">
+                      <Pagination
+                        count={totalPages}
+                        page={currentPage}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="large"
+                        showFirstButton
+                        showLastButton
+                        renderItem={(item) => (
+                          <PaginationItem
+                            {...item}
+                            sx={{
+                              '&.Mui-selected': {
+                                backgroundColor: '#3b82f6',
+                                color: 'white',
+                                '&:hover': {
+                                  backgroundColor: '#2563eb',
+                                },
+                              },
+                              '&:hover': {
+                                backgroundColor: '#f3f4f6',
+                              },
+                              '&.MuiPaginationItem-root': {
+                                margin: '0 4px',
+                                borderRadius: '8px',
+                                fontWeight: '500',
+                              },
+                            }}
+                          />
+                        )}
                       />
-                    )}
-                  />
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -442,7 +630,9 @@ const HotelResults = () => {
             {/* Pagination Info */}
             {!loading && filteredHotels.length > 0 && (
               <div className="text-center mt-4 text-sm text-gray-600">
-                Showing {((currentPage - 1) * 20) + 1} - {Math.min(currentPage * 20, totalHotels)} of {totalHotels} hotels
+                <p>Showing {filteredHotels.length} hotels on page {currentPage} of {totalPages}</p>
+                <p>Total hotels: {totalHotels}</p>
+                <p>Displaying {((currentPage - 1) * 50) + 1} - {Math.min(currentPage * 50, totalHotels)} of {totalHotels} hotels</p>
               </div>
             )}
           </div>

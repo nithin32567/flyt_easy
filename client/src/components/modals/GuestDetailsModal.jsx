@@ -82,8 +82,7 @@ export default function GuestDetailsModal({
       if (rIndex === roomIndex) {
         return {
           ...room,
-          guests: room.guests.map((guest, gIndex) => {
-            if (gIndex === guestIndex) {
+          guests: room.guests.map((guest, gIndex) => { if (gIndex === guestIndex) {
               return { ...guest, [field]: value };
             }
             return guest;

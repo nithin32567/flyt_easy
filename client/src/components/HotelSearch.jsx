@@ -48,6 +48,15 @@ const HotelSearch = ({
 
     setIsLoading(true);
     
+    // Clear previous search data before starting new search
+    localStorage.removeItem('hotelSearchId');
+    localStorage.removeItem('searchTracingKey');
+    localStorage.removeItem('hotelSearchData');
+    localStorage.removeItem('hotelSearchResults');
+    localStorage.removeItem('allHotels');
+    
+    console.log('=== FRONTEND: CLEARED PREVIOUS SEARCH DATA ===');
+    
     try {
       // Prepare the payload according to the Postman collection
       const payload = {
@@ -87,10 +96,13 @@ const HotelSearch = ({
         tdsPercentage: 0
       };
 
-      console.log('Hotel search payload:', payload);
+      console.log('=== FRONTEND: HOTEL SEARCH INITIATED ===');
+      console.log('Payload:', JSON.stringify(payload, null, 2));
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/hotel/search-with-rates-content`,
+      // Step 1: Call init API
+      console.log('=== FRONTEND: CALLING INIT API ===');
+      const initResponse = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/hotel/init`,
         payload,
         {
           headers: {
@@ -100,10 +112,59 @@ const HotelSearch = ({
         }
       );
 
-      console.log('Hotel search response:', response.data);
+      console.log('=== FRONTEND: INIT API RESPONSE ===');
+      console.log('Status:', initResponse.status);
+      console.log('Data:', JSON.stringify(initResponse.data, null, 2));
+      
+      const initData = initResponse.data;
+      
+      if (!initData.searchId) {
+        throw new Error('Search ID not received from init API');
+      }
+
+      // Store search IDs for subsequent API calls - these persist until next init request
+      localStorage.setItem('hotelSearchId', initData.searchId);
+      localStorage.setItem('searchTracingKey', initData.searchTracingKey);
+      
+      console.log('=== FRONTEND: STORED IN LOCALSTORAGE ===');
+      console.log('Search ID stored:', initData.searchId);
+      console.log('Search Tracing Key stored:', initData.searchTracingKey);
+
+      // Step 2: Call content and rates APIs in parallel
+      console.log('=== FRONTEND: CALLING CONTENT & RATES API ===');
+      const contentRatesResponse = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/hotel/content-rates/${initData.searchId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'search-tracing-key': initData.searchTracingKey || ''
+          }
+        }
+      );
+
+      console.log('=== FRONTEND: CONTENT & RATES API RESPONSE ===');
+      console.log('Status:', contentRatesResponse.status);
+      console.log('Data:', JSON.stringify(contentRatesResponse.data, null, 2));
+
+      // Combine the responses
+      const combinedResponse = {
+        status: 'success',
+        init: initData.init,
+        rates: contentRatesResponse.data.rates,
+        content: contentRatesResponse.data.content,
+        filterData: contentRatesResponse.data.filterData,
+        searchId: initData.searchId,
+        searchTracingKey: initData.searchTracingKey,
+        pagination: contentRatesResponse.data.pagination,
+        timestamp: new Date().toISOString()
+      };
+
+      console.log('=== FRONTEND: COMBINED RESPONSE ===');
+      console.log(combinedResponse);
       
       // Store the search results
-      setHotelSearchResults(response.data);
+      setHotelSearchResults(combinedResponse);
       
       // Store search data in localStorage for the results page
       const searchData = {
@@ -122,27 +183,30 @@ const HotelSearch = ({
         rooms: rooms,
         adults: adults,
         children: children,
-        priceRange: priceRange
+        priceRange: priceRange,
+        searchId: initData.searchId,
+        searchTracingKey: initData.searchTracingKey
       };
       
       localStorage.setItem('hotelSearchData', JSON.stringify(searchData));
-      localStorage.setItem('hotelSearchResults', JSON.stringify(response.data));
+      localStorage.setItem('hotelSearchResults', JSON.stringify(combinedResponse));
+      localStorage.setItem('bookingType', 'hotel');
       
-      // Store search IDs for API calls
-      if (response.data.init?.searchId) {
-        localStorage.setItem('hotelSearchId', response.data.init.searchId);
-      }
-      if (response.data.init?.searchTracingKey) {
-        localStorage.setItem('searchTracingKey', response.data.init.searchTracingKey);
-      }
+      console.log('=== FRONTEND: SEARCH DATA STORED ===');
+      console.log('Search Data:', JSON.stringify(searchData, null, 2));
       
       // Navigate to hotel results page
-      if (response.data.status === 'success') {
+      if (combinedResponse.status === 'success') {
         navigate('/hotel-results');
       }
       
     } catch (error) {
-      console.error('Hotel search error:', error);
+      console.error('=== FRONTEND: HOTEL SEARCH ERROR ===');
+      console.error('Error:', error.message);
+      if (error.response) {
+        console.error('Response Status:', error.response.status);
+        console.error('Response Data:', error.response.data);
+      }
       alert('Hotel search failed. Please try again.');
     } finally {
       setIsLoading(false);

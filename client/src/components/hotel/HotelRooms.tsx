@@ -1,5 +1,6 @@
 import React from 'react';
 import { Clock, Users, Bed } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface HotelRoomsProps {
   rooms: {
@@ -26,7 +27,7 @@ interface HotelRoomsProps {
         refundable: boolean;
         onlineCancellable: boolean;
         specialRequestSupported: boolean;
-        room?: {
+        roomType?: {
           smokingAllowed: boolean;
         };
         baseRate: number;
@@ -48,6 +49,44 @@ interface HotelRoomsProps {
 }
 
 const HotelRooms: React.FC<HotelRoomsProps> = ({ rooms, onNavigateBack, onRetry }) => {
+  const navigate = useNavigate();
+  
+  const handleRoomSelection = (room: any, recommendation: any) => {
+    // Get hotel data from localStorage to include hotel code
+    const hotelDetailsData = JSON.parse(localStorage.getItem('hotelDetailsData') || '{}');
+    const hotelCode = hotelDetailsData?.content?.hotel?.id || hotelDetailsData?.id;
+    
+    // Store selected room data
+    const selectedRoomData = {
+      roomId: recommendation.id,
+      roomGroupId: room.roomGroupId,
+      recommendationId: recommendation.id,
+      roomName: room.room?.name || 'Selected Room',
+      providerName: room.providerName,
+      totalRate: room.totalRate,
+      baseRate: room.baseRate,
+      taxes: room.taxes,
+      commission: room.commission,
+      refundable: room.refundable,
+      onlineCancellable: room.onlineCancellable,
+      specialRequestSupported: room.specialRequestSupported,
+      roomCount: room.roomCount,
+      occupancies: room.occupancies,
+      cancellationPolicies: room.cancellationPolicies,
+      hotelCode: hotelCode
+    };
+    
+    console.log('=== STORING SELECTED ROOM DATA ===');
+    console.log('Selected Room Data:', selectedRoomData);
+    console.log('Hotel Code:', hotelCode);
+    console.log('=== END STORING SELECTED ROOM DATA ===');
+    
+    localStorage.setItem('selectedRoomData', JSON.stringify(selectedRoomData));
+    
+    // Navigate to booking page
+    navigate('/hotel-booking');
+  };
+  
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -100,7 +139,7 @@ const HotelRooms: React.FC<HotelRoomsProps> = ({ rooms, onNavigateBack, onRetry 
     );
   }
 
-  if (rooms.status === 'success' && rooms.recommendations?.length > 0) {
+  if (rooms.status === 'success' && rooms?.recommendations && rooms?.recommendations?.length > 0) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
         <h2 className="text-xl font-bold mb-4">Available Rooms</h2>
@@ -242,7 +281,10 @@ const HotelRooms: React.FC<HotelRoomsProps> = ({ rooms, onNavigateBack, onRetry 
                         )}
 
                         {/* Book Now Button */}
-                        <button className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                        <button 
+                          onClick={() => handleRoomSelection(room, rec)}
+                          className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                        >
                           Book Now - {formatPrice(room.totalRate)}
                         </button>
                       </div>

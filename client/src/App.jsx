@@ -1,11 +1,11 @@
-import React, { useEffect} from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import FlightSearch from "./pages/FlightSearch";
 import OneWayReview from "./components/OneWayReview";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import PaymentError from "./pages/PaymentError";
 import PaymentSuccess from "./pages/PaymentSucccess";
-import HotelBooking from "./pages/HotelBooking";
+import HotelBooking from "./pages/hotel/HotelBooking";
 // import HotelDetails from "./pages/hotel/HotelDetails";
 import HotelDetailsNew from "./pages/hotel/HotelDetailsNew";
 import HotelResults from "./pages/hotel/HotelResults";
@@ -17,12 +17,17 @@ import HeaderWrapper from "./components/HeaderWrapper";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UserProfile from "./components/UserProfile";
+import FlightBookingDetails from "./pages/FlightBookingDetails";
+import UserBookings from "./pages/UserBookings";
+import BookingDetailsAccordion from "./pages/BookingDetailsAccordion";
 import { FlightProvider } from "./contexts/FlightContext";
 import { WebSettingsProvider, useWebSettings } from "./contexts/WebSettingsContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 const AppContent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { fetchWebSettings, loading: webSettingsLoading } = useWebSettings();
   const { loading: authLoading } = useAuth();
 
@@ -47,7 +52,11 @@ const AppContent = () => {
     };
 
     initializeApp();
-  }, []); 
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   if (webSettingsLoading || authLoading) {
     return (
@@ -61,10 +70,11 @@ const AppContent = () => {
   }
 
   return (
-    <div className="">
+    <div className="min-h-screen">
       <HeaderWrapper />
-
-      <Routes>
+      
+      <main className="content-with-header">
+        <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
         <Route path="/flight-search" element={
@@ -127,7 +137,28 @@ const AppContent = () => {
             <OneWayReview />
           </ProtectedRoute>
         } />
-      </Routes>
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <UserProfile />
+          </ProtectedRoute>
+        } />
+        <Route path="/booking-details/:bookingId" element={
+          <ProtectedRoute>
+            <FlightBookingDetails />
+          </ProtectedRoute>
+        } />
+        <Route path="/bookings" element={
+          <ProtectedRoute>
+            <UserBookings />
+          </ProtectedRoute>
+        } />
+        <Route path="/bookings-accordion" element={
+          <ProtectedRoute>
+            <BookingDetailsAccordion />
+          </ProtectedRoute>
+        } />
+        </Routes>
+      </main>
       <Footer />
     </div>
   );

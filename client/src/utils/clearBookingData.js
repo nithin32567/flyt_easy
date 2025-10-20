@@ -19,7 +19,8 @@ export const clearBookingData = () => {
     'contactInfo',
     'travellers',
     'netamount',
-    'sessionStartTime'
+    'sessionStartTime',
+    'bookingType'
   ];
 
   itemsToRemove.forEach(item => {
@@ -48,7 +49,8 @@ export const clearSearchData = () => {
     'travelCheckList',
     'contactInfo',
     'travellers',
-    'sessionStartTime'
+    'sessionStartTime',
+    'bookingType'
   ];
 
   itemsToRemove.forEach(item => {

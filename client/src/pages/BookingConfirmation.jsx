@@ -34,7 +34,7 @@ const BookingConfirmation = () => {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen pt-40">
+    <div className="bg-gray-100 min-h-screen">
       <div className="max-w-2xl mx-auto pt-8 px-4">
         {/* Success Header */}
         <div className="bg-white rounded-lg shadow-lg p-8 mb-6">

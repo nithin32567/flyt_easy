@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import FlightCard from "../components/FlightCard";
-import FlightFilter from "../components/FlightFilter";
+import FilterSidebar from "../components/flight/FilterSidebar";
 import { useFlight } from "../contexts/FlightContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Filter, X } from "lucide-react";
 
 const ListFlights = () => {
   const {
@@ -25,8 +26,24 @@ const ListFlights = () => {
       return null;
     }
   });
-  
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      if (width < 768) {
+        setSidebarOpen(false);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   useEffect(() => {
     if (!trips) {
       navigate("/", { replace: true });
@@ -55,14 +72,14 @@ const ListFlights = () => {
           console.error("Error parsing trips from localStorage:", error);
         }
       }
-      
+
       // If still no trips, navigate away
       navigate("/");
       alert("No Flights Found, Please try again!!!");
     }
   }, [trips, navigate]);
   const handleBookFlight = async () => {
-    if(!tripType){
+    if (!tripType) {
       alert("No Trip Type Found, Please try again!!!")
       navigate("/")
       return
@@ -81,7 +98,7 @@ const ListFlights = () => {
 
     // Prepare trips array based on trip type
     let tripsToSend = [];
-    
+
     if (tripType === "RT") {
       // For round trip, send both onward and return flights
       tripsToSend = [selectedFlight, selectedReturnFlight];
@@ -91,7 +108,7 @@ const ListFlights = () => {
     }
 
     console.log("Sending trips:", tripsToSend, "TripType:", tripType)
-    
+
     try {
       const clientID = localStorage.getItem("ClientID");
       const payload = {
@@ -103,20 +120,20 @@ const ListFlights = () => {
         TUI: TUI,
         TripType: tripType
       };
-      
+
       console.log("=== SMART PRICE API CALL ===");
       console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
       console.log("=============================");
-      
+
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, payload)
-      
+
       console.log("=== SMART PRICE API RESPONSE ===");
       console.log("Response Status:", response.status);
       console.log("Response Headers:", response.headers);
       console.log("Response Data:", JSON.stringify(response.data, null, 2));
       console.log("Full Response Object:", response);
       console.log("================================");
-      
+
       if (response.status === 200) {
         console.log("inside the if condition")
         const pricerTUI = response.data.TUI
@@ -134,7 +151,7 @@ const ListFlights = () => {
       console.error("Error calling smart-price API:", error);
       console.log("Error object:", JSON.stringify(error, null, 2));
       console.log("=============================");
-      
+
       if (error.response) {
         // Server responded with error status
         console.log("=== ERROR RESPONSE DETAILS ===");
@@ -169,25 +186,25 @@ const ListFlights = () => {
         token: localStorage.getItem("token"),
         ClientID: localStorage.getItem("ClientID")
       };
-      
+
       console.log("=== GET PRICER API CALL ===");
       console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
       console.log("===========================");
-      
+
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`, payload)
-      
+
       console.log("=== GET PRICER API RESPONSE ===");
       console.log("Response Status:", response.status);
       console.log("Response Headers:", response.headers);
       console.log("Response Data:", JSON.stringify(response.data, null, 2));
       console.log("Full Response Object:", response);
       console.log("===============================");
-      
+
       if (response.status === 200) {
         const data = response.data
         console.log(data, "data=========================")
         localStorage.setItem("pricerData", JSON.stringify(data.data))
-        localStorage.setItem("netamount", data.data.NetAmount.toString()) 
+        localStorage.setItem("netamount", data.data.NetAmount.toString())
         localStorage.setItem("oneWayReviewData", JSON.stringify(data.data))
         localStorage.setItem("pricerTUI", data.data.TUI)
         navigate("/one-way-review")
@@ -201,7 +218,7 @@ const ListFlights = () => {
       console.error("Error calling get-pricer API:", error);
       console.log("Error object:", JSON.stringify(error, null, 2));
       console.log("=============================");
-      
+
       if (error.response) {
         console.log("=== ERROR RESPONSE DETAILS ===");
         console.error("Error Status:", error.response.status);
@@ -228,7 +245,7 @@ const ListFlights = () => {
 
   if (loading) {
     return (
-      <div className="pt-40 flex justify-center items-center">
+      <div className="flex justify-center items-center min-h-[50vh]">
         <div className="text-xl">Loading flights...</div>
       </div>
     );
@@ -236,33 +253,60 @@ const ListFlights = () => {
 
   if (error) {
     return (
-      <div className="pt-40 flex justify-center items-center">
+      <div className="flex justify-center items-center min-h-[50vh]">
         <div className="text-xl text-red-600">Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <div className="pt-40">
+    <div className="relative">
+      {/* Sidebar Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={`fixed top-20 left-4 z-[1030] flex items-center space-x-2 shadow-lg rounded-lg px-4 py-2 border transition-all duration-200 hover:scale-105 ${
+          sidebarOpen 
+            ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700' 
+            : 'bg-white text-gray-700 border-gray-200 hover:shadow-xl'
+        }`}
+        aria-label="Toggle filters"
+      >
+        <Filter className="w-5 h-5" />
+        <span className="text-sm font-medium">
+          {sidebarOpen ? 'Hide Filters' : 'Show Filters'}
+        </span>
+      </button>
+
+      {/* Sidebar Overlay - Only on mobile */}
+      {sidebarOpen && isMobile && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-[1025] transition-opacity duration-300"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Filter Sidebar */}
+      <div className={`fixed top-0 left-0 z-[1030] h-full bg-white shadow-xl border-r border-gray-200 transition-transform duration-300 ease-in-out ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } w-96 lg:w-[28rem]`}>
+        <FilterSidebar onClose={() => setSidebarOpen(false)} />
+      </div>
+
       <h1 className="text-center text-2xl font-bold mb-4">
         {tripType === "RT" ? "Select Onward and Return Flights" : "Flight List"}
       </h1>
-      
-      {/* Flight Filter */}
-      <div className="max-w-7xl mx-auto mb-6">
-        <FlightFilter />
-      </div>
-      
+
       {/* Onward Flights Section */}
       <div className="max-w-7xl mx-auto mb-8">
         <h2 className="text-xl font-semibold mb-4 text-center">
           {tripType === "RT" ? "Onward Flights" : "Available Flights"}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-4">
           {filteredFlights.length > 0 ? filteredFlights.map((flight, index) => (
-            <FlightCard 
-              key={`onward-${index}`} 
-              flight={flight} 
+            <FlightCard
+              key={`onward-${index}`}
+              flight={flight}
               setSelectedFlight={setSelectedFlight}
               isSelected={selectedFlight?.Index === flight.Index}
               tripType="onward"
@@ -277,9 +321,9 @@ const ListFlights = () => {
           <h2 className="text-xl font-semibold mb-4 text-center">Return Flights</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredReturnFlights.length > 0 ? filteredReturnFlights.map((flight, index) => (
-              <FlightCard 
-                key={`return-${index}`} 
-                flight={flight} 
+              <FlightCard
+                key={`return-${index}`}
+                flight={flight}
                 setSelectedFlight={setSelectedReturnFlight}
                 isSelected={selectedReturnFlight?.Index === flight.Index}
                 tripType="return"
@@ -289,17 +333,81 @@ const ListFlights = () => {
         </div>
       )}
 
-    {/* Book Flight Button */}
-    <div className="max-w-7xl mx-auto text-center sticky bottom-0 w-full bg-white rounded-lg py-4 mt-4">
-      <button 
-        onClick={handleBookFlight}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg"
-        disabled={!selectedFlight || (tripType === "RT" && !selectedReturnFlight)}
-      >
-        {tripType === "RT" ? "Book Round Trip" : "Book Flight"}
-      </button>
+      {/* Book Flight Button */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-[1020]">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="text-sm text-gray-600 mb-1">
+                {tripType === "RT" ? "Round Trip Selection" : "Flight Selection"}
+              </div>
+              <div className="text-lg font-semibold text-gray-900">
+                {selectedFlight ? (
+                  <span className="text-green-600">✓ {selectedFlight.AirlineName} Selected</span>
+                ) : (
+                  <span className="text-gray-500">No flight selected</span>
+                )}
+                {tripType === "RT" && (
+                  <span className="ml-4">
+                    {selectedReturnFlight ? (
+                      <span className="text-green-600">✓ Return Selected</span>
+                    ) : (
+                      <span className="text-gray-500">No return flight selected</span>
+                    )}
+                  </span>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={handleBookFlight}
+              className={`
+                relative group px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform
+                ${!selectedFlight || (tripType === "RT" && !selectedReturnFlight)
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95'
+                }
+              `}
+              disabled={!selectedFlight || (tripType === "RT" && !selectedReturnFlight)}
+            >
+              <div className="flex items-center space-x-3">
+                <svg 
+                  className="w-6 h-6 transition-transform duration-300 group-hover:rotate-12" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" 
+                  />
+                </svg>
+                <span>
+                  {tripType === "RT" ? "Book Round Trip" : "Book Flight"}
+                </span>
+                <svg 
+                  className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M13 7l5 5m0 0l-5 5m5-5H6" 
+                  />
+                </svg>
+              </div>
+              {!selectedFlight || (tripType === "RT" && !selectedReturnFlight) && (
+                <div className="absolute inset-0 bg-gray-100 bg-opacity-50 rounded-xl"></div>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
   )
 };
 

@@ -182,6 +182,7 @@ const FlightSearch = ({
     // Clear previous search data to prevent conflicts
     clearSearchData();
     localStorage.setItem("searchPayload", JSON.stringify(payload));
+    localStorage.setItem("bookingType", "flight");
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/api/flights/express-search`,
