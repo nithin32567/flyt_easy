@@ -140,37 +140,77 @@ const HotelDetailsNew: React.FC = () => {
       let pricingData = null;
       let pricingSuccess = false;
       
+      console.log('=== PRICING API DECISION LOGIC ===');
+      console.log('Rooms data exists:', !!response.data.rooms);
+      console.log('Rooms status:', response.data.rooms?.status);
+      console.log('Rooms recommendations exist:', !!response.data.rooms?.recommendations);
+      console.log('Rooms recommendations length:', response.data.rooms?.recommendations?.length);
+      
       if (response.data.rooms && response.data.rooms.status === 'success' && response.data.rooms.recommendations) {
+        console.log('=== ROOMS DATA STRUCTURE ===');
+        console.log('Full rooms data:', JSON.stringify(response.data.rooms, null, 2));
+        
         try {
           // Get the first recommendation and room group for pricing API call
           const firstRecommendation = response.data.rooms.recommendations[0];
+          console.log('First recommendation:', JSON.stringify(firstRecommendation, null, 2));
+          
           if (firstRecommendation && firstRecommendation.roomGroup && firstRecommendation.roomGroup.length > 0) {
             const firstRoomGroup = firstRecommendation.roomGroup[0];
             const priceProvider = firstRoomGroup.providerName;
             const roomRecommendationId = firstRecommendation.id;
             
-            console.log('Calling pricing API with:', { priceProvider, roomRecommendationId });
+            console.log('=== PRICING API PARAMETERS ===');
+            console.log('Price Provider:', priceProvider);
+            console.log('Room Recommendation ID:', roomRecommendationId);
+            console.log('First Room Group:', JSON.stringify(firstRoomGroup, null, 2));
             
-            const pricingResponse = await axios.get(
-              `${baseUrl}/api/hotel/pricing/${searchId}/${hotelId}/${priceProvider}/${roomRecommendationId}`,
-              {
-                withCredentials: true,
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`,
-                  'search-tracing-key': searchTracingKey || ''
+            if (!priceProvider || !roomRecommendationId) {
+              console.error('Missing pricing API parameters:', {
+                priceProvider: !!priceProvider,
+                roomRecommendationId: !!roomRecommendationId
+              });
+            } else {
+              console.log('=== CALLING PRICING API ===');
+              console.log('API URL:', `${baseUrl}/api/hotel/pricing/${searchId}/${hotelId}/${priceProvider}/${roomRecommendationId}`);
+              
+              const pricingResponse = await axios.get(
+                `${baseUrl}/api/hotel/pricing/${searchId}/${hotelId}/${priceProvider}/${roomRecommendationId}`,
+                {
+                  withCredentials: true,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'search-tracing-key': searchTracingKey || ''
+                  }
                 }
-              }
-            );
-            
-            pricingData = pricingResponse.data;
-            pricingSuccess = true;
-            console.log('Pricing API success:', pricingData);
+              );
+              
+              console.log('=== PRICING API RESPONSE ===');
+              console.log('Status:', pricingResponse.status);
+              console.log('Complete Response:', JSON.stringify(pricingResponse.data, null, 2));
+              
+              pricingData = pricingResponse.data;
+              pricingSuccess = true;
+              console.log('Pricing API success:', pricingData);
+            }
+          } else {
+            console.error('No room group found in first recommendation');
+            console.log('First recommendation structure:', JSON.stringify(firstRecommendation, null, 2));
           }
         } catch (pricingError: any) {
-          console.error('Pricing API failed:', pricingError);
+          console.error('=== PRICING API ERROR ===');
+          console.error('Error message:', pricingError.message);
+          console.error('Error response:', pricingError.response?.data);
+          console.error('Error status:', pricingError.response?.status);
+          console.error('Full error:', pricingError);
           pricingSuccess = false;
         }
+      } else {
+        console.log('=== PRICING API NOT CALLED ===');
+        console.log('Reason: Rooms data conditions not met');
+        console.log('Rooms status:', response.data.rooms?.status);
+        console.log('Has recommendations:', !!response.data.rooms?.recommendations);
       }
       
       // Combine all responses

@@ -934,6 +934,7 @@ a:hover {
   display: block;
   position: relative;
   overflow: hidden;
+  z-index: 10;
 }
 
 .banner-wrapper img {
@@ -1005,7 +1006,7 @@ a:hover {
   left: 0px;
   top: 0px;
   transition-duration: 0.3s;
-  z-index: 1020;
+  z-index: 100;
 }
 
 .banner-wrapper::before {
@@ -1175,7 +1176,7 @@ a:hover {
 
 /* Dynamic header spacing for content */
 .content-with-header {
-  padding-top: 194px; /* Default header height */
+  /* padding-top: 194px; Default header height */
   transition: padding-top 0.3s ease;
   min-height: calc(100vh - 194px);
 }
@@ -1779,6 +1780,30 @@ a:hover {
   .booking-tabs-wrapper .col-lg-6 {
     margin-bottom: 15px;
   }
+}
+
+/* Z-index hierarchy for proper layering */
+/* Header should be above banner but below modals/overlays */
+
+/* Modals and overlays should be above header */
+.airport-modal,
+.calander-modal,
+.traveller-add-modal,
+.hotel-loading-overlay {
+  z-index: 1500;
+}
+
+/* Material-UI Drawer should be above header */
+.MuiDrawer-root {
+  z-index: 1200 !important;
+}
+
+.MuiModal-root {
+  z-index: 1300 !important;
+}
+
+.MuiBackdrop-root {
+  z-index: 1299 !important;
 }
 
 /* airport modal */

@@ -426,11 +426,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       open={isOpen}
       onClose={onToggle}
       sx={{
+        zIndex: 1200,
         '& .MuiDrawer-paper': {
           width: isMobile ? 320 : 360,
           boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
           border: 'none',
           background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+          zIndex: 1200,
           '&::-webkit-scrollbar': {
             width: '6px',
           },
@@ -448,6 +450,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       }}
       ModalProps={{
         keepMounted: true,
+        style: { zIndex: 1200 },
       }}
     >
       {drawerContent}

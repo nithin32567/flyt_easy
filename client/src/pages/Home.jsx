@@ -39,7 +39,7 @@ const Home = () => {
 
   return (
     <>
-      <AuthStatus />
+      {/* <AuthStatus /> */}
       <BannerWrapper />
       <FlightHotelWearchWrapper/>
       <UnveilMagicCarousal />

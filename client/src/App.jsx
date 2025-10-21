@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import FlightSearch from "./pages/FlightSearch";
 import OneWayReview from "./components/OneWayReview";
@@ -23,7 +23,7 @@ import UserBookings from "./pages/UserBookings";
 import BookingDetailsAccordion from "./pages/BookingDetailsAccordion";
 import { FlightProvider } from "./contexts/FlightContext";
 import { WebSettingsProvider, useWebSettings } from "./contexts/WebSettingsContext";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { useAuth } from "./contexts/AuthContext";
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -166,13 +166,11 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <AuthProvider>
-      <WebSettingsProvider>
-        <FlightProvider>
-          <AppContent />
-        </FlightProvider>
-      </WebSettingsProvider>
-    </AuthProvider>
+    <WebSettingsProvider>
+      <FlightProvider>
+        <AppContent />
+      </FlightProvider>
+    </WebSettingsProvider>
   );
 };
 

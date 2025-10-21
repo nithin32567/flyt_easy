@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -18,12 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
 
-  // Check authentication status on app load
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${baseUrl}/api/login/me`, {
@@ -42,14 +37,19 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [baseUrl]);
 
-  const login = async (userData) => {
+  // Check authentication status on app load
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
+  const login = useCallback(async (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await axios.post(`${baseUrl}/api/login/logout`, {}, {
         withCredentials: true,
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
     }
-  };
+  }, [baseUrl]);
 
   const value = {
     user,
