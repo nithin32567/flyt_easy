@@ -10,6 +10,12 @@ import {
   getFilterData,
   createItineraryForHotelRoom
 } from "../controllers/hotel/hotel_controller_updated.js";
+import { 
+  createHotelRazorpayOrder, 
+  verifyHotelPayment, 
+  startHotelPay, 
+  getHotelItineraryStatus 
+} from "../controllers/hotelBooking.controller.js";
 
 const router = express.Router();
 
@@ -30,5 +36,11 @@ router.post("/filter/:searchId", filterHotels);
 router.get("/filterdata/:searchId", getFilterData);
 
 router.post("/create-itinerary", createItineraryForHotelRoom);
+
+// Hotel Payment Routes
+router.post("/create-razorpay-order", createHotelRazorpayOrder);
+router.post("/verify-payment", verifyHotelPayment);
+router.post("/start-pay", startHotelPay);
+router.post("/get-itinerary-status", getHotelItineraryStatus);
 
 export default router;

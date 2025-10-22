@@ -274,17 +274,12 @@ const HotelBooking = () => {
           } else {
             console.warn('⚠️ Failed to store itinerary response');
           }
+          
+          // Proceed to payment after successful itinerary creation
+          await initiateHotelPayment(itineraryData);
+        } else {
+          throw new Error('Invalid itinerary response');
         }
-        
-        setCurrentStep(4);
-        // Store booking data for payment
-        localStorage.setItem('hotelBookingData', JSON.stringify({
-          itinerary: response.data.itinerary,
-          contactInfo,
-          guestDetails,
-          selectedRoom,
-          searchData
-        }));
       } else {
         throw new Error(response.data.message || 'Booking failed');
       }
@@ -294,6 +289,249 @@ const HotelBooking = () => {
       alert(`Booking failed: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const loadRazorpay = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const initiateHotelPayment = async (itineraryData) => {
+    try {
+      console.log('=== INITIATING HOTEL PAYMENT ===');
+      
+      // 1. Load Razorpay SDK
+      const res = await loadRazorpay("https://checkout.razorpay.com/v1/checkout.js");
+      if (!res) {
+        alert("Failed to load Razorpay SDK. Please check your connection.");
+        return;
+      }
+      
+      // 2. Create Razorpay order
+      const orderResponse = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/hotel/create-razorpay-order`,
+        {
+          amount: selectedRoom.totalRate,
+          currency: 'INR',
+          receipt: `hotel_${Date.now()}`,
+          notes: {
+            hotel: hotelData?.content?.hotel?.name || hotelData?.hotel?.name,
+            checkIn: searchData?.checkIn,
+            checkOut: searchData?.checkOut,
+            transactionId: itineraryData.TransactionID
+          }
+        }
+      );
+
+      if (!orderResponse.data.success) {
+        throw new Error('Failed to create payment order');
+      }
+
+      console.log('✅ Razorpay order created:', orderResponse.data.order);
+
+      // 3. Initialize Razorpay payment
+      const options = {
+        key: "rzp_test_9Hi6wVlmuLeJ77", // Using the same key as PaymentButton
+        amount: orderResponse.data.order.amount,
+        currency: orderResponse.data.order.currency,
+        name: 'FlytEasy',
+        description: `Hotel Booking - ${hotelData?.content?.hotel?.name || hotelData?.hotel?.name}`,
+        order_id: orderResponse.data.order.id,
+        handler: async function (response) {
+          try {
+            console.log('=== RAZORPAY PAYMENT RESPONSE ===');
+            console.log(response);
+            console.log('=== END RAZORPAY PAYMENT RESPONSE ===');
+
+            // 4. Verify payment signature
+            const verifyResponse = await axios.post(
+              `${import.meta.env.VITE_BASE_URL}/api/hotel/verify-payment`,
+              {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+              }
+            );
+
+            if (verifyResponse.data.success) {
+              console.log('✅ Payment verified successfully');
+              
+              // 5. Call StartPay API
+              await callHotelStartPay(itineraryData);
+            } else {
+              throw new Error('Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            alert(`Payment verification failed: ${error.message}`);
+          }
+        },
+        prefill: {
+          name: `${contactInfo.firstName} ${contactInfo.lastName}`,
+          email: contactInfo.email,
+          contact: contactInfo.mobile
+        },
+        theme: {
+          color: '#3B82F6'
+        }
+      };
+
+      const razorpayInstance = new window.Razorpay(options);
+      razorpayInstance.open();
+
+    } catch (error) {
+      console.error('Payment initiation error:', error);
+      alert(`Payment initiation failed: ${error.message}`);
+    }
+  };
+
+  const callHotelStartPay = async (itineraryData) => {
+    try {
+      console.log('=== CALLING HOTEL STARTPAY API ===');
+      
+      const token = localStorage.getItem('token');
+      const searchTracingKey = localStorage.getItem('searchTracingKey');
+      
+      const startPayPayload = {
+        TransactionID: itineraryData.TransactionID,
+        PaymentAmount: selectedRoom.totalRate,
+        NetAmount: selectedRoom.totalRate,
+        ClientID: localStorage.getItem("ClientID") || "FVI6V120g22Ei5ztGK0FIQ==",
+        TUI: searchTracingKey,
+        Hold: false,
+        Promo: null,
+        PaymentType: "",
+        BankCode: "",
+        GateWayCode: "",
+        MerchantID: 0,
+        PaymentCharge: 0,
+        Card: {
+          Number: "",
+          Expiry: "",
+          CVV: "",
+          CHName: "",
+          FName: null,
+          LName: null,
+          Address: "",
+          City: "",
+          State: "",
+          Country: "",
+          PIN: "",
+          International: false,
+          SaveCard: false,
+          EMIMonths: "0",
+          Token: null,
+          NumberAlias: null
+        },
+        VPA: "",
+        CardAlias: "",
+        QuickPay: null,
+        RMSSignature: "",
+        TargetCurrency: "",
+        TargetAmount: 0,
+        ThirdPartyInfo: null,
+        TripType: null,
+        Authorization: token,
+        QTransactionID: 0,
+        OnlinePayment: false,
+        DepositPayment: true,
+        ReleaseDate: "/Date(-62135596800000)/",
+        BrowserKey: "b80b98aafbba086e46e6643566cd67d7",
+        BrowserKeyFromToken: "b80b98aafbba086e46e6643566cd67d7",
+        AgentInfo: "333-1234-asdf-551234-1-306"
+      };
+
+      console.log('=== HOTEL STARTPAY PAYLOAD ===');
+      console.log(JSON.stringify(startPayPayload, null, 2));
+      console.log('=== END HOTEL STARTPAY PAYLOAD ===');
+
+      const startPayResponse = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/hotel/start-pay`,
+        startPayPayload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      console.log('=== HOTEL STARTPAY RESPONSE ===');
+      console.log(JSON.stringify(startPayResponse.data, null, 2));
+      console.log('=== END HOTEL STARTPAY RESPONSE ===');
+
+      if (startPayResponse.data.success) {
+        if (startPayResponse.data.shouldPoll) {
+          // Poll for booking status
+          await pollHotelBookingStatus(itineraryData);
+        } else if (startPayResponse.data.status === "SUCCESS") {
+          console.log('✅ Hotel booking completed successfully');
+          setCurrentStep(4);
+        }
+      } else {
+        throw new Error(startPayResponse.data.message || 'StartPay failed');
+      }
+
+    } catch (error) {
+      console.error('Hotel StartPay error:', error);
+      alert(`Hotel booking failed: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
+  const pollHotelBookingStatus = async (itineraryData) => {
+    try {
+      console.log('=== POLLING HOTEL BOOKING STATUS ===');
+      
+      const token = localStorage.getItem('token');
+      const maxAttempts = 10;
+      let attempts = 0;
+
+      const pollStatus = async () => {
+        attempts++;
+        
+        const statusResponse = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/api/hotel/get-itinerary-status`,
+          {
+            TUI: itineraryData.TUI,
+            TransactionID: itineraryData.TransactionID,
+            ClientID: localStorage.getItem("ClientID") || "FVI6V120g22Ei5ztGK0FIQ=="
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
+
+        console.log(`=== HOTEL BOOKING STATUS ATTEMPT ${attempts} ===`);
+        console.log(JSON.stringify(statusResponse.data, null, 2));
+        console.log('=== END HOTEL BOOKING STATUS ATTEMPT ===');
+
+        if (statusResponse.data.success && statusResponse.data.status === "SUCCESS") {
+          console.log('✅ Hotel booking completed successfully');
+          setCurrentStep(4);
+        } else if (statusResponse.data.status === "FAILED") {
+          throw new Error(statusResponse.data.message || 'Hotel booking failed');
+        } else if (attempts < maxAttempts && statusResponse.data.shouldPoll) {
+          // Continue polling
+          setTimeout(pollStatus, 3000); // Poll every 3 seconds
+        } else {
+          throw new Error('Hotel booking timeout - please contact support');
+        }
+      };
+
+      pollStatus();
+
+    } catch (error) {
+      console.error('Hotel booking status polling error:', error);
+      alert(`Hotel booking status check failed: ${error.message}`);
     }
   };
   
@@ -416,7 +654,7 @@ const HotelBooking = () => {
                   disabled={isSubmitting}
                   className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Processing...' : 'Complete Booking'}
+                  {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
                 </button>
               </div>
             )}
