@@ -83,3 +83,46 @@ export const getBookingStatusInfo = (status) => {
     description: 'Status unknown'
   };
 };
+
+// Hotel-specific utilities
+export const storeHotelItineraryResponse = (itineraryData) => {
+  if (!itineraryData) return false;
+  
+  const hasTransactionID = itineraryData.TransactionID;
+  const hasSuccessCode = itineraryData.Code === '200';
+  
+  if (hasTransactionID && hasSuccessCode) {
+    const itineraryResponse = {
+      TUI: itineraryData.TUI,
+      TransactionID: itineraryData.TransactionID,
+      NetAmount: itineraryData.NetAmount,
+      Code: itineraryData.Code,
+      Msg: itineraryData.Msg,
+      priceInfo: itineraryData.priceInfo,
+      timestamp: new Date().toISOString()
+    };
+    
+    localStorage.setItem('hotelItineraryResponse', JSON.stringify(itineraryResponse));
+    return true;
+  }
+  
+  return false;
+};
+
+export const getHotelItineraryResponse = () => {
+  try {
+    const stored = localStorage.getItem('hotelItineraryResponse');
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    console.error('Error retrieving hotel itinerary response:', error);
+    return null;
+  }
+};
+
+export const clearHotelItineraryResponse = () => {
+  localStorage.removeItem('hotelItineraryResponse');
+};
+
+export const isHotelItineraryValid = (itineraryData) => {
+  return itineraryData?.TransactionID && itineraryData?.Code === '200';
+};

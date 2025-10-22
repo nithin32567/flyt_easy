@@ -752,16 +752,32 @@ export const createItineraryForHotelRoom = async (req, res) => {
       headers['search-tracing-key'] = searchTracingKey;
     }
 
-    // Convert dates to the required format (Excel serial date format)
-    const convertToExcelDate = (dateString) => {
+    // Log headers for debugging
+    console.log('=== REQUEST HEADERS ===');
+    console.log('Authorization:', authHeader ? 'Present' : 'Missing');
+    console.log('Search Tracing Key:', searchTracingKey || 'Not provided');
+    console.log('Content-Type:', headers['Content-Type']);
+
+    // Convert dates to the required format (YYYY-MM-DD string format)
+    const formatDateToString = (dateString) => {
+      if (!dateString) return null;
       const date = new Date(dateString);
-      const excelEpoch = new Date(1900, 0, 1);
-      const diffTime = date.getTime() - excelEpoch.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      return diffDays + 1; // Excel dates are 1-indexed
+      return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
     };
 
-    // Validate and transform the payload
+    // Validate required fields
+    const requiredFields = ['SearchId', 'RecommendationId', 'HotelCode', 'CheckInDate', 'CheckOutDate'];
+    const missingFields = requiredFields.filter(field => !itineraryData[field]);
+    
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: `Missing required fields: ${missingFields.join(', ')}`,
+        status: 400,
+        missingFields
+      });
+    }
+
+    // Validate and transform the payload according to API provider structure
     const transformedPayload = {
       TUI: itineraryData.TUI || searchTracingKey,
       ServiceEnquiry: itineraryData.ServiceEnquiry || "",
@@ -779,15 +795,15 @@ export const createItineraryForHotelRoom = async (req, res) => {
         GSTTIN: itineraryData.ContactInfo?.GSTTIN || "",
         GSTMobile: itineraryData.ContactInfo?.GSTMobile || "",
         GSTEmail: itineraryData.ContactInfo?.GSTEmail || "",
-        UpdateProfile: itineraryData.ContactInfo?.UpdateProfile || false,
-        IsGuest: itineraryData.ContactInfo?.IsGuest || false,
+        UpdateProfile: true,
+        IsGuest: itineraryData.ContactInfo?.IsGuest !== undefined ? itineraryData.ContactInfo.IsGuest : false,
         CountryCode: itineraryData.ContactInfo?.CountryCode || "IN",
         MobileCountryCode: itineraryData.ContactInfo?.MobileCountryCode || "+91",
-        NetAmount: itineraryData.ContactInfo?.NetAmount || "",
+        NetAmount: "",
         DestMobCountryCode: itineraryData.ContactInfo?.DestMobCountryCode || "",
         DestMob: itineraryData.ContactInfo?.DestMob || ""
       },
-      Auxiliaries: itineraryData.Auxiliaries || [
+      Auxiliaries: [
         {
           Code: "PROMO",
           Parameters: [
@@ -810,8 +826,8 @@ export const createItineraryForHotelRoom = async (req, res) => {
         SupplierName: room.SupplierName || "",
         RoomGroupId: room.RoomGroupId || "",
         Guests: room.Guests?.map(guest => ({
-          GuestID: guest.GuestID || "",
-          Operation: guest.Operation || "U",
+          GuestID: "0",
+          Operation: "",
           Title: guest.Title || "Mr",
           FirstName: guest.FirstName || "",
           MiddleName: guest.MiddleName || "",
@@ -832,10 +848,10 @@ export const createItineraryForHotelRoom = async (req, res) => {
       AppVersion: itineraryData.AppVersion || "",
       SearchId: itineraryData.SearchId || "",
       RecommendationId: itineraryData.RecommendationId || "",
-      LocationName: itineraryData.LocationName || null,
+      LocationName: null,
       HotelCode: itineraryData.HotelCode || "",
-      CheckInDate: itineraryData.CheckInDate ? convertToExcelDate(itineraryData.CheckInDate) : null,
-      CheckOutDate: itineraryData.CheckOutDate ? convertToExcelDate(itineraryData.CheckOutDate) : null,
+      CheckInDate: formatDateToString(itineraryData.CheckInDate),
+      CheckOutDate: formatDateToString(itineraryData.CheckOutDate),
       TravelingFor: itineraryData.TravelingFor || "NTF"
     };
 
@@ -844,6 +860,47 @@ export const createItineraryForHotelRoom = async (req, res) => {
     console.log('Headers being sent:', JSON.stringify(headers, null, 2));
     console.log('Itinerary Data:', JSON.stringify(transformedPayload, null, 2));
     console.log('API URL:', `${HOTEL_ITINERARY_URL}/Hotel/CreateItinerary`);
+    
+    // Debug: Check critical fields
+    console.log('=== PAYLOAD VALIDATION ===');
+    console.log('TUI:', transformedPayload.TUI);
+    console.log('SearchId:', transformedPayload.SearchId);
+    console.log('RecommendationId:', transformedPayload.RecommendationId);
+    console.log('HotelCode:', transformedPayload.HotelCode);
+    console.log('CheckInDate:', transformedPayload.CheckInDate);
+    console.log('CheckOutDate:', transformedPayload.CheckOutDate);
+    console.log('NetAmount:', transformedPayload.NetAmount);
+    console.log('LocationName:', transformedPayload.LocationName);
+    console.log('ContactInfo NetAmount:', transformedPayload.ContactInfo?.NetAmount);
+    console.log('Rooms count:', transformedPayload.Rooms?.length);
+    console.log('First room GuestID:', transformedPayload.Rooms?.[0]?.Guests?.[0]?.GuestID);
+    console.log('First room Operation:', transformedPayload.Rooms?.[0]?.Guests?.[0]?.Operation);
+    console.log('First room SupplierName:', transformedPayload.Rooms?.[0]?.SupplierName);
+    console.log('UpdateProfile:', transformedPayload.ContactInfo?.UpdateProfile);
+    
+    // Detailed comparison with API provider sample
+    console.log('=== DETAILED COMPARISON WITH API PROVIDER SAMPLE ===');
+    console.log('=== EXPECTED vs ACTUAL ===');
+    console.log('TUI: Expected=81ebfeb2-1790-4b78-9c0e-1183619e6fad, Actual=' + transformedPayload.TUI);
+    console.log('ServiceEnquiry: Expected="", Actual=' + transformedPayload.ServiceEnquiry);
+    console.log('ContactInfo.Title: Expected=Mr, Actual=' + transformedPayload.ContactInfo?.Title);
+    console.log('ContactInfo.UpdateProfile: Expected=true, Actual=' + transformedPayload.ContactInfo?.UpdateProfile);
+    console.log('ContactInfo.IsGuest: Expected=false, Actual=' + transformedPayload.ContactInfo?.IsGuest);
+    console.log('ContactInfo.CountryCode: Expected=IN, Actual=' + transformedPayload.ContactInfo?.CountryCode);
+    console.log('ContactInfo.MobileCountryCode: Expected=+91, Actual=' + transformedPayload.ContactInfo?.MobileCountryCode);
+    console.log('ContactInfo.NetAmount: Expected="", Actual=' + transformedPayload.ContactInfo?.NetAmount);
+    console.log('Auxiliaries[0].Code: Expected=PROMO, Actual=' + transformedPayload.Auxiliaries?.[0]?.Code);
+    console.log('Auxiliaries[1].Code: Expected=CUSTOMER DETAILS, Actual=' + transformedPayload.Auxiliaries?.[1]?.Code);
+    console.log('Rooms[0].GuestID: Expected=0, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.GuestID);
+    console.log('Rooms[0].Operation: Expected="", Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.Operation);
+    console.log('Rooms[0].PaxType: Expected=A, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.PaxType);
+    console.log('Rooms[0].ProfileType: Expected=T, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.ProfileType);
+    console.log('NetAmount: Expected=2330, Actual=' + transformedPayload.NetAmount);
+    console.log('ClientID: Expected=FVI6V120g22Ei5ztGK0FIQ==, Actual=' + transformedPayload.ClientID);
+    console.log('LocationName: Expected=null, Actual=' + transformedPayload.LocationName);
+    console.log('CheckInDate: Expected=2023-07-19, Actual=' + transformedPayload.CheckInDate);
+    console.log('CheckOutDate: Expected=2023-07-20, Actual=' + transformedPayload.CheckOutDate);
+    console.log('TravelingFor: Expected=NTF, Actual=' + transformedPayload.TravelingFor);
 
     const itineraryResponse = await axios.post(
       `https://b2bapihotels.benzyinfotech.com/Hotel/CreateItinerary`,
@@ -852,11 +909,36 @@ export const createItineraryForHotelRoom = async (req, res) => {
     );
 
     console.log('=== CREATE ITINERARY API RESPONSE ===');
-    console.log('complete response:', itineraryResponse);
+    console.log('Status:', itineraryResponse.status);
+    console.log('Status Text:', itineraryResponse.statusText);
     console.log('Response Headers:', JSON.stringify(itineraryResponse.headers, null, 2));
     console.log('Data:', JSON.stringify(itineraryResponse.data, null, 2));
     
     const itineraryResult = itineraryResponse.data;
+
+    // Check if the API response indicates an error
+    const isApiError = itineraryResult.Code && itineraryResult.Code !== '200' && itineraryResult.Code !== '0';
+    const hasErrorMessage = itineraryResult.Msg && itineraryResult.Msg.length > 0 && 
+                           itineraryResult.Msg.some(msg => msg.toLowerCase().includes('error'));
+
+    if (isApiError || hasErrorMessage) {
+      console.error('=== API RETURNED ERROR ===');
+      console.error('Error Code:', itineraryResult.Code);
+      console.error('Error Messages:', itineraryResult.Msg);
+      
+      return res.status(400).json({
+        status: 'error',
+        message: 'Hotel API returned an error',
+        apiError: {
+          code: itineraryResult.Code,
+          messages: itineraryResult.Msg,
+          transactionId: itineraryResult.TransactionID,
+          netAmount: itineraryResult.NetAmount
+        },
+        searchTracingKey: searchTracingKey,
+        timestamp: new Date().toISOString()
+      });
+    }
 
     res.status(200).json({
       status: 'success',
@@ -869,9 +951,9 @@ export const createItineraryForHotelRoom = async (req, res) => {
     console.error('=== CREATE ITINERARY API ERROR ===');
     console.error('Error:', error.message);
     console.error('Error Code:', error.code);
-    console.error('Error Response:', error.response?.data);
+    console.error('Error Response Data:', error.response?.data);
     console.error('Error Status:', error.response?.status);
-    console.error('Error Headers:', error.response?.headers);
+    console.error('Error Headers:', JSON.stringify(error.response?.headers, null, 2));
     
     if (error.response) {
       return res.status(error.response.status).json({

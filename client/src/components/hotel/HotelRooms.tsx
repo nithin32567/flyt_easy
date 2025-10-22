@@ -56,28 +56,19 @@ const HotelRooms: React.FC<HotelRoomsProps> = ({ rooms, onNavigateBack, onRetry 
     const hotelDetailsData = JSON.parse(localStorage.getItem('hotelDetailsData') || '{}');
     const hotelCode = hotelDetailsData?.content?.hotel?.id || hotelDetailsData?.id;
     
-    // Store selected room data
+    // Store the complete recommendations.room data
     const selectedRoomData = {
-      roomId: recommendation.id,
-      roomGroupId: room.roomGroupId,
+      ...room,
       recommendationId: recommendation.id,
-      roomName: room.room?.name || 'Selected Room',
-      providerName: room.providerName,
-      totalRate: room.totalRate,
-      baseRate: room.baseRate,
-      taxes: room.taxes,
-      commission: room.commission,
-      refundable: room.refundable,
-      onlineCancellable: room.onlineCancellable,
-      specialRequestSupported: room.specialRequestSupported,
-      roomCount: room.roomCount,
-      occupancies: room.occupancies,
-      cancellationPolicies: room.cancellationPolicies,
       hotelCode: hotelCode
     };
     
     console.log('=== STORING SELECTED ROOM DATA ===');
     console.log('Selected Room Data:', selectedRoomData);
+    console.log('Room ID Structure:');
+    console.log('- room.id:', room.id);
+    console.log('- room.room?.id:', room.room?.id);
+    console.log('- recommendation.id:', recommendation.id);
     console.log('Hotel Code:', hotelCode);
     console.log('=== END STORING SELECTED ROOM DATA ===');
     

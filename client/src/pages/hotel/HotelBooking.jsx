@@ -4,6 +4,7 @@ import ContactInfoModal from '../../components/modals/ContactInfoModal';
 import GuestDetailsModal from '../../components/modals/GuestDetailsModal';
 import { User, Users, CreditCard, CheckCircle } from 'lucide-react';
 import axios from 'axios';
+import { storeHotelItineraryResponse, isHotelItineraryValid } from '../../utils/bookingUtils';
 
 const HotelBooking = () => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const HotelBooking = () => {
     setSelectedRoom(selectedRoomData);
     
     // If no data, redirect back to search
-    if (!hotelSearchData.searchId || !selectedRoomData.roomId) {
+    if (!hotelSearchData.searchId || (!selectedRoomData.id && !selectedRoomData.roomId)) {
       navigate('/hotel-search');
     }
   }, [navigate]);
@@ -90,7 +91,7 @@ const HotelBooking = () => {
           IsGuest: contactInfo.isGuest || false,
           CountryCode: contactInfo.countryCode || "IN",
           MobileCountryCode: contactInfo.mobileCountryCode || "+91",
-          NetAmount: selectedRoom.totalRate || 0,
+          NetAmount: selectedRoom.totalRate?.toString() || "0",
           DestMobCountryCode: "",
           DestMob: ""
         },
@@ -111,28 +112,68 @@ const HotelBooking = () => {
             ]
           }
         ],
-        Rooms: guestDetails.map((room, index) => ({
-          RoomId: selectedRoom.roomId,
-          GuestCode: `|${room.guests.length}|${room.guests.map((g, index) => `${index + 1}:${g.paxType}:${g.age || 25}`).join(',')}|`,
-          SupplierName: selectedRoom.providerName,
-          RoomGroupId: selectedRoom.roomGroupId || `roomgroup_${index}`,
-          Guests: room.guests.map(guest => ({
-            GuestID: guest.guestId || "0",
+
+        Rooms: guestDetails.map((room, index) => {
+          // Get occupancy ID from selectedRoom data
+          const occupancyId = selectedRoom.occupancies?.[0]?.occupancyId || 1;
+          
+          // Group guests by type (Adults vs Children)
+          const adults = room.guests.filter(g => g.paxType === 'A');
+          const children = room.guests.filter(g => g.paxType === 'C');
+          
+          // Build guest code according to specification
+          // Format: |<OccupancyID>|<NumberOfPax><A or C>:<Age1>:<Age2>:<Age3>|
+          let guestCode = `|${occupancyId}|`;
+          
+          // Add adults: NumberOfAdults:A:Age1:Age2:Age3
+          if (adults.length > 0) {
+            const adultAges = adults.map(g => g.age || 25);
+            guestCode += `${adults.length}:A:${adultAges.join(':')}`;
+            // Add pipe separator if children exist
+            if (children.length > 0) {
+              guestCode += '|';
+            }
+          }
+          
+          // Add children: NumberOfChildren:C:Age1:Age2:Age3
+          if (children.length > 0) {
+            const childAges = children.map(g => g.age || 25);
+            guestCode += `${children.length}:C:${childAges.join(':')}`;
+          }
+          
+          // Add final pipe to complete the format
+          guestCode += '|';
+          
+          console.log('=== GUEST CODE GENERATION DEBUG ===');
+          console.log('occupancyId:', occupancyId);
+          console.log('adults:', adults);
+          console.log('children:', children);
+          console.log('Generated guestCode:', guestCode);
+          console.log('=== END GUEST CODE GENERATION DEBUG ===');
+          
+          return {
+            RoomId: selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId,
+            GuestCode: guestCode,
+            SupplierName: selectedRoom.providerName,
+            RoomGroupId: selectedRoom.id,
+            Guests: room.guests.map(guest => ({
+            GuestID: "0",
             Operation: guest.operation || "",
             Title: guest.title,
             FirstName: guest.firstName,
             MiddleName: guest.middleName || "",
             LastName: guest.lastName,
-            MobileNo: guest.mobileNo || contactInfo.mobile,
+            MobileNo: "",
             PaxType: guest.paxType,
             Age: guest.age || "",
-            Email: guest.email || contactInfo.email,
+            Email: "",
             Pan: guest.pan || "",
             ProfileType: guest.profileType || "T",
             EmployeeId: guest.employeeId || "",
             corporateCompanyID: guest.corporateCompanyId || ""
           }))
-        })),
+          };
+        }),
         NetAmount: selectedRoom.totalRate?.toString() || "0",
         ClientID: localStorage.getItem("ClientID") || "FVI6V120g22Ei5ztGK0FIQ==",
         DeviceID: "",
@@ -141,8 +182,16 @@ const HotelBooking = () => {
         RecommendationId: selectedRoom.recommendationId || selectedRoom.roomId,
         LocationName: searchData?.location || null,
         HotelCode: selectedRoom?.hotelCode || hotelData?.content?.hotel?.id || hotelData?.id || "",
-        CheckInDate: searchData?.checkIn ? new Date(searchData.checkIn).toISOString().split('T')[0] : "",
-        CheckOutDate: searchData?.checkOut ? new Date(searchData.checkOut).toISOString().split('T')[0] : "",
+        CheckInDate: searchData?.checkIn ? (() => {
+          // Convert MM/DD/YYYY to YYYY-MM-DD
+          const [month, day, year] = searchData.checkIn.split('/');
+          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        })() : "",
+        CheckOutDate: searchData?.checkOut ? (() => {
+          // Convert MM/DD/YYYY to YYYY-MM-DD
+          const [month, day, year] = searchData.checkOut.split('/');
+          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        })() : "",
         TravelingFor: "NTF"
       };
       
@@ -151,6 +200,43 @@ const HotelBooking = () => {
       console.log('hotelData:', hotelData);
       console.log('selectedRoom:', selectedRoom);
       console.log('searchData:', searchData);
+      console.log('=== ROOM ID DEBUG ===');
+      console.log('selectedRoom.room?.id:', selectedRoom.room?.id);
+      console.log('selectedRoom.id:', selectedRoom.id);
+      console.log('selectedRoom.roomId:', selectedRoom.roomId);
+      console.log('Final RoomId being sent:', selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId);
+      console.log('=== END ROOM ID DEBUG ===');
+      console.log('=== GUEST CODE DEBUG ===');
+      console.log('selectedRoom.occupancies:', selectedRoom.occupancies);
+      console.log('guestDetails:', guestDetails);
+      console.log('=== END GUEST CODE DEBUG ===');
+      console.log('=== SUPPLIER & ROOM GROUP DEBUG ===');
+      console.log('selectedRoom.providerName:', selectedRoom.providerName);
+      console.log('selectedRoom.id (RoomGroupId):', selectedRoom.id);
+      console.log('selectedRoom.room?.id (RoomId):', selectedRoom.room?.id);
+      console.log('=== END SUPPLIER & ROOM GROUP DEBUG ===');
+      console.log('=== PAYLOAD STRUCTURE DEBUG ===');
+      console.log('Final RoomId being sent:', selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId);
+      console.log('Final RoomGroupId being sent:', selectedRoom.id);
+      console.log('Final SupplierName being sent:', selectedRoom.providerName);
+      console.log('=== END PAYLOAD STRUCTURE DEBUG ===');
+      console.log('=== PRICING DATA DEBUG ===');
+      console.log('selectedRoom from localStorage:', selectedRoom);
+      console.log('selectedRoom.providerName:', selectedRoom.providerName);
+      console.log('selectedRoom.room?.id:', selectedRoom.room?.id);
+      console.log('selectedRoom.id:', selectedRoom.id);
+      console.log('=== END PRICING DATA DEBUG ===');
+      console.log('=== FINAL PAYLOAD VERIFICATION ===');
+      console.log('GuestID being sent:', "0");
+      console.log('MobileNo being sent:', "");
+      console.log('Email being sent:', "");
+      console.log('Auxiliaries structure:', hotelItineraryPayload.Auxiliaries);
+      console.log('=== NET AMOUNT DEBUG ===');
+      console.log('selectedRoom.totalRate:', selectedRoom.totalRate);
+      console.log('selectedRoom.baseRate:', selectedRoom.baseRate);
+      console.log('NetAmount being sent:', hotelItineraryPayload.NetAmount);
+      console.log('=== END NET AMOUNT DEBUG ===');
+      console.log('=== END FINAL PAYLOAD VERIFICATION ===');
       console.log('Payload:', JSON.stringify(hotelItineraryPayload, null, 2));
       
       const response = await axios.post(
@@ -169,6 +255,27 @@ const HotelBooking = () => {
       console.log(response.data);
       
       if (response.data.status === 'success') {
+        // Check if we have TransactionID and Code 200 in the itinerary response
+        const itineraryData = response.data.itinerary;
+        
+        console.log('=== ITINERARY RESPONSE VALIDATION ===');
+        console.log('TransactionID:', itineraryData?.TransactionID);
+        console.log('Code:', itineraryData?.Code);
+        console.log('Success:', isHotelItineraryValid(itineraryData));
+        console.log('=== END ITINERARY RESPONSE VALIDATION ===');
+        
+        if (isHotelItineraryValid(itineraryData)) {
+          console.log('✅ Itinerary created successfully with TransactionID:', itineraryData.TransactionID);
+          
+          // Store the complete itinerary response using utility function
+          const stored = storeHotelItineraryResponse(itineraryData);
+          if (stored) {
+            console.log('✅ Itinerary response stored in localStorage');
+          } else {
+            console.warn('⚠️ Failed to store itinerary response');
+          }
+        }
+        
         setCurrentStep(4);
         // Store booking data for payment
         localStorage.setItem('hotelBookingData', JSON.stringify({
@@ -338,8 +445,8 @@ const HotelBooking = () => {
               
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium">{hotelData.hotel?.name}</h4>
-                  <p className="text-sm text-gray-600">{hotelData.hotel?.contact?.address?.[0]?.city}</p>
+                  <h4 className="font-medium">{hotelData?.content?.hotel?.name || hotelData?.hotel?.name}</h4>
+                  <p className="text-sm text-gray-600">{hotelData?.content?.hotel?.contact?.address?.[0]?.city || hotelData?.hotel?.contact?.address?.[0]?.city}</p>
                 </div>
                 
                 <div>
@@ -354,13 +461,69 @@ const HotelBooking = () => {
                 
                 <div>
                   <p className="text-sm text-gray-600">Room</p>
-                  <p className="font-medium">{selectedRoom?.roomName || 'Selected Room'}</p>
+                  <p className="font-medium">{selectedRoom?.room?.name || selectedRoom?.roomName || 'Selected Room'}</p>
+                  {selectedRoom?.room?.description && (
+                    <p className="text-xs text-gray-500 mt-1">{selectedRoom.room.description}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <p className="text-sm text-gray-600">Provider</p>
+                  <p className="font-medium">{selectedRoom?.providerName}</p>
+                </div>
+                
+                <div>
+                  <p className="text-sm text-gray-600">Room Features</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {selectedRoom?.refundable && (
+                      <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Refundable</span>
+                    )}
+                    {selectedRoom?.onlineCancellable && (
+                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Online Cancellable</span>
+                    )}
+                    {selectedRoom?.specialRequestSupported && (
+                      <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Special Requests</span>
+                    )}
+                    {selectedRoom?.room?.smokingAllowed === false && (
+                      <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">Non-Smoking</span>
+                    )}
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-sm text-gray-600">Occupancy</p>
+                  <p className="font-medium">
+                    {selectedRoom?.occupancies?.[0]?.numOfAdults || 0} Adults, {selectedRoom?.occupancies?.[0]?.numOfChildren || 0} Children
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-sm text-gray-600">Board Basis</p>
+                  <p className="font-medium">{selectedRoom?.boardBasis?.description || 'Not specified'}</p>
                 </div>
                 
                 <div className="border-t pt-4">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Total</span>
-                    <span className="font-bold text-lg">₹{selectedRoom?.totalRate?.toLocaleString() || '0'}</span>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Base Rate:</span>
+                      <span>₹{selectedRoom?.baseRate?.toLocaleString() || '0'}</span>
+                    </div>
+                    {selectedRoom?.taxes && selectedRoom.taxes.length > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span>Taxes:</span>
+                        <span>₹{selectedRoom.taxes.reduce((sum, tax) => sum + tax.amount, 0).toLocaleString()}</span>
+                      </div>
+                    )}
+                    {selectedRoom?.commission && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>Commission:</span>
+                        <span>₹{selectedRoom.commission.amount?.toLocaleString() || '0'}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-semibold text-lg border-t pt-2">
+                      <span>Total:</span>
+                      <span className="text-green-600">₹{selectedRoom?.totalRate?.toLocaleString() || '0'}</span>
+                    </div>
                   </div>
                 </div>
               </div>

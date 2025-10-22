@@ -193,6 +193,12 @@ const HotelDetailsNew: React.FC = () => {
               pricingData = pricingResponse.data;
               pricingSuccess = true;
               console.log('Pricing API success:', pricingData);
+              
+              // Store pricing data in localStorage
+              localStorage.setItem('hotelPricingData', JSON.stringify(pricingData));
+              console.log('=== STORED PRICING DATA IN LOCALSTORAGE ===');
+              console.log('Pricing Data:', pricingData);
+              console.log('=== END STORED PRICING DATA ===');
             }
           } else {
             console.error('No room group found in first recommendation');
@@ -205,6 +211,13 @@ const HotelDetailsNew: React.FC = () => {
           console.error('Error status:', pricingError.response?.status);
           console.error('Full error:', pricingError);
           pricingSuccess = false;
+          
+          // Store error information for debugging
+          localStorage.setItem('hotelPricingError', JSON.stringify({
+            error: pricingError.response?.data || pricingError.message,
+            status: pricingError.response?.status,
+            timestamp: new Date().toISOString()
+          }));
         }
       } else {
         console.log('=== PRICING API NOT CALLED ===');
