@@ -6,7 +6,7 @@ const OneWayReview = () => {
     const navigate = useNavigate()
     const headerHeight = useHeaderHeight()
     const oneWayReviewData = JSON.parse(localStorage.getItem("oneWayReviewData"))
-    console.log(oneWayReviewData, "oneWayReviewData=========================")
+    // console.log(oneWayReviewData, "oneWayReviewData=========================")
 
     if (!oneWayReviewData) {
         return (

@@ -27,7 +27,7 @@ const SearchForm = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const token = localStorage.getItem("token");
-  // console.log(token, "token========================= 221");
+  // // console.log(token, "token========================= 221");
 
   const [isCalanderModalOpen, setIsCalanderModalOpen] = useState(false);
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -51,9 +51,9 @@ const SearchForm = () => {
         );
         const data = await response.json();
         setAirports(data);
-        // console.log(data, 'from the backend=========================');
+        // // console.log(data, 'from the backend=========================');
       } catch (error) {
-        console.error("Error fetching airports:", error);
+        // console.error("Error fetching airports:", error);
       }
     }
     fetchAirports();
@@ -70,18 +70,18 @@ const SearchForm = () => {
         }
       );
 
-      console.log("=== GET EXP SEARCH RESPONSE ===");
-      console.log("Payload sent to API:", response.data.payload);
-      console.log("Response from API:", response.data.response);
-      console.log("Full response data:", response.data);
-      console.log("=================================");
+      // console.log("=== GET EXP SEARCH RESPONSE ===");
+      // console.log("Payload sent to API:", response.data.payload);
+      // console.log("Response from API:", response.data.response);
+      // console.log("Full response data:", response.data);
+      // console.log("=================================");
       if (response.statusText === "OK") {
-        console.log("inside the if condition");
+        // console.log("inside the if condition");
         const trips = response.data.data.Trips;
-        console.log(trips, "trips=========================");
+        // console.log(trips, "trips=========================");
         localStorage.setItem("trips", JSON.stringify(trips));
         const TUI = response.data.data.TUI;
-        console.log(TUI, "TUI=========================");
+        // console.log(TUI, "TUI=========================");
         localStorage.setItem("TUI", TUI);
         
         // Call WebSettings after ExpressSearch completes with the ExpressSearch TUI
@@ -102,15 +102,15 @@ const SearchForm = () => {
               }
             }
           );
-          console.log("WebSettings called with ExpressSearch TUI:", webSettingsResponse.data);
+          // console.log("WebSettings called with ExpressSearch TUI:", webSettingsResponse.data);
         } catch (webSettingsError) {
-          console.error("Error calling WebSettings:", webSettingsError);
+          // console.error("Error calling WebSettings:", webSettingsError);
         }
         
         navigate("/flight-list");
       }
     } catch (error) {
-      console.log(error, "error from the backend=========================");
+      // console.log(error, "error from the backend=========================");
     }
   };
 
@@ -166,7 +166,7 @@ const SearchForm = () => {
       ],
       token: token,
     };
-    console.log(payload, "payload to the backend========================= 221");
+    // console.log(payload, "payload to the backend========================= 221");
     // Clear previous search data to prevent conflicts
     clearSearchData();
     localStorage.setItem("searchPayload", JSON.stringify(payload));
@@ -184,23 +184,23 @@ const SearchForm = () => {
         }
       );
       const data = await response.json();
-      console.log("=== EXPRESS SEARCH RESPONSE ===");
-      console.log("Payload sent to API:", data.payload);
-      console.log("Response from API:", data.response);
-      console.log("Full response data:", data);
-      console.log("===============================");
+      // console.log("=== EXPRESS SEARCH RESPONSE ===");
+      // console.log("Payload sent to API:", data.payload);
+      // console.log("Response from API:", data.response);
+      // console.log("Full response data:", data);
+      // console.log("===============================");
       const TUI = data.TUI;
       await getExpSearch(TUI);
-      console.log(TUI, "TUI=========================");
+      // console.log(TUI, "TUI=========================");
       localStorage.setItem("searchTUI", TUI);
       localStorage.setItem("searchTUI", data.TUI);
       if (data.success && data.data?.TUI) {
-        console.log(
-          "success and calling the getExpSearch================== 212"
-        );
+        // console.log(
+        //   "success and calling the getExpSearch================== 212"
+        // );
       }
     } catch (error) {
-      console.log(error, "error from the backend=========================");
+      // console.log(error, "error from the backend=========================");
     } finally {
       setIsSearching(false);
     }

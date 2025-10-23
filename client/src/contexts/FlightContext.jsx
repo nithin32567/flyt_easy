@@ -63,7 +63,7 @@ export const FlightProvider = ({ children }) => {
         }
       }
     } catch (error) {
-      console.error('Error loading flights:', error);
+      // console.error('Error loading flights:', error);
     }
   }, []);
 

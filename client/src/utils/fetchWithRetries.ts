@@ -23,9 +23,9 @@ export async function fetchWithRetries(
 
   while (attempt <= retries) {
     try {
-      console.log(`=== FETCH ATTEMPT ${attempt + 1}/${retries + 1} ===`);
-      console.log('URL:', url);
-      console.log('Options:', JSON.stringify(options, null, 2));
+      // console.log(`=== FETCH ATTEMPT ${attempt + 1}/${retries + 1} ===`);
+      // console.log('URL:', url);
+      // console.log('Options:', JSON.stringify(options, null, 2));
 
       // Create timeout controller
       const controller = new AbortController();
@@ -38,19 +38,19 @@ export async function fetchWithRetries(
 
       clearTimeout(timeoutId);
 
-      console.log(`=== FETCH RESPONSE (Attempt ${attempt + 1}) ===`);
-      console.log('Status:', response.status);
-      console.log('OK:', response.ok);
+      // console.log(`=== FETCH RESPONSE (Attempt ${attempt + 1}) ===`);
+      // console.log('Status:', response.status);
+      // console.log('OK:', response.ok);
 
       let body;
       try {
         body = await response.json();
       } catch (parseError) {
-        console.warn('Failed to parse JSON response:', parseError);
+        // console.warn('Failed to parse JSON response:', parseError);
         body = null;
       }
 
-      console.log('Response body:', JSON.stringify(body, null, 2));
+      // console.log('Response body:', JSON.stringify(body, null, 2));
 
       return {
         ok: response.ok,
@@ -64,27 +64,27 @@ export async function fetchWithRetries(
       lastError = err;
       attempt++;
       
-      console.error(`=== FETCH ATTEMPT ${attempt} FAILED ===`);
-      console.error('Error:', err.message);
-      console.error('Error type:', err.name);
-      console.error('Error code:', err.code);
+      // console.error(`=== FETCH ATTEMPT ${attempt} FAILED ===`);
+      // console.error('Error:', err.message);
+      // console.error('Error type:', err.name);
+      // console.error('Error code:', err.code);
 
       // Don't retry on certain errors
       if (err.name === 'AbortError' || err.status === 401 || err.status === 403) {
-        console.log('Non-retryable error, stopping attempts');
+        // console.log('Non-retryable error, stopping attempts');
         break;
       }
 
       if (attempt <= retries) {
         const delay = backoff * Math.pow(2, attempt - 1); // Exponential backoff
-        console.log(`Waiting ${delay}ms before retry...`);
+        // console.log(`Waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
 
-  console.error('=== ALL FETCH ATTEMPTS FAILED ===');
-  console.error('Final error:', lastError);
+  // console.error('=== ALL FETCH ATTEMPTS FAILED ===');
+  // console.error('Final error:', lastError);
 
   return {
     ok: false,
@@ -107,15 +107,15 @@ export async function fetchWithAxiosRetries(
 
   while (attempt <= retries) {
     try {
-      console.log(`=== AXIOS ATTEMPT ${attempt + 1}/${retries + 1} ===`);
-      console.log('URL:', url);
-      console.log('Options:', JSON.stringify(options, null, 2));
+      // console.log(`=== AXIOS ATTEMPT ${attempt + 1}/${retries + 1} ===`);
+      // console.log('URL:', url);
+      // console.log('Options:', JSON.stringify(options, null, 2));
 
       const response = await axiosInstance(url, options);
 
-      console.log(`=== AXIOS RESPONSE (Attempt ${attempt + 1}) ===`);
-      console.log('Status:', response.status);
-      console.log('Data:', JSON.stringify(response.data, null, 2));
+      // console.log(`=== AXIOS RESPONSE (Attempt ${attempt + 1}) ===`);
+      // console.log('Status:', response.status);
+      // console.log('Data:', JSON.stringify(response.data, null, 2));
 
       return {
         ok: response.status >= 200 && response.status < 300,
@@ -129,27 +129,27 @@ export async function fetchWithAxiosRetries(
       lastError = err;
       attempt++;
       
-      console.error(`=== AXIOS ATTEMPT ${attempt} FAILED ===`);
-      console.error('Error:', err.message);
-      console.error('Response status:', err.response?.status);
-      console.error('Response data:', err.response?.data);
+      // console.error(`=== AXIOS ATTEMPT ${attempt} FAILED ===`);
+      // console.error('Error:', err.message);
+      // console.error('Response status:', err.response?.status);
+      // console.error('Response data:', err.response?.data);
 
       // Don't retry on certain errors
       if (err.response?.status === 401 || err.response?.status === 403 || err.response?.status === 404) {
-        console.log('Non-retryable error, stopping attempts');
+        // console.log('Non-retryable error, stopping attempts');
         break;
       }
 
       if (attempt <= retries) {
         const delay = backoff * Math.pow(2, attempt - 1); // Exponential backoff
-        console.log(`Waiting ${delay}ms before retry...`);
+        // console.log(`Waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
   }
 
-  console.error('=== ALL AXIOS ATTEMPTS FAILED ===');
-  console.error('Final error:', lastError);
+  // console.error('=== ALL AXIOS ATTEMPTS FAILED ===');
+  // console.error('Final error:', lastError);
 
   return {
     ok: false,

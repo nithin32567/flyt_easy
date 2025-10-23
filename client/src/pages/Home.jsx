@@ -21,9 +21,9 @@ const Home = () => {
     
     if (isNewSearch) {
       clearSearchData();
-      console.log('✅ Cleared search data on home page load (new search)');
+      // console.log('✅ Cleared search data on home page load (new search)');
     } else {
-      console.log('✅ Preserving existing search data (user in booking flow)');
+      // console.log('✅ Preserving existing search data (user in booking flow)');
     }
   }, []);
 

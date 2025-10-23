@@ -103,9 +103,9 @@ const HotelBookingConfirmation = () => {
 
           if (response.data.success) {
             setBookingData(response.data.data.bookingData);
-            console.log('=== HOTEL BOOKING FROM DATABASE ===');
-            console.log(JSON.stringify(response.data.data.bookingData, null, 2));
-            console.log('=== END HOTEL BOOKING FROM DATABASE ===');
+            // console.log('=== HOTEL BOOKING FROM DATABASE ===');
+            // console.log(JSON.stringify(response.data.data.bookingData, null, 2));
+            // console.log('=== END HOTEL BOOKING FROM DATABASE ===');
           } else {
             throw new Error(response.data.message || 'Failed to retrieve booking');
           }
@@ -143,15 +143,15 @@ const HotelBookingConfirmation = () => {
 
           if (response.data.Code === "200" && response.data.Msg?.includes("Success")) {
             setBookingData(response.data);
-            console.log('=== HOTEL BOOKING RETRIEVED ===');
-            console.log(JSON.stringify(response.data, null, 2));
-            console.log('=== END HOTEL BOOKING RETRIEVED ===');
+            // console.log('=== HOTEL BOOKING RETRIEVED ===');
+            // console.log(JSON.stringify(response.data, null, 2));
+            // console.log('=== END HOTEL BOOKING RETRIEVED ===');
           } else {
             throw new Error(response.data.Msg?.join(' ') || 'Failed to retrieve booking');
           }
         }
       } catch (error) {
-        console.error('Error fetching booking details:', error);
+        // console.error('Error fetching booking details:', error);
         setError(error instanceof Error ? error.message : 'An unknown error occurred');
       } finally {
         setLoading(false);

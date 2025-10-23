@@ -49,9 +49,9 @@ const FlightSearch = ({
     
     if (!hasExistingTrips || isBookingComplete) {
       clearSearchData();
-      console.log('✅ Cleared search data on component mount (new search)');
+      // console.log('✅ Cleared search data on component mount (new search)');
     } else {
-      console.log('✅ Preserving existing search data (user in booking flow)');
+      // console.log('✅ Preserving existing search data (user in booking flow)');
     }
     
     // Debug: Show what's in localStorage
@@ -69,18 +69,18 @@ const FlightSearch = ({
         }
       );
 
-      console.log("=== GET EXP SEARCH RESPONSE ===");
-      console.log("Payload sent to API:", response.data.payload);
-      console.log("Response from API:", response.data.response);
-      console.log("Full response data:", response.data);
-      console.log("=================================");
+      // console.log("=== GET EXP SEARCH RESPONSE ===");
+      // console.log("Payload sent to API:", response.data.payload);
+      // console.log("Response from API:", response.data.response);
+      // console.log("Full response data:", response.data);
+      // console.log("=================================");
       if (response.statusText === "OK") {
-        console.log("inside the if condition");
+        // console.log("inside the if condition");
         const trips = response.data.data.Trips;
-        console.log(trips, "trips=========================");
+        // console.log(trips, "trips=========================");
         localStorage.setItem("trips", JSON.stringify(trips));
         const TUI = response.data.data.TUI;
-        console.log(TUI, "TUI=========================");
+        // console.log(TUI, "TUI=========================");
         localStorage.setItem("TUI", TUI);
         
         // Call WebSettings after ExpressSearch completes with the ExpressSearch TUI
@@ -98,15 +98,15 @@ const FlightSearch = ({
               }
             }
           );
-          console.log("WebSettings called with ExpressSearch TUI:", webSettingsResponse.data);
+          // console.log("WebSettings called with ExpressSearch TUI:", webSettingsResponse.data);
         } catch (webSettingsError) {
-          console.error("Error calling WebSettings:", webSettingsError);
+          // console.error("Error calling WebSettings:", webSettingsError);
         }
         
         navigate("/flight-list");
       }
     } catch (error) {
-      console.log(error, "error from the backend=========================");
+      // console.log(error, "error from the backend=========================");
     }
   };
 
@@ -177,14 +177,14 @@ const FlightSearch = ({
       IsStudentFare: isStudentFare,
       IsNearbyAirport: isNearbyAirport,
     };
-    console.log("Trip Type:", tripType);
-    console.log("From:", from);
-    console.log("To:", to);
-    console.log("Departure Date:", departureDate);
-    console.log("Return Date:", returnDate);
-    console.log("Travel Class:", travelClass);
-    console.log("Cabin Code:", payload.Cabin);
-    console.log(payload, "payload to the backend========================= 221");
+    // console.log("Trip Type:", tripType);
+    // console.log("From:", from);
+    // console.log("To:", to);
+    // console.log("Departure Date:", departureDate);
+    // console.log("Return Date:", returnDate);
+    // console.log("Travel Class:", travelClass);
+    // console.log("Cabin Code:", payload.Cabin);
+    // console.log(payload, "payload to the backend========================= 221");
     // Clear previous search data to prevent conflicts
     clearSearchData();
     localStorage.setItem("searchPayload", JSON.stringify(payload));
@@ -203,25 +203,25 @@ const FlightSearch = ({
         }
       );
       const data = await response.json();
-      console.log("=== EXPRESS SEARCH RESPONSE ===");
-      console.log("Payload sent to API:", data.payload);
-      console.log("Response from API:", data.response);
-      console.log("Full response data:", data);
-      console.log("===============================");
+      // console.log("=== EXPRESS SEARCH RESPONSE ===");
+      // console.log("Payload sent to API:", data.payload);
+      // console.log("Response from API:", data.response);
+      // console.log("Full response data:", data);
+      // console.log("===============================");
       const TUI = data.TUI;
       await getExpSearch(TUI).then((response) => {
-        console.log(response, "response from the backend========================= 221 get exp search");
+        // console.log(response, "response from the backend========================= 221 get exp search");
       })
-      console.log(TUI, "TUI=========================");
+      // console.log(TUI, "TUI=========================");
       localStorage.setItem("searchTUI", TUI);
       localStorage.setItem("searchTUI", data.TUI);
       if (data.success && data.data?.TUI) {
-        console.log(
-          "success and calling the getExpSearch================== 212"
-        );
+        // console.log(
+        //   "success and calling the getExpSearch================== 212"
+        // );
       }
     } catch (error) {
-      console.log(error, "error from the backend=========================");
+      // console.log(error, "error from the backend=========================");
     } finally {
       setIsSearching(false);
     }
@@ -272,9 +272,9 @@ const FlightSearch = ({
       IsNearbyAirport: isNearbyAirport,
     };
 
-    console.log("Multi-city Travel Class:", travelClass);
-    console.log("Multi-city Cabin Code:", payload.Cabin);
-    console.log(payload, "multi-city payload to the express search=========================");
+    // console.log("Multi-city Travel Class:", travelClass);
+    // console.log("Multi-city Cabin Code:", payload.Cabin);
+    // console.log(payload, "multi-city payload to the express search=========================");
     // Clear previous search data to prevent conflicts
     clearSearchData();
     localStorage.setItem("searchPayload", JSON.stringify(payload));
@@ -293,16 +293,16 @@ const FlightSearch = ({
         }
       );
       const data = await response.json();
-      console.log(data, "multi-city data from the backend=========================");
+      // console.log(data, "multi-city data from the backend=========================");
       const TUI = data.TUI;
       await getExpSearch(TUI);
-      console.log(TUI, "multi-city TUI=========================");
+      // console.log(TUI, "multi-city TUI=========================");
       localStorage.setItem("searchTUI", TUI);
       localStorage.setItem("searchTUI", data.TUI);
       if (data.success && data.data?.TUI) {
-        console.log(
-          "multi-city success and calling the getExpSearch=================="
-        );
+        // console.log(
+        //   "multi-city success and calling the getExpSearch=================="
+        // );
       }
     } catch (error) {
       console.log(error, "multi-city error from the backend=========================");

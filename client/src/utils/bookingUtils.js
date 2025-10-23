@@ -114,7 +114,7 @@ export const getHotelItineraryResponse = () => {
     const stored = localStorage.getItem('hotelItineraryResponse');
     return stored ? JSON.parse(stored) : null;
   } catch (error) {
-    console.error('Error retrieving hotel itinerary response:', error);
+    // console.error('Error retrieving hotel itinerary response:', error);
     return null;
   }
 };

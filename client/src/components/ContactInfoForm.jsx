@@ -184,7 +184,7 @@ const ContactInfoForm = ({ contactData, onSave, onNext }) => {
         setAddressMessage('Unable to load address data');
       }
     } catch (error) {
-      console.error('Error loading address:', error);
+      // console.error('Error loading address:', error);
       setAddressMessage('Failed to load address. Please try again.');
     } finally {
       setLoadingAddress(false);

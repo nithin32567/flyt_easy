@@ -24,8 +24,8 @@ const HeaderWrapper = () => {
     const updateHeaderHeight = () => {
       if (headerRef.current) {
         const height = headerRef.current.offsetHeight;
-        console.log('=== HEADER HEIGHT CALCULATION ===');
-        console.log('Header height:', height);
+        // console.log('=== HEADER HEIGHT CALCULATION ===');
+        // console.log('Header height:', height);
         document.documentElement.style.setProperty('--header-height', `${height}px`);
         window.dispatchEvent(new CustomEvent('headerHeightChanged', { 
           detail: { height } 

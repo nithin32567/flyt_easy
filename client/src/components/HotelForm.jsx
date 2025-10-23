@@ -73,7 +73,7 @@ const HotelForm = ({
           params: { term: searchterm },
         });
 
-        console.log('Autosuggest API response:', response.data);
+        // console.log('Autosuggest API response:', response.data);
 
         // Handle different possible response structures
         let results = [];
@@ -93,11 +93,11 @@ const HotelForm = ({
           }
         }
 
-        console.log('Processed autosuggest results:', results);
-        console.log('Number of results:', results.length);
+        // console.log('Processed autosuggest results:', results);
+        // console.log('Number of results:', results.length);
         setAutosuggestResults(results);
       } catch (error) {
-        console.error('Autosuggest error:', error);
+        // console.error('Autosuggest error:', error);
         setAutosuggestResults([]);
       } finally {
         setIsAutosuggestLoading(false);
@@ -121,7 +121,7 @@ const HotelForm = ({
         params: { term: locationName },
       });
 
-      console.log('Trending search autosuggest API response:', response.data);
+      // console.log('Trending search autosuggest API response:', response.data);
 
       let results = [];
       if (response.data) {
@@ -140,10 +140,10 @@ const HotelForm = ({
         }
       }
 
-      console.log('Processed trending search results:', results);
+      // console.log('Processed trending search results:', results);
       setAutosuggestResults(results);
     } catch (error) {
-      console.error('Trending search autosuggest error:', error);
+      // console.error('Trending search autosuggest error:', error);
       setAutosuggestResults([]);
     } finally {
       setIsAutosuggestLoading(false);
@@ -220,7 +220,7 @@ const HotelForm = ({
                       zIndex: 1050
                     }}
                   >
-                    {console.log('Current autosuggestResults:', autosuggestResults)}
+                    {/* console.log('Current autosuggestResults:', autosuggestResults) */}
                     {isAutosuggestLoading ? (
                       <div className="p-3 text-center">
                         <div className="spinner-border spinner-border-sm text-primary me-2"></div>

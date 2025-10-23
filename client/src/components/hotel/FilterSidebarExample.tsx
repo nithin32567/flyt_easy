@@ -50,7 +50,7 @@ const FilterSidebarExample: React.FC = () => {
 
   const handleFilterChange = (filters: Record<string, any>) => {
     setAppliedFilters(filters);
-    console.log('Applied filters:', filters);
+    // console.log('Applied filters:', filters);
   };
 
   const toggleSidebar = () => {

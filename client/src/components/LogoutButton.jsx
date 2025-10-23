@@ -14,7 +14,7 @@ const LogoutButton = () => {
       await logout();
       navigate('/login');
     } catch (error) {
-      console.error('Logout error:', error);
+      // console.error('Logout error:', error);
     }
   };
 

@@ -211,7 +211,7 @@ const Createitenary = () => {
       
       // For hotel bookings, we need to ensure NetAmount is available
       if (!hotelSearchData.netAmount && netAmountNumber === 0) {
-        console.warn('Hotel booking NetAmount not found, using default value');
+        // console.warn('Hotel booking NetAmount not found, using default value');
         // You might want to prompt the user or redirect to hotel selection
       }
     } else {
@@ -298,8 +298,8 @@ const Createitenary = () => {
         Amount: netAmountNumber // Pass the NetAmount from GetSPricer
       };
       
-      console.log("=== SSR API CALL (fetchSSRServices) ===");
-      console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
+      // console.log("=== SSR API CALL (fetchSSRServices) ===");
+      // console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
       
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
@@ -312,8 +312,8 @@ const Createitenary = () => {
         }
       );
       
-      console.log("SSR Response Data:", JSON.stringify(response.data, null, 2));
-      console.log("=====================================");
+      // console.log("SSR Response Data:", JSON.stringify(response.data, null, 2));
+      // console.log("=====================================");
 
       if (response.data.success) {
         const services = response.data.data.services || [];
@@ -405,9 +405,9 @@ const Createitenary = () => {
   // Handle hotel booking submission
   const handleHotelBookingSubmit = async () => {
     try {
-      console.log("=== HOTEL BOOKING SUBMISSION ===");
-      console.log("Using searchTracingKey as TUI:", hotelSearchTracingKey);
-      console.log("Hotel search data:", hotelSearchData);
+      // console.log("=== HOTEL BOOKING SUBMISSION ===");
+      // console.log("Using searchTracingKey as TUI:", hotelSearchTracingKey);
+      // console.log("Hotel search data:", hotelSearchData);
       
       // Prepare hotel itinerary payload
       const hotelItineraryPayload = {
@@ -487,9 +487,9 @@ const Createitenary = () => {
         TravelingFor: "NTF"
       };
 
-      console.log("=== HOTEL CREATE ITINERARY PAYLOAD ===");
-      console.log("Payload being sent:", JSON.stringify(hotelItineraryPayload, null, 2));
-      console.log("=== END PAYLOAD ===");
+      // console.log("=== HOTEL CREATE ITINERARY PAYLOAD ===");
+      // console.log("Payload being sent:", JSON.stringify(hotelItineraryPayload, null, 2));
+      // console.log("=== END PAYLOAD ===");
 
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/create-itinerary`,
@@ -503,10 +503,10 @@ const Createitenary = () => {
         }
       );
 
-      console.log("=== HOTEL CREATE ITINERARY RESPONSE ===");
-      console.log("Response Status:", response.status);
-      console.log("Response Data:", JSON.stringify(response.data, null, 2));
-      console.log("=== END RESPONSE ===");
+      // console.log("=== HOTEL CREATE ITINERARY RESPONSE ===");
+      // console.log("Response Status:", response.status);
+      // console.log("Response Data:", JSON.stringify(response.data, null, 2));
+      // console.log("=== END RESPONSE ===");
 
       if (response.data.success) {
         localStorage.setItem("TransactionID", response.data.data.TransactionID);
@@ -519,7 +519,7 @@ const Createitenary = () => {
       }
 
     } catch (error) {
-      console.error("Hotel booking submission error:", error);
+      // console.error("Hotel booking submission error:", error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to create hotel itinerary';
       alert(`Error: ${errorMessage}`);
     }
@@ -587,9 +587,9 @@ const Createitenary = () => {
             ClientID: localStorage.getItem("ClientID")
           };
           
-          console.log("=== GET PRICER API CALL (CreateItinerary) ===");
-          console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
-          console.log("=============================================");
+          // console.log("=== GET PRICER API CALL (CreateItinerary) ===");
+          // console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
+          // console.log("=============================================");
           
           const pricingResponse = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`,
@@ -602,12 +602,12 @@ const Createitenary = () => {
             }
           );
 
-          console.log("=== GET PRICER API RESPONSE (CreateItinerary) ===");
-          console.log("Response Status:", pricingResponse.status);
-          console.log("Response Headers:", pricingResponse.headers);
-          console.log("Response Data:", JSON.stringify(pricingResponse.data, null, 2));
-          console.log("Full Response Object:", pricingResponse);
-          console.log("===============================================");
+          // console.log("=== GET PRICER API RESPONSE (CreateItinerary) ===");
+          // console.log("Response Status:", pricingResponse.status);
+          // console.log("Response Headers:", pricingResponse.headers);
+          // console.log("Response Data:", JSON.stringify(pricingResponse.data, null, 2));
+          // console.log("Full Response Object:", pricingResponse);
+          // console.log("===============================================");
           
           if (pricingResponse.data.Code === "200" && pricingResponse.data.data) {
             finalNetAmount = Number(pricingResponse.data.data.NetAmount) || netAmountNumber;
@@ -619,10 +619,10 @@ const Createitenary = () => {
             localStorage.setItem("pricerTUI", freshTUI);
           }
         } catch (pricingError) {
-          console.log("=== GET PRICER API ERROR (CreateItinerary) ===");
-          console.error("Error calling get-pricer API:", pricingError);
-          console.log("Error object:", JSON.stringify(pricingError, null, 2));
-          console.log("=============================================");
+          // console.log("=== GET PRICER API ERROR (CreateItinerary) ===");
+          // console.error("Error calling get-pricer API:", pricingError);
+          // console.log("Error object:", JSON.stringify(pricingError, null, 2));
+          // console.log("=============================================");
           // Error getting fresh pricing, using stored amount
         }
 
@@ -651,8 +651,8 @@ const Createitenary = () => {
           } else {
           }
         } catch (checkListError) {
-          console.error('Failed to fetch travel checklist', {
-            message: checkListError.message,
+          // console.error('Failed to fetch travel checklist', {
+          //   message: checkListError.message,
             response: checkListError.response?.data,
             status: checkListError.response?.status
           });
@@ -673,8 +673,8 @@ const Createitenary = () => {
               Amount: finalNetAmount
             };
             
-            console.log("=== SSR API CALL (handleSubmit - refresh SSR) ===");
-            console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
+            // console.log("=== SSR API CALL (handleSubmit - refresh SSR) ===");
+            // console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
             
             const ssrResponse = await axios.post(
               `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
@@ -687,8 +687,8 @@ const Createitenary = () => {
               }
             );
             
-            console.log("SSR Response Data:", JSON.stringify(ssrResponse.data, null, 2));
-            console.log("==================================================");
+            // console.log("SSR Response Data:", JSON.stringify(ssrResponse.data, null, 2));
+            // console.log("==================================================");
 
             if (ssrResponse.data.success) {
               const freshServices = ssrResponse.data.data.services || [];
@@ -790,21 +790,21 @@ const Createitenary = () => {
           CrossSellAmount: 0
         };
 
-        console.log("=== CREATE ITINERARY FINAL PAYLOAD (FRONTEND) ===");
-        console.log("Using Fresh TUI:", freshTUI);
-        console.log("Using Fresh NetAmount:", finalNetAmount);
-        console.log("Cleared Transaction ID to avoid duplicates");
-        console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
-        console.log("=============================================");
+        // console.log("=== CREATE ITINERARY FINAL PAYLOAD (FRONTEND) ===");
+        // console.log("Using Fresh TUI:", freshTUI);
+        // console.log("Using Fresh NetAmount:", finalNetAmount);
+        // console.log("Cleared Transaction ID to avoid duplicates");
+        // console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
+        // console.log("=============================================");
         
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/create-itinerary`, payload, { headers });
         
-        console.log("=== CREATE ITINERARY RESPONSE (FRONTEND) ===");
-        console.log("Response Status:", response.status);
-        console.log("Response Headers:", response.headers);
-        console.log("Response Data:", JSON.stringify(response.data, null, 2));
-        console.log("Full Response Object:", response);
-        console.log("==========================================");
+        // console.log("=== CREATE ITINERARY RESPONSE (FRONTEND) ===");
+        // console.log("Response Status:", response.status);
+        // console.log("Response Headers:", response.headers);
+        // console.log("Response Data:", JSON.stringify(response.data, null, 2));
+        // console.log("Full Response Object:", response);
+        // console.log("==========================================");
         
         
         if (response.data.success) {

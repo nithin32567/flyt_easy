@@ -23,8 +23,8 @@ const useHeaderHeight = () => {
     };
 
     const handleHeaderHeightChange = (event) => {
-      console.log('=== HEADER HEIGHT HOOK UPDATE ===');
-      console.log('New height from event:', event.detail.height);
+      // console.log('=== HEADER HEIGHT HOOK UPDATE ===');
+      // console.log('New height from event:', event.detail.height);
       setHeaderHeight(event.detail.height);
     };
 

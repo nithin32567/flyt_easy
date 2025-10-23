@@ -26,7 +26,7 @@ const FlightHotelWearchWrapper = () => {
         const data = await response.json();
         setAirports(data);
       } catch (error) {
-        console.error("Error fetching airports:", error);
+        // console.error("Error fetching airports:", error);
       }
     }
     fetchAirports();

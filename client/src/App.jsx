@@ -40,7 +40,7 @@ const AppContent = () => {
           `${import.meta.env.VITE_BASE_URL}/api/signature`
         );
         const data = await response.json();
-        console.log(data, "signature data");
+        // console.log(data, "signature data");
 
         localStorage.setItem("token", data.token);
         localStorage.setItem("ClientID", data.ClientID);
@@ -48,7 +48,7 @@ const AppContent = () => {
           localStorage.setItem("TUI", data.TUI);
         }
       } catch (error) {
-        console.error("Error initializing app:", error);
+        // console.error("Error initializing app:", error);
       }
     };
 

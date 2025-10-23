@@ -26,10 +26,10 @@ const BookingDetailsAccordion = () => {
     }
 
     if (user && user.id) {
-      console.log('User authenticated, fetching bookings...');
+      // console.log('User authenticated, fetching bookings...');
       fetchBookings();
     } else {
-      console.log('User object missing id:', user);
+      // console.log('User object missing id:', user);
     }
   }, [user, navigate]);
 
@@ -39,7 +39,7 @@ const BookingDetailsAccordion = () => {
       if (headerElement) {
         const height = headerElement.offsetHeight;
         setHeaderHeight(height);
-        console.log('Header height calculated:', height);
+        // console.log('Header height calculated:', height);
       }
     };
 
@@ -76,7 +76,7 @@ const BookingDetailsAccordion = () => {
 
   const fetchBookings = async () => {
     try {
-      console.log('Fetching bookings for user:', user);
+      // console.log('Fetching bookings for user:', user);
       const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/bookings/user/${user.id}`, {
         headers: {
           'Content-Type': 'application/json'
@@ -84,19 +84,19 @@ const BookingDetailsAccordion = () => {
         credentials: 'include'
       });
 
-      console.log('Response status:', response.status);
+      // console.log('Response status:', response.status);
       
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('API Error:', errorData);
+        // console.error('API Error:', errorData);
         throw new Error(`Failed to fetch bookings: ${errorData.message || response.statusText}`);
       }
 
       const data = await response.json();
-      console.log('Bookings data:', data);
+      // console.log('Bookings data:', data);
       setBookings(data.data || []);
     } catch (err) {
-      console.error('Fetch error:', err);
+      // console.error('Fetch error:', err);
       setError(err.message);
     } finally {
       setLoading(false);

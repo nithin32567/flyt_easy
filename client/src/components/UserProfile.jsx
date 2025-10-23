@@ -29,9 +29,9 @@ const UserProfile = () => {
 
   // Debug: Log profile state changes
   useEffect(() => {
-    console.log("Profile state updated:", profile);
-    console.log("Date of Birth value:", profile.dateOfBirth);
-    console.log("Passport Expiry value:", profile.passportExpiry);
+    // console.log("Profile state updated:", profile);
+    // console.log("Date of Birth value:", profile.dateOfBirth);
+    // console.log("Passport Expiry value:", profile.passportExpiry);
   }, [profile]);
 
   const fetchUserData = async () => {
@@ -45,11 +45,11 @@ const UserProfile = () => {
         }
       });
       const data = await response.json();
-      console.log(data, "user data");
+      // console.log(data, "user data");
 
       if (response.ok) {
-        console.log("Full API response:", data);
-        console.log("Profile data from API:", data.user?.profile);
+        // console.log("Full API response:", data);
+        // console.log("Profile data from API:", data.user?.profile);
 
         // Ensure we have the correct structure for profile data
         const apiProfile = data.user.profile || {};
@@ -62,7 +62,7 @@ const UserProfile = () => {
             if (isNaN(date.getTime())) return '';
             return date.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
           } catch (error) {
-            console.error('Error formatting date:', error);
+            // console.error('Error formatting date:', error);
             return '';
           }
         };
@@ -79,14 +79,14 @@ const UserProfile = () => {
           passportExpiry: formatDateForInput(apiProfile.passportExpiry)
         };
 
-        console.log("Formatted profile for state:", formattedProfile);
+        // console.log("Formatted profile for state:", formattedProfile);
         setProfile(formattedProfile);
         setAddresses(data.addresses || []);
       } else {
         setMessage('Failed to load profile data');
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      // console.error('Error fetching user data:', error);
       setMessage('Error loading profile data');
     } finally {
       setLoading(false);
@@ -110,7 +110,7 @@ const UserProfile = () => {
         setMessage('Failed to load hotel bookings');
       }
     } catch (error) {
-      console.error('Error fetching hotel bookings:', error);
+      // console.error('Error fetching hotel bookings:', error);
       setMessage('Error loading hotel bookings');
     } finally {
       setHotelBookingsLoading(false);
@@ -146,7 +146,7 @@ const UserProfile = () => {
         setMessage('Failed to update profile');
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      // console.error('Error updating profile:', error);
       setMessage('Error updating profile');
     } finally {
       setSaving(false);
@@ -175,7 +175,7 @@ const UserProfile = () => {
         setMessage('Failed to delete address');
       }
     } catch (error) {
-      console.error('Error deleting address:', error);
+      // console.error('Error deleting address:', error);
       setMessage('Error deleting address');
     }
   };
@@ -201,7 +201,7 @@ const UserProfile = () => {
         setMessage('Failed to update default address');
       }
     } catch (error) {
-      console.error('Error setting default address:', error);
+      // console.error('Error setting default address:', error);
       setMessage('Error updating default address');
     }
   };
@@ -241,7 +241,7 @@ const UserProfile = () => {
         setMessage(errorData.message || 'Failed to save address');
       }
     } catch (error) {
-      console.error('Error saving address:', error);
+      // console.error('Error saving address:', error);
       setMessage('Error saving address');
     }
   };

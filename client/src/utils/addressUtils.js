@@ -63,7 +63,7 @@ export const saveAddress = async (addressData, token) => {
       return { success: false, error: error.message || 'Failed to save address' };
     }
   } catch (error) {
-    console.error('Error saving address:', error);
+    // console.error('Error saving address:', error);
     return { success: false, error: 'Network error' };
   }
 };
@@ -88,7 +88,7 @@ export const updateAddress = async (addressId, addressData, token) => {
       return { success: false, error: error.message || 'Failed to update address' };
     }
   } catch (error) {
-    console.error('Error updating address:', error);
+    // console.error('Error updating address:', error);
     return { success: false, error: 'Network error' };
   }
 };

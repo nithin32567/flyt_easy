@@ -35,11 +35,11 @@ const HotelBooking = () => {
     const hotelDetailsData = JSON.parse(localStorage.getItem('hotelDetailsData') || '{}');
     const selectedRoomData = JSON.parse(localStorage.getItem('selectedRoomData') || '{}');
     
-    console.log('=== LOCALSTORAGE DATA DEBUG ===');
-    console.log('hotelSearchData:', hotelSearchData);
-    console.log('hotelDetailsData:', hotelDetailsData);
-    console.log('selectedRoomData:', selectedRoomData);
-    console.log('=== END LOCALSTORAGE DEBUG ===');
+    // console.log('=== LOCALSTORAGE DATA DEBUG ===');
+    // console.log('hotelSearchData:', hotelSearchData);
+    // console.log('hotelDetailsData:', hotelDetailsData);
+    // console.log('selectedRoomData:', selectedRoomData);
+    // console.log('=== END LOCALSTORAGE DEBUG ===');
     
     setSearchData(hotelSearchData);
     setHotelData(hotelDetailsData);
@@ -148,12 +148,12 @@ const HotelBooking = () => {
           // Add final pipe to complete the format
           guestCode += '|';
           
-          console.log('=== GUEST CODE GENERATION DEBUG ===');
-          console.log('occupancyId:', occupancyId);
-          console.log('adults:', adults);
-          console.log('children:', children);
-          console.log('Generated guestCode:', guestCode);
-          console.log('=== END GUEST CODE GENERATION DEBUG ===');
+          // console.log('=== GUEST CODE GENERATION DEBUG ===');
+          // console.log('occupancyId:', occupancyId);
+          // console.log('adults:', adults);
+          // console.log('children:', children);
+          // console.log('Generated guestCode:', guestCode);
+          // console.log('=== END GUEST CODE GENERATION DEBUG ===');
           
           return {
             RoomId: selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId,
@@ -199,49 +199,49 @@ const HotelBooking = () => {
         TravelingFor: "NTF"
       };
       
-      console.log('=== HOTEL BOOKING PAYLOAD ===');
-      console.log('Available Data:');
-      console.log('hotelData:', hotelData);
-      console.log('selectedRoom:', selectedRoom);
-      console.log('searchData:', searchData);
-      console.log('=== ROOM ID DEBUG ===');
-      console.log('selectedRoom.room?.id:', selectedRoom.room?.id);
-      console.log('selectedRoom.id:', selectedRoom.id);
-      console.log('selectedRoom.roomId:', selectedRoom.roomId);
-      console.log('Final RoomId being sent:', selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId);
-      console.log('=== END ROOM ID DEBUG ===');
-      console.log('=== GUEST CODE DEBUG ===');
-      console.log('selectedRoom.occupancies:', selectedRoom.occupancies);
-      console.log('guestDetails:', guestDetails);
-      console.log('=== END GUEST CODE DEBUG ===');
-      console.log('=== SUPPLIER & ROOM GROUP DEBUG ===');
-      console.log('selectedRoom.providerName:', selectedRoom.providerName);
-      console.log('selectedRoom.id (RoomGroupId):', selectedRoom.id);
-      console.log('selectedRoom.room?.id (RoomId):', selectedRoom.room?.id);
-      console.log('=== END SUPPLIER & ROOM GROUP DEBUG ===');
-      console.log('=== PAYLOAD STRUCTURE DEBUG ===');
-      console.log('Final RoomId being sent:', selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId);
-      console.log('Final RoomGroupId being sent:', selectedRoom.id);
-      console.log('Final SupplierName being sent:', selectedRoom.providerName);
-      console.log('=== END PAYLOAD STRUCTURE DEBUG ===');
-      console.log('=== PRICING DATA DEBUG ===');
-      console.log('selectedRoom from localStorage:', selectedRoom);
-      console.log('selectedRoom.providerName:', selectedRoom.providerName);
-      console.log('selectedRoom.room?.id:', selectedRoom.room?.id);
-      console.log('selectedRoom.id:', selectedRoom.id);
-      console.log('=== END PRICING DATA DEBUG ===');
-      console.log('=== FINAL PAYLOAD VERIFICATION ===');
-      console.log('GuestID being sent:', "0");
-      console.log('MobileNo being sent:', "");
-      console.log('Email being sent:', "");
-      console.log('Auxiliaries structure:', hotelItineraryPayload.Auxiliaries);
-      console.log('=== NET AMOUNT DEBUG ===');
-      console.log('selectedRoom.totalRate:', selectedRoom.totalRate);
-      console.log('selectedRoom.baseRate:', selectedRoom.baseRate);
-      console.log('NetAmount being sent:', hotelItineraryPayload.NetAmount);
-      console.log('=== END NET AMOUNT DEBUG ===');
-      console.log('=== END FINAL PAYLOAD VERIFICATION ===');
-      console.log('Payload:', JSON.stringify(hotelItineraryPayload, null, 2));
+      // console.log('=== HOTEL BOOKING PAYLOAD ===');
+      // console.log('Available Data:');
+      // console.log('hotelData:', hotelData);
+      // console.log('selectedRoom:', selectedRoom);
+      // console.log('searchData:', searchData);
+      // console.log('=== ROOM ID DEBUG ===');
+      // console.log('selectedRoom.room?.id:', selectedRoom.room?.id);
+      // console.log('selectedRoom.id:', selectedRoom.id);
+      // console.log('selectedRoom.roomId:', selectedRoom.roomId);
+      // console.log('Final RoomId being sent:', selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId);
+      // console.log('=== END ROOM ID DEBUG ===');
+      // console.log('=== GUEST CODE DEBUG ===');
+      // console.log('selectedRoom.occupancies:', selectedRoom.occupancies);
+      // console.log('guestDetails:', guestDetails);
+      // console.log('=== END GUEST CODE DEBUG ===');
+      // console.log('=== SUPPLIER & ROOM GROUP DEBUG ===');
+      // console.log('selectedRoom.providerName:', selectedRoom.providerName);
+      // console.log('selectedRoom.id (RoomGroupId):', selectedRoom.id);
+      // console.log('selectedRoom.room?.id (RoomId):', selectedRoom.room?.id);
+      // console.log('=== END SUPPLIER & ROOM GROUP DEBUG ===');
+      // console.log('=== PAYLOAD STRUCTURE DEBUG ===');
+      // console.log('Final RoomId being sent:', selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId);
+      // console.log('Final RoomGroupId being sent:', selectedRoom.id);
+      // console.log('Final SupplierName being sent:', selectedRoom.providerName);
+      // console.log('=== END PAYLOAD STRUCTURE DEBUG ===');
+      // console.log('=== PRICING DATA DEBUG ===');
+      // console.log('selectedRoom from localStorage:', selectedRoom);
+      // console.log('selectedRoom.providerName:', selectedRoom.providerName);
+      // console.log('selectedRoom.room?.id:', selectedRoom.room?.id);
+      // console.log('selectedRoom.id:', selectedRoom.id);
+      // console.log('=== END PRICING DATA DEBUG ===');
+      // console.log('=== FINAL PAYLOAD VERIFICATION ===');
+      // console.log('GuestID being sent:', "0");
+      // console.log('MobileNo being sent:', "");
+      // console.log('Email being sent:', "");
+      // console.log('Auxiliaries structure:', hotelItineraryPayload.Auxiliaries);
+      // console.log('=== NET AMOUNT DEBUG ===');
+      // console.log('selectedRoom.totalRate:', selectedRoom.totalRate);
+      // console.log('selectedRoom.baseRate:', selectedRoom.baseRate);
+      // console.log('NetAmount being sent:', hotelItineraryPayload.NetAmount);
+      // console.log('=== END NET AMOUNT DEBUG ===');
+      // console.log('=== END FINAL PAYLOAD VERIFICATION ===');
+      // console.log('Payload:', JSON.stringify(hotelItineraryPayload, null, 2));
       
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/create-itinerary`,
@@ -255,28 +255,28 @@ const HotelBooking = () => {
         }
       );
       
-      console.log('=== HOTEL BOOKING RESPONSE ===');
-      console.log(response.data);
+      // console.log('=== HOTEL BOOKING RESPONSE ===');
+      // console.log(response.data);
       
       if (response.data.status === 'success') {
         // Check if we have TransactionID and Code 200 in the itinerary response
         const itineraryData = response.data.itinerary;
         
-        console.log('=== ITINERARY RESPONSE VALIDATION ===');
-        console.log('TransactionID:', itineraryData?.TransactionID);
-        console.log('Code:', itineraryData?.Code);
-        console.log('Success:', isHotelItineraryValid(itineraryData));
-        console.log('=== END ITINERARY RESPONSE VALIDATION ===');
+        // console.log('=== ITINERARY RESPONSE VALIDATION ===');
+        // console.log('TransactionID:', itineraryData?.TransactionID);
+        // console.log('Code:', itineraryData?.Code);
+        // console.log('Success:', isHotelItineraryValid(itineraryData));
+        // console.log('=== END ITINERARY RESPONSE VALIDATION ===');
         
         if (isHotelItineraryValid(itineraryData)) {
-          console.log('✅ Itinerary created successfully with TransactionID:', itineraryData.TransactionID);
+          // console.log('✅ Itinerary created successfully with TransactionID:', itineraryData.TransactionID);
           
           // Store the complete itinerary response using utility function
           const stored = storeHotelItineraryResponse(itineraryData);
           if (stored) {
-            console.log('✅ Itinerary response stored in localStorage');
+            // console.log('✅ Itinerary response stored in localStorage');
           } else {
-            console.warn('⚠️ Failed to store itinerary response');
+            // console.warn('⚠️ Failed to store itinerary response');
           }
           
           // Proceed to payment after successful itinerary creation
@@ -289,7 +289,7 @@ const HotelBooking = () => {
       }
       
     } catch (error) {
-      console.error('Hotel booking error:', error);
+      // console.error('Hotel booking error:', error);
       alert(`Booking failed: ${error.response?.data?.message || error.message}`);
     } finally {
       setIsSubmitting(false);
@@ -308,7 +308,7 @@ const HotelBooking = () => {
 
   const initiateHotelPayment = async (itineraryData) => {
     try {
-      console.log('=== INITIATING HOTEL PAYMENT ===');
+      // console.log('=== INITIATING HOTEL PAYMENT ===');
       
       // 1. Load Razorpay SDK
       const res = await loadRazorpay("https://checkout.razorpay.com/v1/checkout.js");
@@ -337,7 +337,7 @@ const HotelBooking = () => {
         throw new Error('Failed to create payment order');
       }
 
-      console.log('✅ Razorpay order created:', orderResponse.data.order);
+      // console.log('✅ Razorpay order created:', orderResponse.data.order);
 
       // 3. Initialize Razorpay payment
       const options = {
@@ -349,9 +349,9 @@ const HotelBooking = () => {
         order_id: orderResponse.data.order.id,
         handler: async function (response) {
           try {
-            console.log('=== RAZORPAY PAYMENT RESPONSE ===');
-            console.log(response);
-            console.log('=== END RAZORPAY PAYMENT RESPONSE ===');
+            // console.log('=== RAZORPAY PAYMENT RESPONSE ===');
+            // console.log(response);
+            // console.log('=== END RAZORPAY PAYMENT RESPONSE ===');
 
             // 4. Verify payment signature
             const verifyResponse = await axios.post(
@@ -364,7 +364,7 @@ const HotelBooking = () => {
             );
 
             if (verifyResponse.data.success) {
-              console.log('✅ Payment verified successfully');
+              // console.log('✅ Payment verified successfully');
               
               // 5. Call StartPay API
               await callHotelStartPay(itineraryData);
@@ -372,7 +372,7 @@ const HotelBooking = () => {
               throw new Error('Payment verification failed');
             }
           } catch (error) {
-            console.error('Payment verification error:', error);
+            // console.error('Payment verification error:', error);
             alert(`Payment verification failed: ${error.message}`);
           }
         },
@@ -390,14 +390,14 @@ const HotelBooking = () => {
       razorpayInstance.open();
 
     } catch (error) {
-      console.error('Payment initiation error:', error);
+      // console.error('Payment initiation error:', error);
       alert(`Payment initiation failed: ${error.message}`);
     }
   };
 
   const callHotelStartPay = async (itineraryData) => {
     try {
-      console.log('=== CALLING HOTEL STARTPAY API ===');
+      // console.log('=== CALLING HOTEL STARTPAY API ===');
       
       // Show loading popup
       setIsPaymentProcessing(true);
@@ -455,9 +455,9 @@ const HotelBooking = () => {
         AgentInfo: "333-1234-asdf-551234-1-306"
       };
 
-      console.log('=== HOTEL STARTPAY PAYLOAD ===');
-      console.log(JSON.stringify(startPayPayload, null, 2));
-      console.log('=== END HOTEL STARTPAY PAYLOAD ===');
+      // console.log('=== HOTEL STARTPAY PAYLOAD ===');
+      // console.log(JSON.stringify(startPayPayload, null, 2));
+      // console.log('=== END HOTEL STARTPAY PAYLOAD ===');
 
       const startPayResponse = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/start-pay`,
@@ -470,9 +470,9 @@ const HotelBooking = () => {
         }
       );
 
-      console.log('=== HOTEL STARTPAY RESPONSE ===');
-      console.log(JSON.stringify(startPayResponse.data, null, 2));
-      console.log('=== END HOTEL STARTPAY RESPONSE ===');
+      // console.log('=== HOTEL STARTPAY RESPONSE ===');
+      // console.log(JSON.stringify(startPayResponse.data, null, 2));
+      // console.log('=== END HOTEL STARTPAY RESPONSE ===');
 
       if (startPayResponse.data.success) {
         if (startPayResponse.data.shouldPoll) {
@@ -480,7 +480,7 @@ const HotelBooking = () => {
           // Poll for booking status
           await pollHotelBookingStatus(itineraryData);
         } else if (startPayResponse.data.status === "SUCCESS") {
-          console.log('✅ Hotel booking completed successfully');
+          // console.log('✅ Hotel booking completed successfully');
           setPaymentStatus('Booking confirmed successfully!');
           
           // Store transaction ID for confirmation page
@@ -497,7 +497,7 @@ const HotelBooking = () => {
       }
 
     } catch (error) {
-      console.error('Hotel StartPay error:', error);
+      // console.error('Hotel StartPay error:', error);
       setIsPaymentProcessing(false);
       alert(`Hotel booking failed: ${error.response?.data?.message || error.message}`);
       navigate('/', { 
@@ -511,7 +511,7 @@ const HotelBooking = () => {
 
   const pollHotelBookingStatus = async (itineraryData) => {
     try {
-      console.log('=== POLLING HOTEL BOOKING STATUS ===');
+      // console.log('=== POLLING HOTEL BOOKING STATUS ===');
       
       const token = localStorage.getItem('token');
       const maxAttempts = 10;
@@ -535,12 +535,12 @@ const HotelBooking = () => {
           }
         );
 
-        console.log(`=== HOTEL BOOKING STATUS ATTEMPT ${attempts} ===`);
-        console.log(JSON.stringify(statusResponse.data, null, 2));
-        console.log('=== END HOTEL BOOKING STATUS ATTEMPT ===');
+        // console.log(`=== HOTEL BOOKING STATUS ATTEMPT ${attempts} ===`);
+        // console.log(JSON.stringify(statusResponse.data, null, 2));
+        // console.log('=== END HOTEL BOOKING STATUS ATTEMPT ===');
 
         if (statusResponse.data.success && statusResponse.data.status === "SUCCESS") {
-          console.log('✅ Hotel booking completed successfully');
+          // console.log('✅ Hotel booking completed successfully');
           setPaymentStatus('Booking confirmed successfully!');
           
           // Store transaction ID for confirmation page
@@ -567,7 +567,7 @@ const HotelBooking = () => {
       pollStatus();
 
     } catch (error) {
-      console.error('Hotel booking status polling error:', error);
+      // console.error('Hotel booking status polling error:', error);
       setIsPaymentProcessing(false);
       alert(`Hotel booking failed: ${error.message}`);
       navigate('/', { 

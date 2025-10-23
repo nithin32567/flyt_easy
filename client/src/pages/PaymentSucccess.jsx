@@ -54,13 +54,13 @@ const PaymentSucccess = () => {
             if (response.ok) {
                 const result = await response.json();
                 setSavedBookingId(result.data._id);
-                console.log('Booking details saved successfully');
+                // console.log('Booking details saved successfully');
             } else {
                 const errorData = await response.json();
-                console.error('Failed to save booking details:', errorData);
+                // console.error('Failed to save booking details:', errorData);
             }
         } catch (error) {
-            console.error('Error saving booking details:', error);
+            // console.error('Error saving booking details:', error);
         }
     };
 
@@ -85,7 +85,7 @@ const PaymentSucccess = () => {
                 saveBookingDetails(bookingData);
             }
         } catch (error) {
-            console.error('Error fetching booking details:', error);
+            // console.error('Error fetching booking details:', error);
         }
     }
 
@@ -140,7 +140,7 @@ const PaymentSucccess = () => {
                 alert('Failed to retrieve booking: ' + response.data.message);
             }
         } catch (error) {
-            console.error('Error retrieving booking:', error);
+            // console.error('Error retrieving booking:', error);
             alert('Error retrieving booking. Please try again.');
         }
     };

@@ -30,7 +30,7 @@ const FlightBookingDetails = () => {
         }
 
         const data = await response.json();
-        console.log('Booking details fetched:', data);
+        // console.log('Booking details fetched:', data);
         setBooking(data.data);
       } catch (err) {
         setError(err.message);
@@ -324,7 +324,7 @@ const FlightBookingDetails = () => {
                   onClick={() => {
                     if (window.confirm('Are you sure you want to cancel this booking?')) {
                       // Implement cancel booking functionality
-                      console.log('Cancel booking:', booking._id);
+                      // console.log('Cancel booking:', booking._id);
                     }
                   }}
                   className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"

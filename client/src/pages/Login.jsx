@@ -19,7 +19,7 @@ const Login = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('User already authenticated, redirecting...');
+      // console.log('User already authenticated, redirecting...');
       const from = location.state?.from?.pathname || '/';
       navigate(from, { replace: true });
     }
@@ -39,7 +39,7 @@ const Login = () => {
     
     try {
       // Handle regular email/password login logic here
-      console.log('Login attempt with:', formData);
+      // console.log('Login attempt with:', formData);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -47,7 +47,7 @@ const Login = () => {
       // Add your authentication logic here
       
     } catch (error) {
-      console.error('Login error:', error);
+      // console.error('Login error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +64,7 @@ const Login = () => {
       )
       
     } catch (error) {
-      console.error('Google login error:', error);
+      // console.error('Google login error:', error);
       setIsLoading(false);
     }
   };

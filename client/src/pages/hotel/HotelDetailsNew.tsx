@@ -79,11 +79,11 @@ const HotelDetailsNew: React.FC = () => {
       // Validate search context before proceeding
       const validation = validateSearchContext();
       if (!validation.isValid) {
-        console.error('Search context validation failed:', validation.errors);
+        // console.error('Search context validation failed:', validation.errors);
         
         // If search tracing key is missing, redirect immediately to root
         if (validation.errors.includes('Search Tracing Key is missing')) {
-          console.log('Search Tracing Key missing, redirecting to root immediately');
+          // console.log('Search Tracing Key missing, redirecting to root immediately');
           navigate('/');
           return;
         }
@@ -96,7 +96,7 @@ const HotelDetailsNew: React.FC = () => {
       }
 
       if (validation.needsRefresh) {
-        console.log('Search context is stale, but proceeding with retry');
+        // console.log('Search context is stale, but proceeding with retry');
       }
 
       fetchHotelDetails();
@@ -124,11 +124,11 @@ const HotelDetailsNew: React.FC = () => {
       // Validate search context again before making API calls
       const validation = validateSearchContext();
       if (!validation.isValid) {
-        console.error('Search context validation failed during fetch:', validation.errors);
+        // console.error('Search context validation failed during fetch:', validation.errors);
         
         // If search tracing key is missing, redirect immediately to root
         if (validation.errors.includes('Search Tracing Key is missing')) {
-          console.log('Search Tracing Key missing during fetch, redirecting to root immediately');
+          // console.log('Search Tracing Key missing during fetch, redirecting to root immediately');
           navigate('/');
           return;
         }
@@ -142,7 +142,7 @@ const HotelDetailsNew: React.FC = () => {
 
       const { context } = validation;
       if (!context) {
-        console.error('Context is null after validation');
+        // console.error('Context is null after validation');
         showFatalErrorModal(
           'Session Expired',
           'Your search session has expired or is missing required data. Please search again.'
@@ -152,10 +152,10 @@ const HotelDetailsNew: React.FC = () => {
       
       const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
       
-      console.log('=== HOTEL DETAILS API CALL ===');
-      console.log('Hotel ID:', hotelId);
-      console.log('Search ID:', context.searchId);
-      console.log('Search Tracing Key:', context.searchTracingKey);
+      // console.log('=== HOTEL DETAILS API CALL ===');
+      // console.log('Hotel ID:', hotelId);
+      // console.log('Search ID:', context.searchId);
+      // console.log('Search Tracing Key:', context.searchTracingKey);
       
       // Create axios instance with retry configuration
       const axiosInstance = axios.create({
@@ -169,7 +169,7 @@ const HotelDetailsNew: React.FC = () => {
 
       // Step 1: Fetch hotel details (content + rooms) with retry
       const detailsUrl = `${baseUrl}/api/hotel/details/${context.searchId}/${hotelId}`;
-      console.log('Details API URL:', detailsUrl);
+      // console.log('Details API URL:', detailsUrl);
       
       const detailsResult = await fetchWithAxiosRetries(
         axiosInstance,
@@ -179,7 +179,7 @@ const HotelDetailsNew: React.FC = () => {
       );
 
       if (!detailsResult.ok) {
-        console.error('Hotel details API failed:', detailsResult.error);
+        // console.error('Hotel details API failed:', detailsResult.error);
         
         // Check for specific error codes
         if (detailsResult.errorCode === '1211' || detailsResult.body?.rooms?.code === '1211') {
@@ -197,16 +197,16 @@ const HotelDetailsNew: React.FC = () => {
         return;
       }
 
-      console.log('=== HOTEL DETAILS API SUCCESS ===');
-      console.log('Response:', JSON.stringify(detailsResult.body, null, 2));
+      // console.log('=== HOTEL DETAILS API SUCCESS ===');
+      // console.log('Response:', JSON.stringify(detailsResult.body, null, 2));
 
       // Check if rooms API failed with specific error
-      console.log('=== ROOMS API STATUS CHECK ===');
-      console.log('Rooms data exists:', !!detailsResult.body.rooms);
-      console.log('Rooms status:', detailsResult.body.rooms?.status);
-      console.log('Rooms code:', detailsResult.body.rooms?.code);
-      console.log('Rooms message:', detailsResult.body.rooms?.message);
-      console.log('Full rooms data:', JSON.stringify(detailsResult.body.rooms, null, 2));
+      // console.log('=== ROOMS API STATUS CHECK ===');
+      // console.log('Rooms data exists:', !!detailsResult.body.rooms);
+      // console.log('Rooms status:', detailsResult.body.rooms?.status);
+      // console.log('Rooms code:', detailsResult.body.rooms?.code);
+      // console.log('Rooms message:', detailsResult.body.rooms?.message);
+      // console.log('Full rooms data:', JSON.stringify(detailsResult.body.rooms, null, 2));
       
       // Check for various error conditions
       const hasRoomsError = detailsResult.body.rooms && (
@@ -216,11 +216,11 @@ const HotelDetailsNew: React.FC = () => {
         detailsResult.body.rooms.message === 'Rooms API failed: No rooms found'
       );
       
-      console.log('Has rooms error:', hasRoomsError);
+      // console.log('Has rooms error:', hasRoomsError);
       
       if (hasRoomsError) {
-        console.error('Rooms API failed:', detailsResult.body.rooms.message);
-        console.error('Rooms API code:', detailsResult.body.rooms.code);
+        // console.error('Rooms API failed:', detailsResult.body.rooms.message);
+        // console.error('Rooms API code:', detailsResult.body.rooms.code);
         
         showFatalErrorModal(
           'No Rooms Found',
@@ -238,27 +238,27 @@ const HotelDetailsNew: React.FC = () => {
           detailsResult.body.rooms.recommendations &&
           detailsResult.body.rooms.recommendations.length > 0) {
         
-        console.log('=== PRICING API DECISION LOGIC ===');
-        console.log('Rooms data exists:', !!detailsResult.body.rooms);
-        console.log('Rooms status:', detailsResult.body.rooms.status);
-        console.log('Rooms recommendations length:', detailsResult.body.rooms.recommendations.length);
+        // console.log('=== PRICING API DECISION LOGIC ===');
+        // console.log('Rooms data exists:', !!detailsResult.body.rooms);
+        // console.log('Rooms status:', detailsResult.body.rooms.status);
+        // console.log('Rooms recommendations length:', detailsResult.body.rooms.recommendations.length);
         
         try {
           const firstRecommendation = detailsResult.body.rooms.recommendations[0];
-          console.log('First recommendation:', JSON.stringify(firstRecommendation, null, 2));
+          // console.log('First recommendation:', JSON.stringify(firstRecommendation, null, 2));
           
           if (firstRecommendation && firstRecommendation.roomGroup && firstRecommendation.roomGroup.length > 0) {
             const firstRoomGroup = firstRecommendation.roomGroup[0];
             const priceProvider = firstRoomGroup.providerName;
             const roomRecommendationId = firstRecommendation.id;
             
-            console.log('=== PRICING API PARAMETERS ===');
-            console.log('Price Provider:', priceProvider);
-            console.log('Room Recommendation ID:', roomRecommendationId);
+            // console.log('=== PRICING API PARAMETERS ===');
+            // console.log('Price Provider:', priceProvider);
+            // console.log('Room Recommendation ID:', roomRecommendationId);
             
             if (priceProvider && roomRecommendationId) {
               const pricingUrl = `${baseUrl}/api/hotel/pricing/${context.searchId}/${hotelId}/${priceProvider}/${roomRecommendationId}`;
-              console.log('Pricing API URL:', pricingUrl);
+              // console.log('Pricing API URL:', pricingUrl);
               
               const pricingResult = await fetchWithAxiosRetries(
                 axiosInstance,
@@ -270,34 +270,34 @@ const HotelDetailsNew: React.FC = () => {
               if (pricingResult.ok) {
                 pricingData = pricingResult.body;
                 pricingSuccess = true;
-                console.log('=== PRICING API SUCCESS ===');
-                console.log('Pricing data:', JSON.stringify(pricingData, null, 2));
+                // console.log('=== PRICING API SUCCESS ===');
+                // console.log('Pricing data:', JSON.stringify(pricingData, null, 2));
                 
                 // Store pricing data
                 localStorage.setItem('hotelPricingData', JSON.stringify(pricingData));
               } else {
-                console.error('Pricing API failed:', pricingResult.error);
+                // console.error('Pricing API failed:', pricingResult.error);
                 // Don't treat pricing failure as fatal, just log it
               }
             } else {
-              console.error('Missing pricing API parameters:', {
-                priceProvider: !!priceProvider,
-                roomRecommendationId: !!roomRecommendationId
-              });
+              // console.error('Missing pricing API parameters:', {
+              //   priceProvider: !!priceProvider,
+              //   roomRecommendationId: !!roomRecommendationId
+              // });
             }
           } else {
-            console.error('No room group found in first recommendation');
+            // console.error('No room group found in first recommendation');
           }
         } catch (pricingError: any) {
-          console.error('=== PRICING API ERROR ===');
-          console.error('Error:', pricingError);
+          // console.error('=== PRICING API ERROR ===');
+          // console.error('Error:', pricingError);
           // Don't treat pricing failure as fatal
         }
       } else {
-        console.log('=== PRICING API NOT CALLED ===');
-        console.log('Reason: Rooms data conditions not met');
-        console.log('Rooms status:', detailsResult.body.rooms?.status);
-        console.log('Has recommendations:', !!detailsResult.body.rooms?.recommendations);
+        // console.log('=== PRICING API NOT CALLED ===');
+        // console.log('Reason: Rooms data conditions not met');
+        // console.log('Rooms status:', detailsResult.body.rooms?.status);
+        // console.log('Has recommendations:', !!detailsResult.body.rooms?.recommendations);
       }
       
       // Combine all responses
@@ -314,8 +314,8 @@ const HotelDetailsNew: React.FC = () => {
       
       // Store hotel data in localStorage for booking process
       localStorage.setItem('hotelDetailsData', JSON.stringify(combinedData));
-      console.log('=== STORED HOTEL DATA IN LOCALSTORAGE ===');
-      console.log('Hotel Data stored successfully');
+      // console.log('=== STORED HOTEL DATA IN LOCALSTORAGE ===');
+      // console.log('Hotel Data stored successfully');
       
       // Update search timestamp to keep session alive
       updateSearchTimestamp();
@@ -324,8 +324,8 @@ const HotelDetailsNew: React.FC = () => {
       setError(null);
       
     } catch (err: any) {
-      console.error('=== FATAL ERROR IN FETCH HOTEL DETAILS ===');
-      console.error('Error:', err);
+      // console.error('=== FATAL ERROR IN FETCH HOTEL DETAILS ===');
+      // console.error('Error:', err);
       
       showFatalErrorModal(
         'Unable to Load Hotel Details',

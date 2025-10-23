@@ -28,10 +28,10 @@ export const AuthProvider = ({ children }) => {
       if (response.data.user) {
         setUser(response.data.user);
         setIsAuthenticated(true);
-        console.log('User authenticated:', response.data.user.email);
+        // console.log('User authenticated:', response.data.user.email);
       }
     } catch (error) {
-      console.log('Not authenticated:', error.response?.status);
+      // console.log('Not authenticated:', error.response?.status);
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
         withCredentials: true,
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      // console.error('Logout error:', error);
     } finally {
       setUser(null);
       setIsAuthenticated(false);

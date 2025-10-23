@@ -55,7 +55,7 @@ const HotelSearch = ({
     localStorage.removeItem('hotelSearchResults');
     localStorage.removeItem('allHotels');
     
-    console.log('=== FRONTEND: CLEARED PREVIOUS SEARCH DATA ===');
+    // console.log('=== FRONTEND: CLEARED PREVIOUS SEARCH DATA ===');
     
     try {
       // Prepare the payload according to the Postman collection
@@ -96,11 +96,11 @@ const HotelSearch = ({
         tdsPercentage: 0
       };
 
-      console.log('=== FRONTEND: HOTEL SEARCH INITIATED ===');
-      console.log('Payload:', JSON.stringify(payload, null, 2));
+      // console.log('=== FRONTEND: HOTEL SEARCH INITIATED ===');
+      // console.log('Payload:', JSON.stringify(payload, null, 2));
 
       // Step 1: Call init API
-      console.log('=== FRONTEND: CALLING INIT API ===');
+      // console.log('=== FRONTEND: CALLING INIT API ===');
       const initResponse = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/init`,
         payload,
@@ -112,9 +112,9 @@ const HotelSearch = ({
         }
       );
 
-      console.log('=== FRONTEND: INIT API RESPONSE ===');
-      console.log('Status:', initResponse.status);
-      console.log('Data:', JSON.stringify(initResponse.data, null, 2));
+      // console.log('=== FRONTEND: INIT API RESPONSE ===');
+      // console.log('Status:', initResponse.status);
+      // console.log('Data:', JSON.stringify(initResponse.data, null, 2));
       
       const initData = initResponse.data;
       
@@ -128,19 +128,19 @@ const HotelSearch = ({
       localStorage.setItem('searchTracingKey', initData.searchTracingKey);
       localStorage.setItem('lastSearchTime', Date.now().toString()); // Add timestamp
       
-      console.log('=== FRONTEND: STORED IN LOCALSTORAGE ===');
-      console.log('Search ID stored:', initData.searchId);
-      console.log('Search Tracing Key stored:', initData.searchTracingKey);
+      // console.log('=== FRONTEND: STORED IN LOCALSTORAGE ===');
+      // console.log('Search ID stored:', initData.searchId);
+      // console.log('Search Tracing Key stored:', initData.searchTracingKey);
       
       // Verify storage immediately
       const storedSearchId = localStorage.getItem('hotelSearchId');
       const storedSearchTracingKey = localStorage.getItem('searchTracingKey');
-      console.log('Verification - Stored Search ID:', storedSearchId);
-      console.log('Verification - Stored Search Tracing Key:', storedSearchTracingKey);
-      console.log('Storage verification successful:', storedSearchId === initData.searchId && storedSearchTracingKey === initData.searchTracingKey);
+      // console.log('Verification - Stored Search ID:', storedSearchId);
+      // console.log('Verification - Stored Search Tracing Key:', storedSearchTracingKey);
+      // console.log('Storage verification successful:', storedSearchId === initData.searchId && storedSearchTracingKey === initData.searchTracingKey);
 
       // Step 2: Call content and rates APIs in parallel
-      console.log('=== FRONTEND: CALLING CONTENT & RATES API ===');
+      // console.log('=== FRONTEND: CALLING CONTENT & RATES API ===');
       const contentRatesResponse = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/content-rates/${initData.searchId}`,
         {
@@ -152,9 +152,9 @@ const HotelSearch = ({
         }
       );
 
-      console.log('=== FRONTEND: CONTENT & RATES API RESPONSE ===');
-      console.log('Status:', contentRatesResponse.status);
-      console.log('Data:', JSON.stringify(contentRatesResponse.data, null, 2));
+      // console.log('=== FRONTEND: CONTENT & RATES API RESPONSE ===');
+      // console.log('Status:', contentRatesResponse.status);
+      // console.log('Data:', JSON.stringify(contentRatesResponse.data, null, 2));
 
       // Combine the responses
       const combinedResponse = {
@@ -169,8 +169,8 @@ const HotelSearch = ({
         timestamp: new Date().toISOString()
       };
 
-      console.log('=== FRONTEND: COMBINED RESPONSE ===');
-      console.log(combinedResponse);
+      // console.log('=== FRONTEND: COMBINED RESPONSE ===');
+      // console.log(combinedResponse);
       
       // Store the search results
       setHotelSearchResults(combinedResponse);
@@ -202,8 +202,8 @@ const HotelSearch = ({
       localStorage.setItem('hotelSearchResults', JSON.stringify(combinedResponse));
       localStorage.setItem('bookingType', 'hotel');
       
-      console.log('=== FRONTEND: SEARCH DATA STORED ===');
-      console.log('Search Data:', JSON.stringify(searchData, null, 2));
+      // console.log('=== FRONTEND: SEARCH DATA STORED ===');
+      // console.log('Search Data:', JSON.stringify(searchData, null, 2));
       
       // Navigate to hotel results page
       if (combinedResponse.status === 'success') {
@@ -211,12 +211,12 @@ const HotelSearch = ({
       }
       
     } catch (error) {
-      console.error('=== FRONTEND: HOTEL SEARCH ERROR ===');
-      console.error('Error:', error.message);
-      if (error.response) {
-        console.error('Response Status:', error.response.status);
-        console.error('Response Data:', error.response.data);
-      }
+      // console.error('=== FRONTEND: HOTEL SEARCH ERROR ===');
+      // console.error('Error:', error.message);
+      // if (error.response) {
+      //   console.error('Response Status:', error.response.status);
+      //   console.error('Response Data:', error.response.data);
+      // }
       alert('Hotel search failed. Please try again.');
     } finally {
       setIsLoading(false);

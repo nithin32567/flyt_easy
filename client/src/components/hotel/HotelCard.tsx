@@ -53,10 +53,10 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel, onSelect }) => {
                     (hotelSearchResults ? JSON.parse(hotelSearchResults).searchId : null);
     
     if (searchId) {
-      console.log('Navigating to hotel details with searchId:', searchId);
+      // console.log('Navigating to hotel details with searchId:', searchId);
       navigate(`/hotel-details/${hotel.id}`);
     } else {
-      console.error('No search session found, redirecting to home');
+      // console.error('No search session found, redirecting to home');
       // Redirect to home if no search session
       window.location.href = '/';
     }

@@ -6,7 +6,7 @@ const HeaderSection = () => {
 
   function takeScrollPosition() {
     const scrollPosition = window.scrollY;
-    // console.log(scrollPosition);
+    // // console.log(scrollPosition);
     setScrollPosition(scrollPosition);
   }
 

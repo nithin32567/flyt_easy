@@ -63,14 +63,14 @@ const HotelRooms: React.FC<HotelRoomsProps> = ({ rooms, onNavigateBack, onRetry 
       hotelCode: hotelCode
     };
     
-    console.log('=== STORING SELECTED ROOM DATA ===');
-    console.log('Selected Room Data:', selectedRoomData);
-    console.log('Room ID Structure:');
-    console.log('- room.id:', room.id);
-    console.log('- room.room?.id:', room.room?.id);
-    console.log('- recommendation.id:', recommendation.id);
-    console.log('Hotel Code:', hotelCode);
-    console.log('=== END STORING SELECTED ROOM DATA ===');
+    // console.log('=== STORING SELECTED ROOM DATA ===');
+    // console.log('Selected Room Data:', selectedRoomData);
+    // console.log('Room ID Structure:');
+    // console.log('- room.id:', room.id);
+    // console.log('- room.room?.id:', room.room?.id);
+    // console.log('- recommendation.id:', recommendation.id);
+    // console.log('Hotel Code:', hotelCode);
+    // console.log('=== END STORING SELECTED ROOM DATA ===');
     
     localStorage.setItem('selectedRoomData', JSON.stringify(selectedRoomData));
     

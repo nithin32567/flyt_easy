@@ -45,9 +45,9 @@ const FilterSidebar = ({
 
   // Handlers
   const handleFilterChange = (category, value, type) => {
-    console.log('=== FILTERSIDEBAR: HANDLE FILTER CHANGE ===');
-    console.log('Category:', category);
-    console.log('Value:', value);
+    // console.log('=== FILTERSIDEBAR: HANDLE FILTER CHANGE ===');
+    // console.log('Category:', category);
+    // console.log('Value:', value);
     console.log('Type:', type);
     console.log('Current selectedFilters:', selectedFilters);
     

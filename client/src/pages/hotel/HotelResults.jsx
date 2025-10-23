@@ -164,8 +164,8 @@ const HotelResults = () => {
       const headerDiv = document.querySelector('.header-wrapper-div');
       if (headerDiv) {
         const height = headerDiv.offsetHeight;
-        console.log('=== HOTEL RESULTS: HEADER HEIGHT CALCULATION ===');
-        console.log('Header height:', height);
+        // console.log('=== HOTEL RESULTS: HEADER HEIGHT CALCULATION ===');
+        // console.log('Header height:', height);
         document.documentElement.style.setProperty('--header-height', `${height}px`);
         window.dispatchEvent(new CustomEvent('headerHeightChanged', { 
           detail: { height } 
@@ -199,70 +199,70 @@ const HotelResults = () => {
 
   // Standardized API response handler
   const handleApiResponse = (response) => {
-    console.log('=== FRONTEND: HANDLING API RESPONSE ===');
-    console.log('Response data:', JSON.stringify(response.data, null, 2));
+    // console.log('=== FRONTEND: HANDLING API RESPONSE ===');
+    // console.log('Response data:', JSON.stringify(response.data, null, 2));
     
     const responseData = response.data;
     
     // Handle different response structures
     if (responseData.hotels?.content?.hotels) {
-      console.log('=== FRONTEND: HOTELS.CONTENT.HOTELS FORMAT ===');
+      // console.log('=== FRONTEND: HOTELS.CONTENT.HOTELS FORMAT ===');
       return {
         hotels: responseData.hotels.content.hotels,
         total: responseData.hotels.pagination?.total || responseData.hotels.content.hotels.length,
         totalPages: Math.ceil((responseData.hotels.pagination?.total || responseData.hotels.content.hotels.length) / 50)
       };
     } else if (Array.isArray(responseData.hotels)) {
-      console.log('=== FRONTEND: HOTELS ARRAY FORMAT ===');
+      // console.log('=== FRONTEND: HOTELS ARRAY FORMAT ===');
       return {
         hotels: responseData.hotels,
         total: responseData.hotels.length,
         totalPages: Math.ceil(responseData.hotels.length / 50)
       };
     } else if (responseData.content?.hotels) {
-      console.log('=== FRONTEND: CONTENT.HOTELS FORMAT ===');
+      // console.log('=== FRONTEND: CONTENT.HOTELS FORMAT ===');
       return {
         hotels: responseData.content.hotels,
         total: responseData.content.total || responseData.content.hotels.length,
         totalPages: Math.ceil((responseData.content.total || responseData.content.hotels.length) / 50)
       };
     } else if (responseData.data?.content?.hotels) {
-      console.log('=== FRONTEND: DATA.CONTENT.HOTELS FORMAT ===');
+      // console.log('=== FRONTEND: DATA.CONTENT.HOTELS FORMAT ===');
       return {
         hotels: responseData.data.content.hotels,
         total: responseData.data.pagination?.total || responseData.data.content.hotels.length,
         totalPages: Math.ceil((responseData.data.pagination?.total || responseData.data.content.hotels.length) / 50)
       };
     } else if (Array.isArray(responseData)) {
-      console.log('=== FRONTEND: DIRECT ARRAY FORMAT ===');
+      // console.log('=== FRONTEND: DIRECT ARRAY FORMAT ===');
       return {
         hotels: responseData,
         total: responseData.length,
         totalPages: Math.ceil(responseData.length / 50)
       };
     } else if (responseData.hotels && Array.isArray(responseData.hotels)) {
-      console.log('=== FRONTEND: HOTELS PROPERTY ARRAY FORMAT ===');
+      // console.log('=== FRONTEND: HOTELS PROPERTY ARRAY FORMAT ===');
       return {
         hotels: responseData.hotels,
         total: responseData.total || responseData.hotels.length,
         totalPages: Math.ceil((responseData.total || responseData.hotels.length) / 50)
       };
     } else if (responseData.data && Array.isArray(responseData.data)) {
-      console.log('=== FRONTEND: DATA ARRAY FORMAT ===');
+      // console.log('=== FRONTEND: DATA ARRAY FORMAT ===');
       return {
         hotels: responseData.data,
         total: responseData.data.length,
         totalPages: Math.ceil(responseData.data.length / 50)
       };
     } else if (responseData.hotels && responseData.hotels.hotels && Array.isArray(responseData.hotels.hotels)) {
-      console.log('=== FRONTEND: HOTELS.HOTELS ARRAY FORMAT ===');
+      // console.log('=== FRONTEND: HOTELS.HOTELS ARRAY FORMAT ===');
       return {
         hotels: responseData.hotels.hotels,
         total: responseData.hotels.total || responseData.hotels.hotels.length,
         totalPages: Math.ceil((responseData.hotels.total || responseData.hotels.hotels.length) / 50)
       };
     } else if (responseData.status === 'success' && Array.isArray(responseData.hotels)) {
-      console.log('=== FRONTEND: POSTMAN COLLECTION FORMAT ===');
+      // console.log('=== FRONTEND: POSTMAN COLLECTION FORMAT ===');
       return {
         hotels: responseData.hotels,
         total: responseData.total || responseData.hotels.length,
@@ -270,17 +270,17 @@ const HotelResults = () => {
       };
     }
     
-    console.log('=== FRONTEND: NO HOTELS FOUND IN RESPONSE ===');
-    console.log('Response structure:', Object.keys(responseData));
-    console.log('Available keys:', Object.keys(responseData));
-    console.log('Response data type:', typeof responseData);
+    // console.log('=== FRONTEND: NO HOTELS FOUND IN RESPONSE ===');
+    // console.log('Response structure:', Object.keys(responseData));
+    // console.log('Available keys:', Object.keys(responseData));
+    // console.log('Response data type:', typeof responseData);
     return { hotels: [], total: 0, totalPages: 1 };
   };
 
   const fetchHotelPage = async (page, limit = 50) => {
     // Prevent multiple simultaneous calls
     if (loading) {
-      console.log('=== FRONTEND: ALREADY LOADING, SKIPPING REQUEST ===');
+      // console.log('=== FRONTEND: ALREADY LOADING, SKIPPING REQUEST ===');
       return;
     }
 
@@ -292,7 +292,7 @@ const HotelResults = () => {
     // Debounce the API call
     fetchTimeoutRef.current = setTimeout(async () => {
       if (!searchId) {
-        console.log('=== FRONTEND: NO SEARCH ID, SKIPPING REQUEST ===');
+        // console.log('=== FRONTEND: NO SEARCH ID, SKIPPING REQUEST ===');
         return;
       }
 
@@ -301,10 +301,10 @@ const HotelResults = () => {
         const token = localStorage.getItem('token');
         const searchTracingKey = localStorage.getItem('searchTracingKey');
 
-        console.log('=== FRONTEND: FETCHING HOTEL PAGE ===');
-        console.log('Search ID:', searchId);
-        console.log('Page:', page, 'Limit:', limit);
-        console.log('Search Tracing Key:', searchTracingKey);
+        // console.log('=== FRONTEND: FETCHING HOTEL PAGE ===');
+        // console.log('Search ID:', searchId);
+        // console.log('Page:', page, 'Limit:', limit);
+        // console.log('Search Tracing Key:', searchTracingKey);
 
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/hotel/page`, {
           params: { searchId, page, limit },
@@ -314,9 +314,9 @@ const HotelResults = () => {
           }
         });
 
-        console.log('=== FRONTEND: HOTEL PAGE RESPONSE ===');
-        console.log('Status:', response.status);
-        console.log('Data:', JSON.stringify(response.data, null, 2));
+        // console.log('=== FRONTEND: HOTEL PAGE RESPONSE ===');
+        // console.log('Status:', response.status);
+        // console.log('Data:', JSON.stringify(response.data, null, 2));
 
         const { hotels, total, totalPages } = handleApiResponse(response);
 
@@ -325,17 +325,17 @@ const HotelResults = () => {
         setTotalHotels(total);
         setCurrentPage(page);
 
-        console.log('=== FRONTEND: HOTELS UPDATED ===');
-        console.log('Hotels count:', hotels.length);
-        console.log('Total hotels:', total);
-        console.log('Total pages:', totalPages);
+        // console.log('=== FRONTEND: HOTELS UPDATED ===');
+        // console.log('Hotels count:', hotels.length);
+        // console.log('Total hotels:', total);
+        // console.log('Total pages:', totalPages);
       } catch (error) {
-        console.error('=== FRONTEND: HOTEL PAGE ERROR ===');
-        console.error('Error:', error.message);
-        if (error.response) {
-          console.error('Response Status:', error.response.status);
-          console.error('Response Data:', error.response.data);
-        }
+        // console.error('=== FRONTEND: HOTEL PAGE ERROR ===');
+        // console.error('Error:', error.message);
+        // if (error.response) {
+        //   console.error('Response Status:', error.response.status);
+        //   console.error('Response Data:', error.response.data);
+        // }
         // Show error message to user
         setFilteredHotels([]);
         setTotalPages(1);
@@ -348,9 +348,9 @@ const HotelResults = () => {
 
   // Function to handle pagination change
   const handlePageChange = (event, page) => {
-    console.log('=== FRONTEND: PAGINATION CHANGE ===');
-    console.log('Changing to page:', page);
-    console.log('Current page:', currentPage);
+    // console.log('=== FRONTEND: PAGINATION CHANGE ===');
+    // console.log('Changing to page:', page);
+    // console.log('Current page:', currentPage);
     setCurrentPage(page);
     fetchHotelPage(page);
   };
@@ -372,9 +372,9 @@ const HotelResults = () => {
 
         // Set pagination info
         if (results.pagination) {
-          console.log('=== FRONTEND: SETTING PAGINATION FROM RESULTS ===');
-          console.log('Total Pages:', results.pagination.totalPages);
-          console.log('Total Hotels:', results.pagination.total);
+          // console.log('=== FRONTEND: SETTING PAGINATION FROM RESULTS ===');
+          // console.log('Total Pages:', results.pagination.totalPages);
+          // console.log('Total Hotels:', results.pagination.total);
           setTotalPages(results.pagination.totalPages);
           setTotalHotels(results.pagination.total);
         }
@@ -419,7 +419,7 @@ const HotelResults = () => {
         }
       } else {
         // Fallback to mock data if no stored results
-        console.log('No stored results found, using mock data');
+        // console.log('No stored results found, using mock data');
         setSearchResults(mockSearchResults);
         setFilters(mockSearchResults.filterData?.filters || []);
         const hotels = mockSearchResults.content?.hotels || [];
@@ -429,7 +429,7 @@ const HotelResults = () => {
         setTotalHotels(hotels.length);
       }
     } catch (error) {
-      console.error('Error loading search results:', error);
+      // console.error('Error loading search results:', error);
       // Fallback to mock data on error
       setSearchResults(mockSearchResults);
       setFilters(mockSearchResults.filterData?.filters || []);
@@ -455,9 +455,9 @@ const HotelResults = () => {
         const token = localStorage.getItem('token');
         const searchTracingKey = localStorage.getItem('searchTracingKey');
 
-        console.log('=== FRONTEND: FETCHING FILTER DATA ===');
-        console.log('Search ID:', searchId);
-        console.log('Search Tracing Key:', searchTracingKey);
+        // console.log('=== FRONTEND: FETCHING FILTER DATA ===');
+        // console.log('Search ID:', searchId);
+        // console.log('Search Tracing Key:', searchTracingKey);
 
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/hotel/filterdata/${searchId}`,
@@ -469,34 +469,34 @@ const HotelResults = () => {
           }
         );
 
-        console.log('=== FRONTEND: FILTER DATA RESPONSE ===');
-        console.log('Status:', response.status);
-        console.log('Data:', JSON.stringify(response.data, null, 2));
+        // console.log('=== FRONTEND: FILTER DATA RESPONSE ===');
+        // console.log('Status:', response.status);
+        // console.log('Data:', JSON.stringify(response.data, null, 2));
 
         // Handle the API response structure
         if (response.data.filterData?.filters) {
           setFilters(response.data.filterData.filters);
-          console.log('=== FRONTEND: FILTERS UPDATED ===');
-          console.log('Filter count:', response.data.filterData.filters.length);
+          // console.log('=== FRONTEND: FILTERS UPDATED ===');
+          // console.log('Filter count:', response.data.filterData.filters.length);
         } else if (response.data.JSON?.filters) {
           setFilters(response.data.JSON.filters);
-          console.log('=== FRONTEND: FILTERS UPDATED (JSON FORMAT) ===');
-          console.log('Filter count:', response.data.JSON.filters.length);
+          // console.log('=== FRONTEND: FILTERS UPDATED (JSON FORMAT) ===');
+          // console.log('Filter count:', response.data.JSON.filters.length);
         } else if (response.data.filters) {
           setFilters(response.data.filters);
-          console.log('=== FRONTEND: FILTERS UPDATED (FALLBACK) ===');
-          console.log('Filter count:', response.data.filters.length);
+          // console.log('=== FRONTEND: FILTERS UPDATED (FALLBACK) ===');
+          // console.log('Filter count:', response.data.filters.length);
         } else {
-          console.warn('No filter data received from API');
-          console.log('Available response keys:', Object.keys(response.data));
+          // console.warn('No filter data received from API');
+          // console.log('Available response keys:', Object.keys(response.data));
         }
       } catch (error) {
-        console.error('=== FRONTEND: FILTER DATA ERROR ===');
-        console.error('Error:', error.message);
-        if (error.response) {
-          console.error('Response Status:', error.response.status);
-          console.error('Response Data:', error.response.data);
-        }
+        // console.error('=== FRONTEND: FILTER DATA ERROR ===');
+        // console.error('Error:', error.message);
+        // if (error.response) {
+        //   console.error('Response Status:', error.response.status);
+        //   console.error('Response Data:', error.response.data);
+        // }
         setError('Failed to load filter options. Please try again.');
       } finally {
         setFilterLoading(false);
@@ -508,19 +508,19 @@ const HotelResults = () => {
 
   // Monitor filtered hotels state changes
   useEffect(() => {
-    console.log('=== FRONTEND: FILTERED HOTELS STATE CHANGED ===');
-    console.log('Filtered hotels count:', filteredHotels.length);
-    console.log('Total hotels:', totalHotels);
-    console.log('Total pages:', totalPages);
-    console.log('Current page:', currentPage);
+    // console.log('=== FRONTEND: FILTERED HOTELS STATE CHANGED ===');
+    // console.log('Filtered hotels count:', filteredHotels.length);
+    // console.log('Total hotels:', totalHotels);
+    // console.log('Total pages:', totalPages);
+    // console.log('Current page:', currentPage);
   }, [filteredHotels, totalHotels, totalPages, currentPage]);
 
   // Trigger initial page load if we have searchId but no hotels loaded yet
   useEffect(() => {
     if (searchId && filteredHotels.length === 0 && !loading && !initialLoadTriggered.current) {
-      console.log('=== FRONTEND: TRIGGERING INITIAL PAGE LOAD ===');
-      console.log('Search ID:', searchId);
-      console.log('Current filtered hotels:', filteredHotels.length);
+      // console.log('=== FRONTEND: TRIGGERING INITIAL PAGE LOAD ===');
+      // console.log('Search ID:', searchId);
+      // console.log('Current filtered hotels:', filteredHotels.length);
       initialLoadTriggered.current = true;
       fetchHotelPage(1);
     }
@@ -536,19 +536,19 @@ const HotelResults = () => {
   }, []);
 
   const handleFilterChange = async (newFilters) => {
-    console.log('=== FRONTEND: FILTER CHANGE TRIGGERED ===');
-    console.log('New filters:', JSON.stringify(newFilters, null, 2));
-    console.log('Filter keys:', Object.keys(newFilters));
-    console.log('Filter values:', Object.values(newFilters));
-    console.log('Current filtered hotels count:', filteredHotels.length);
-    console.log('Current total hotels:', totalHotels);
-    console.log('Search ID available:', !!searchId);
-    console.log('All hotels count:', allHotels.length);
-    console.log('Search results available:', !!searchResults);
+    // console.log('=== FRONTEND: FILTER CHANGE TRIGGERED ===');
+    // console.log('New filters:', JSON.stringify(newFilters, null, 2));
+    // console.log('Filter keys:', Object.keys(newFilters));
+    // console.log('Filter values:', Object.values(newFilters));
+    // console.log('Current filtered hotels count:', filteredHotels.length);
+    // console.log('Current total hotels:', totalHotels);
+    // console.log('Search ID available:', !!searchId);
+    // console.log('All hotels count:', allHotels.length);
+    // console.log('Search results available:', !!searchResults);
 
     // Check if filters are being cleared
     if (Object.keys(newFilters).length === 0) {
-      console.log('=== FRONTEND: FILTERS CLEARED - RESETTING TO ORIGINAL DATA ===');
+      // console.log('=== FRONTEND: FILTERS CLEARED - RESETTING TO ORIGINAL DATA ===');
       // Reset to original data when filters are cleared
       const originalHotels = searchResults?.content?.hotels || [];
       setFilteredHotels(originalHotels);
@@ -561,67 +561,67 @@ const HotelResults = () => {
     }
 
     // Debug: Log filter structure for troubleshooting
-    console.log('=== FILTER DEBUG INFO ===');
-    console.log('Filter structure check:');
-    Object.entries(newFilters).forEach(([key, value]) => {
-      console.log(`  ${key}:`, {
-        type: typeof value,
-        isArray: Array.isArray(value),
-        length: Array.isArray(value) ? value.length : 'N/A',
-        value: value
-      });
-    });
+    // console.log('=== FILTER DEBUG INFO ===');
+    // console.log('Filter structure check:');
+    // Object.entries(newFilters).forEach(([key, value]) => {
+    //   console.log(`  ${key}:`, {
+    //     type: typeof value,
+    //     isArray: Array.isArray(value),
+    //     length: Array.isArray(value) ? value.length : 'N/A',
+    //     value: value
+    //   });
+    // });
 
     // Clean up empty filters before sending to API
     const cleanedFilters = {};
     Object.entries(newFilters).forEach(([key, value]) => {
-      console.log(`=== FILTER CLEANING: ${key} ===`);
-      console.log('Value:', value);
-      console.log('Value type:', typeof value);
-      console.log('Is array:', Array.isArray(value));
-      console.log('Is null/undefined:', value === null || value === undefined);
+      // console.log(`=== FILTER CLEANING: ${key} ===`);
+      // console.log('Value:', value);
+      // console.log('Value type:', typeof value);
+      // console.log('Is array:', Array.isArray(value));
+      // console.log('Is null/undefined:', value === null || value === undefined);
       
       // Skip empty arrays
       if (Array.isArray(value) && value.length === 0) {
-        console.log(`Skipping empty filter: ${key}`);
+        // console.log(`Skipping empty filter: ${key}`);
         return;
       }
       
       // Skip empty strings
       if (typeof value === 'string' && value.trim() === '') {
-        console.log(`Skipping empty string filter: ${key}`);
+        // console.log(`Skipping empty string filter: ${key}`);
         return;
       }
       
       // Skip null/undefined values
       if (value === null || value === undefined) {
-        console.log(`Skipping null/undefined filter: ${key}`);
+        // console.log(`Skipping null/undefined filter: ${key}`);
         return;
       }
       
       // Special handling for range filters (PriceGroup, Distance)
       if (key === 'PriceGroup' || key === 'Distance') {
         if (value && typeof value === 'object' && value.min !== undefined && value.max !== undefined) {
-          console.log(`Including range filter: ${key} = ${JSON.stringify(value)}`);
+          // console.log(`Including range filter: ${key} = ${JSON.stringify(value)}`);
           cleanedFilters[key] = value;
         } else {
-          console.log(`Skipping invalid range filter: ${key} (missing min/max)`);
+          // console.log(`Skipping invalid range filter: ${key} (missing min/max)`);
         }
         return;
       }
       
       // Include valid filters
       cleanedFilters[key] = value;
-      console.log(`Including filter: ${key} = ${JSON.stringify(value)}`);
+      // console.log(`Including filter: ${key} = ${JSON.stringify(value)}`);
     });
 
-    console.log('=== CLEANED FILTERS ===');
-    console.log('Original filters:', JSON.stringify(newFilters, null, 2));
-    console.log('Cleaned filters:', JSON.stringify(cleanedFilters, null, 2));
+    // console.log('=== CLEANED FILTERS ===');
+    // console.log('Original filters:', JSON.stringify(newFilters, null, 2));
+    // console.log('Cleaned filters:', JSON.stringify(cleanedFilters, null, 2));
 
     // If no valid filters, reset to show all hotels
     if (Object.keys(cleanedFilters).length === 0) {
-      console.log('=== NO VALID FILTERS - RESETTING TO ALL HOTELS ===');
+      // console.log('=== NO VALID FILTERS - RESETTING TO ALL HOTELS ===');
       const originalHotels = searchResults?.content?.hotels || allHotels;
       setFilteredHotels(originalHotels);
       setAllHotels(originalHotels);
@@ -633,7 +633,7 @@ const HotelResults = () => {
     }
 
     if (!searchId) {
-      console.log('No searchId available, using client-side filtering');
+      // console.log('No searchId available, using client-side filtering');
       // Fallback to client-side filtering if no searchId
       const hotelsToFilter = allHotels.length > 0 ? allHotels : (searchResults?.content?.hotels || []);
 
@@ -656,31 +656,31 @@ const HotelResults = () => {
 
           case 'PriceGroup':
             if (value && value.min !== undefined && value.max !== undefined) {
-              console.log('=== FRONTEND: APPLYING PRICE FILTER ===');
-              console.log('Price range:', { min: value.min, max: value.max, label: value.label });
-              console.log('Hotels before price filter:', filtered.length);
+              // console.log('=== FRONTEND: APPLYING PRICE FILTER ===');
+              // console.log('Price range:', { min: value.min, max: value.max, label: value.label });
+              // console.log('Hotels before price filter:', filtered.length);
               
               filtered = filtered.filter(hotel => {
                 if (!hotel.rate || hotel.rate.total === undefined || hotel.rate.total === null) {
-                  console.log('Hotel has no valid rate:', hotel.name, 'Rate object:', hotel.rate);
+                  // console.log('Hotel has no valid rate:', hotel.name, 'Rate object:', hotel.rate);
                   return false;
                 }
                 const price = parseFloat(hotel.rate.total);
                 if (isNaN(price)) {
-                  console.log('Hotel has invalid price:', hotel.name, 'Price:', hotel.rate.total);
+                  // console.log('Hotel has invalid price:', hotel.name, 'Price:', hotel.rate.total);
                   return false;
                 }
                 // Handle "& More" case where max is -1
                 const matches = price >= value.min && (value.max === -1 || value.max === undefined || price <= value.max);
                 if (matches) {
-                  console.log(`Hotel ${hotel.name} matches price filter: ₹${price} (range: ₹${value.min}-${value.max === -1 ? '∞' : value.max})`);
+                  // console.log(`Hotel ${hotel.name} matches price filter: ₹${price} (range: ₹${value.min}-${value.max === -1 ? '∞' : value.max})`);
                 } else {
-                  console.log(`Hotel ${hotel.name} does not match price filter: ₹${price} (range: ₹${value.min}-${value.max === -1 ? '∞' : value.max})`);
+                  // console.log(`Hotel ${hotel.name} does not match price filter: ₹${price} (range: ₹${value.min}-${value.max === -1 ? '∞' : value.max})`);
                 }
                 return matches;
               });
               
-              console.log('Hotels after price filter:', filtered.length);
+              // console.log('Hotels after price filter:', filtered.length);
             }
             break;
 
@@ -703,13 +703,13 @@ const HotelResults = () => {
 
           case 'Facilities':
             if (Array.isArray(value) && value.length > 0) {
-              console.log('=== FRONTEND: APPLYING FACILITIES FILTER ===');
-              console.log('Facilities to filter:', value);
-              console.log('Hotels before facilities filter:', filtered.length);
+              // console.log('=== FRONTEND: APPLYING FACILITIES FILTER ===');
+              // console.log('Facilities to filter:', value);
+              // console.log('Hotels before facilities filter:', filtered.length);
               
               filtered = filtered.filter(hotel => {
                 if (!hotel.facilities || !Array.isArray(hotel.facilities)) {
-                  console.log('Hotel has no facilities:', hotel.name);
+                  // console.log('Hotel has no facilities:', hotel.name);
                   return false;
                 }
                 
@@ -718,7 +718,7 @@ const HotelResults = () => {
                     facility.id.toString() === facilityId.toString()
                   );
                   if (found) {
-                    console.log(`Hotel ${hotel.name} has facility ${facilityId}`);
+                    // console.log(`Hotel ${hotel.name} has facility ${facilityId}`);
                   }
                   return found;
                 });
@@ -726,7 +726,7 @@ const HotelResults = () => {
                 return hasFacility;
               });
               
-              console.log('Hotels after facilities filter:', filtered.length);
+              // console.log('Hotels after facilities filter:', filtered.length);
             }
             break;
 
@@ -780,28 +780,28 @@ const HotelResults = () => {
       const token = localStorage.getItem('token');
       const searchTracingKey = localStorage.getItem('searchTracingKey');
 
-      console.log('=== FRONTEND: CALLING FILTER API ===');
-      console.log('Search ID:', searchId);
-      console.log('Filters:', JSON.stringify(cleanedFilters, null, 2));
-      console.log('API Endpoint:', `${import.meta.env.VITE_BASE_URL}/api/hotel/filter/${searchId}`);
+      // console.log('=== FRONTEND: CALLING FILTER API ===');
+      // console.log('Search ID:', searchId);
+      // console.log('Filters:', JSON.stringify(cleanedFilters, null, 2));
+      // console.log('API Endpoint:', `${import.meta.env.VITE_BASE_URL}/api/hotel/filter/${searchId}`);
       
       // Special logging for pricing filters
       if (cleanedFilters.PriceGroup) {
-        console.log('=== PRICING FILTER DETAILS ===');
-        console.log('PriceGroup filter:', cleanedFilters.PriceGroup);
-        console.log('Min price:', cleanedFilters.PriceGroup.min);
-        console.log('Max price:', cleanedFilters.PriceGroup.max);
-        console.log('Label:', cleanedFilters.PriceGroup.label);
+        // console.log('=== PRICING FILTER DETAILS ===');
+        // console.log('PriceGroup filter:', cleanedFilters.PriceGroup);
+        // console.log('Min price:', cleanedFilters.PriceGroup.min);
+        // console.log('Max price:', cleanedFilters.PriceGroup.max);
+        // console.log('Label:', cleanedFilters.PriceGroup.label);
       }
 
       // Special logging for facilities filters
       if (cleanedFilters.Facilities) {
-        console.log('=== FACILITIES FILTER DETAILS ===');
-        console.log('Facilities filter:', cleanedFilters.Facilities);
-        console.log('Facilities type:', typeof cleanedFilters.Facilities);
-        console.log('Facilities is array:', Array.isArray(cleanedFilters.Facilities));
-        console.log('Facilities length:', cleanedFilters.Facilities.length);
-        console.log('Facilities values:', cleanedFilters.Facilities);
+        // console.log('=== FACILITIES FILTER DETAILS ===');
+        // console.log('Facilities filter:', cleanedFilters.Facilities);
+        // console.log('Facilities type:', typeof cleanedFilters.Facilities);
+        // console.log('Facilities is array:', Array.isArray(cleanedFilters.Facilities));
+        // console.log('Facilities length:', cleanedFilters.Facilities.length);
+        // console.log('Facilities values:', cleanedFilters.Facilities);
       }
 
       const response = await axios.post(
@@ -816,55 +816,55 @@ const HotelResults = () => {
         }
       );
 
-      console.log('=== FRONTEND: FILTER API RESPONSE ===');
-      console.log('Status:', response.status);
-      console.log('Data:', JSON.stringify(response.data, null, 2));
+      // console.log('=== FRONTEND: FILTER API RESPONSE ===');
+      // console.log('Status:', response.status);
+      // console.log('Data:', JSON.stringify(response.data, null, 2));
 
       // Debug the response structure (based on Postman collection)
-      console.log('=== RESPONSE STRUCTURE DEBUG ===');
-      console.log('Response data keys:', Object.keys(response.data));
-      console.log('Response status:', response.data.status);
+      // console.log('=== RESPONSE STRUCTURE DEBUG ===');
+      // console.log('Response data keys:', Object.keys(response.data));
+      // console.log('Response status:', response.data.status);
       
       // Check for different response structures based on Postman collection
       if (response.data.hotels) {
-        console.log('Hotels in response:', response.data.hotels);
-        console.log('Hotels type:', typeof response.data.hotels);
-        console.log('Hotels is array:', Array.isArray(response.data.hotels));
-        if (Array.isArray(response.data.hotels)) {
-          console.log('Hotels length:', response.data.hotels.length);
-        }
+        // console.log('Hotels in response:', response.data.hotels);
+        // console.log('Hotels type:', typeof response.data.hotels);
+        // console.log('Hotels is array:', Array.isArray(response.data.hotels));
+        // if (Array.isArray(response.data.hotels)) {
+        //   console.log('Hotels length:', response.data.hotels.length);
+        // }
       }
       if (response.data.data) {
-        console.log('Data in response:', response.data.data);
-        console.log('Data type:', typeof response.data.data);
-        console.log('Data is array:', Array.isArray(response.data.data));
-        if (Array.isArray(response.data.data)) {
-          console.log('Data length:', response.data.data.length);
-        }
+        // console.log('Data in response:', response.data.data);
+        // console.log('Data type:', typeof response.data.data);
+        // console.log('Data is array:', Array.isArray(response.data.data));
+        // if (Array.isArray(response.data.data)) {
+        //   console.log('Data length:', response.data.data.length);
+        // }
       }
       
       // Check for Postman collection response format
       if (response.data.status === 'success' && response.data.hotels) {
-        console.log('=== POSTMAN FORMAT DETECTED ===');
-        console.log('Status:', response.data.status);
-        console.log('Hotels count:', response.data.hotels.length);
+        // console.log('=== POSTMAN FORMAT DETECTED ===');
+        // console.log('Status:', response.data.status);
+        // console.log('Hotels count:', response.data.hotels.length);
       }
 
       const { hotels, total, totalPages } = handleApiResponse(response);
 
-      console.log('=== FRONTEND: FILTER API SUCCESS ===');
-      console.log('Hotels received:', hotels.length);
-      console.log('Total hotels:', total);
-      console.log('Total pages:', totalPages);
+      // console.log('=== FRONTEND: FILTER API SUCCESS ===');
+      // console.log('Hotels received:', hotels.length);
+      // console.log('Total hotels:', total);
+      // console.log('Total pages:', totalPages);
 
       // Check if we got 0 results but should have results
       if (hotels.length === 0 && total === 0) {
-        console.log('=== FRONTEND: ZERO RESULTS FROM API ===');
-        console.log('This might indicate an issue with the filter API or external service');
-        console.log('Applied filters:', JSON.stringify(newFilters, null, 2));
+        // console.log('=== FRONTEND: ZERO RESULTS FROM API ===');
+        // console.log('This might indicate an issue with the filter API or external service');
+        // console.log('Applied filters:', JSON.stringify(newFilters, null, 2));
         
         // Try client-side filtering as fallback
-        console.log('Attempting client-side filtering as fallback...');
+        // console.log('Attempting client-side filtering as fallback...');
         
         // Use the hotels from the API response if available, otherwise fall back to stored data
         let hotelsToFilter = [];
@@ -872,18 +872,18 @@ const HotelResults = () => {
         // First, try to get hotels from the API response
         if (response.data.hotels?.hotels && Array.isArray(response.data.hotels.hotels)) {
           hotelsToFilter = response.data.hotels.hotels;
-          console.log('Using hotels from API response:', hotelsToFilter.length);
+          // console.log('Using hotels from API response:', hotelsToFilter.length);
         } else if (response.data.hotels && Array.isArray(response.data.hotels)) {
           hotelsToFilter = response.data.hotels;
-          console.log('Using hotels from API response (direct array):', hotelsToFilter.length);
+          // console.log('Using hotels from API response (direct array):', hotelsToFilter.length);
         } else if (allHotels.length > 0) {
           hotelsToFilter = allHotels;
-          console.log('Using stored allHotels:', hotelsToFilter.length);
+          // console.log('Using stored allHotels:', hotelsToFilter.length);
         } else if (searchResults?.content?.hotels) {
           hotelsToFilter = searchResults.content.hotels;
-          console.log('Using searchResults hotels:', hotelsToFilter.length);
+          // console.log('Using searchResults hotels:', hotelsToFilter.length);
         } else {
-          console.log('No hotels available for client-side filtering');
+          // console.log('No hotels available for client-side filtering');
           setFilteredHotels([]);
           setTotalPages(1);
           setTotalHotels(0);
@@ -900,39 +900,39 @@ const HotelResults = () => {
 
             switch (category) {
               case 'PriceGroup':
-                console.log('=== CLIENT-SIDE PRICE FILTER DEBUG ===');
-                console.log('Price filter value:', value);
-                console.log('Value type:', typeof value);
-                console.log('Value min:', value?.min);
-                console.log('Value max:', value?.max);
-                console.log('Value label:', value?.label);
+                // console.log('=== CLIENT-SIDE PRICE FILTER DEBUG ===');
+                // console.log('Price filter value:', value);
+                // console.log('Value type:', typeof value);
+                // console.log('Value min:', value?.min);
+                // console.log('Value max:', value?.max);
+                // console.log('Value label:', value?.label);
                 
                 if (value && value.min !== undefined && value.max !== undefined) {
-                  console.log('=== CLIENT-SIDE PRICE FILTER ===');
-                  console.log('Price range:', { min: value.min, max: value.max, label: value.label });
-                  console.log('Hotels before price filter:', filtered.length);
+                  // console.log('=== CLIENT-SIDE PRICE FILTER ===');
+                  // console.log('Price range:', { min: value.min, max: value.max, label: value.label });
+                  // console.log('Hotels before price filter:', filtered.length);
                   
                   // Debug: Show first few hotels and their rates
-                  console.log('=== HOTEL RATE DEBUG ===');
-                  filtered.slice(0, 3).forEach((hotel, index) => {
-                    console.log(`Hotel ${index + 1}:`, {
-                      name: hotel.name,
-                      rate: hotel.rate,
-                      rateTotal: hotel.rate?.total,
-                      hasRate: !!hotel.rate
-                    });
-                  });
+                  // console.log('=== HOTEL RATE DEBUG ===');
+                  // filtered.slice(0, 3).forEach((hotel, index) => {
+                  //   console.log(`Hotel ${index + 1}:`, {
+                  //     name: hotel.name,
+                  //     rate: hotel.rate,
+                  //     rateTotal: hotel.rate?.total,
+                  //     hasRate: !!hotel.rate
+                  //   });
+                  // });
                   
                   filtered = filtered.filter(hotel => {
                     // Check if hotel has rate data
                     if (!hotel.rate || typeof hotel.rate !== 'object' || hotel.rate.total === undefined || hotel.rate.total === null) {
-                      console.log('Hotel has no valid rate:', hotel.name, 'Rate object:', hotel.rate);
+                      // console.log('Hotel has no valid rate:', hotel.name, 'Rate object:', hotel.rate);
                       return false;
                     }
                     
                     const price = parseFloat(hotel.rate.total);
                     if (isNaN(price)) {
-                      console.log('Hotel has invalid price:', hotel.name, 'Price:', hotel.rate.total);
+                      // console.log('Hotel has invalid price:', hotel.name, 'Price:', hotel.rate.total);
                       return false;
                     }
                     
@@ -940,31 +940,31 @@ const HotelResults = () => {
                     const matches = price >= value.min && (value.max === -1 || value.max === undefined || price <= value.max);
                     
                     if (matches) {
-                      console.log(`Hotel ${hotel.name} matches price filter: ₹${price} (range: ₹${value.min}-${value.max === -1 ? '∞' : value.max})`);
+                      // console.log(`Hotel ${hotel.name} matches price filter: ₹${price} (range: ₹${value.min}-${value.max === -1 ? '∞' : value.max})`);
                     } else {
-                      console.log(`Hotel ${hotel.name} does not match price filter: ₹${price} (range: ₹${value.min}-${value.max === -1 ? '∞' : value.max})`);
+                      // console.log(`Hotel ${hotel.name} does not match price filter: ₹${price} (range: ₹${value.min}-${value.max === -1 ? '∞' : value.max})`);
                     }
                     
                     return matches;
                   });
                   
-                  console.log('Hotels after price filter:', filtered.length);
+                  // console.log('Hotels after price filter:', filtered.length);
                 } else {
-                  console.log('=== PRICE FILTER: INVALID VALUE ===');
-                  console.log('Value is null/undefined or missing min/max properties');
+                  // console.log('=== PRICE FILTER: INVALID VALUE ===');
+                  // console.log('Value is null/undefined or missing min/max properties');
                 }
                 break;
 
               case 'Distance':
                 if (value && value.min !== undefined && value.max !== undefined) {
-                  console.log('=== CLIENT-SIDE DISTANCE FILTER ===');
-                  console.log('Distance range:', { min: value.min, max: value.max, label: value.label });
-                  console.log('Hotels before distance filter:', filtered.length);
+                  // console.log('=== CLIENT-SIDE DISTANCE FILTER ===');
+                  // console.log('Distance range:', { min: value.min, max: value.max, label: value.label });
+                  // console.log('Hotels before distance filter:', filtered.length);
                   
                   filtered = filtered.filter(hotel => {
                     // Check if hotel has distance data
                     if (hotel.distance === undefined || hotel.distance === null) {
-                      console.log('Hotel has no distance data:', hotel.name);
+                      // console.log('Hotel has no distance data:', hotel.name);
                       return false;
                     }
                     
@@ -972,27 +972,27 @@ const HotelResults = () => {
                     const matches = distance >= value.min && distance <= value.max;
                     
                     if (matches) {
-                      console.log(`Hotel ${hotel.name} matches distance filter: ${distance}km (range: ${value.min}-${value.max}km)`);
+                      // console.log(`Hotel ${hotel.name} matches distance filter: ${distance}km (range: ${value.min}-${value.max}km)`);
                     } else {
-                      console.log(`Hotel ${hotel.name} does not match distance filter: ${distance}km (range: ${value.min}-${value.max}km)`);
+                      // console.log(`Hotel ${hotel.name} does not match distance filter: ${distance}km (range: ${value.min}-${value.max}km)`);
                     }
                     
                     return matches;
                   });
                   
-                  console.log('Hotels after distance filter:', filtered.length);
+                  // console.log('Hotels after distance filter:', filtered.length);
                 }
                 break;
 
               case 'Facilities':
                 if (Array.isArray(value) && value.length > 0) {
-                  console.log('=== CLIENT-SIDE FACILITIES FILTER ===');
-                  console.log('Filtering for facilities:', value);
-                  console.log('Hotels before filter:', filtered.length);
+                  // console.log('=== CLIENT-SIDE FACILITIES FILTER ===');
+                  // console.log('Filtering for facilities:', value);
+                  // console.log('Hotels before filter:', filtered.length);
                   
                   filtered = filtered.filter(hotel => {
                     if (!hotel.facilities || !Array.isArray(hotel.facilities)) {
-                      console.log('Hotel has no facilities:', hotel.name);
+                      // console.log('Hotel has no facilities:', hotel.name);
                       return false;
                     }
                     
@@ -1003,70 +1003,70 @@ const HotelResults = () => {
                     );
                     
                     if (hasFacility) {
-                      console.log(`Hotel ${hotel.name} has facility ${value}`);
+                      // console.log(`Hotel ${hotel.name} has facility ${value}`);
                     }
                     
                     return hasFacility;
                   });
                   
-                  console.log('Hotels after facilities filter:', filtered.length);
+                  // console.log('Hotels after facilities filter:', filtered.length);
                 }
                 break;
 
               case 'StarRating':
                 if (Array.isArray(value) && value.length > 0) {
-                  console.log('=== CLIENT-SIDE STAR RATING FILTER ===');
-                  console.log('Filtering for star ratings:', value);
-                  console.log('Hotels before filter:', filtered.length);
+                  // console.log('=== CLIENT-SIDE STAR RATING FILTER ===');
+                  // console.log('Filtering for star ratings:', value);
+                  // console.log('Hotels before filter:', filtered.length);
                   
                   filtered = filtered.filter(hotel => {
                     const hotelRating = hotel.starRating?.toString() || '0';
                     const matches = value.includes(hotelRating);
                     if (matches) {
-                      console.log(`Hotel ${hotel.name} matches star rating filter: ${hotelRating} stars`);
+                      // console.log(`Hotel ${hotel.name} matches star rating filter: ${hotelRating} stars`);
                     }
                     return matches;
                   });
                   
-                  console.log('Hotels after star rating filter:', filtered.length);
+                  // console.log('Hotels after star rating filter:', filtered.length);
                 }
                 break;
 
               case 'HotelName':
                 if (value && typeof value === 'string' && value.trim() !== '') {
-                  console.log('=== CLIENT-SIDE HOTEL NAME FILTER ===');
-                  console.log('Filtering for hotel name:', value);
-                  console.log('Hotels before filter:', filtered.length);
+                  // console.log('=== CLIENT-SIDE HOTEL NAME FILTER ===');
+                  // console.log('Filtering for hotel name:', value);
+                  // console.log('Hotels before filter:', filtered.length);
                   
                   filtered = filtered.filter(hotel =>
                     hotel.name.toLowerCase().includes(value.toLowerCase())
                   );
                   
-                  console.log('Hotels after hotel name filter:', filtered.length);
+                  // console.log('Hotels after hotel name filter:', filtered.length);
                 }
                 break;
             }
           });
           
-          console.log('=== CLIENT-SIDE FILTERING RESULT ===');
-          console.log('Filtered hotels count:', filtered.length);
+          // console.log('=== CLIENT-SIDE FILTERING RESULT ===');
+          // console.log('Filtered hotels count:', filtered.length);
           
           if (filtered.length > 0) {
-            console.log('=== CLIENT-SIDE FILTERING SUCCESS ===');
-            console.log('Using client-side filtered results');
-            console.log('Filtered hotels count:', filtered.length);
-            console.log('Total hotels:', filtered.length);
-            console.log('Total pages:', Math.ceil(filtered.length / 50));
+            // console.log('=== CLIENT-SIDE FILTERING SUCCESS ===');
+            // console.log('Using client-side filtered results');
+            // console.log('Filtered hotels count:', filtered.length);
+            // console.log('Total hotels:', filtered.length);
+            // console.log('Total pages:', Math.ceil(filtered.length / 50));
             
             // Update all states at once to avoid race conditions
             const newFilteredHotels = [...filtered];
             const newTotalHotels = filtered.length;
             const newTotalPages = Math.ceil(filtered.length / 50);
             
-            console.log('=== UPDATING STATES ===');
-            console.log('Setting filtered hotels:', newFilteredHotels.length);
-            console.log('Setting total hotels:', newTotalHotels);
-            console.log('Setting total pages:', newTotalPages);
+            // console.log('=== UPDATING STATES ===');
+            // console.log('Setting filtered hotels:', newFilteredHotels.length);
+            // console.log('Setting total hotels:', newTotalHotels);
+            // console.log('Setting total pages:', newTotalPages);
             
             // Update all states in a single batch
             setFilteredHotels(newFilteredHotels);
@@ -1078,13 +1078,13 @@ const HotelResults = () => {
             // Force re-render
             setForceRender(prev => prev + 1);
             
-            console.log('=== STATES UPDATED ===');
-            console.log('All states have been updated with filtered results');
-            console.log('Force render triggered');
+            // console.log('=== STATES UPDATED ===');
+            // console.log('All states have been updated with filtered results');
+            // console.log('Force render triggered');
           } else {
-            console.log('=== CLIENT-SIDE FILTERING: NO RESULTS ===');
-            console.log('Client-side filtering returned 0 results');
-            console.log('Resetting to original hotels');
+            // console.log('=== CLIENT-SIDE FILTERING: NO RESULTS ===');
+            // console.log('Client-side filtering returned 0 results');
+            // console.log('Resetting to original hotels');
             
             setFilteredHotels(hotels);
             setTotalPages(totalPages);
@@ -1092,7 +1092,7 @@ const HotelResults = () => {
             setAllHotels(hotels);
           }
         } else {
-          console.log('No hotels available for client-side filtering');
+          // console.log('No hotels available for client-side filtering');
           setFilteredHotels(hotels);
           setTotalPages(totalPages);
           setTotalHotels(total);
@@ -1111,15 +1111,15 @@ const HotelResults = () => {
       }
       
       // State updates are complete - no need for additional timeout
-      console.log('=== FRONTEND: FILTER PROCESSING COMPLETE ===');
-      console.log('All state updates have been applied');
+      // console.log('=== FRONTEND: FILTER PROCESSING COMPLETE ===');
+      // console.log('All state updates have been applied');
     } catch (error) {
-      console.error('=== FRONTEND: FILTER API ERROR ===');
-      console.error('Error:', error.message);
-      if (error.response) {
-        console.error('Response Status:', error.response.status);
-        console.error('Response Data:', error.response.data);
-      }
+      // console.error('=== FRONTEND: FILTER API ERROR ===');
+      // console.error('Error:', error.message);
+      // if (error.response) {
+      //   console.error('Response Status:', error.response.status);
+      //   console.error('Response Data:', error.response.data);
+      // }
       
       // Check if it's a network error or API error
       if (error.code === 'NETWORK_ERROR' || !error.response) {
@@ -1133,18 +1133,18 @@ const HotelResults = () => {
       }
       
       // Fallback to client-side filtering on error
-      console.log('Falling back to client-side filtering');
+      // console.log('Falling back to client-side filtering');
       
       // Use the best available hotel data
       let hotelsToFilter = [];
       if (allHotels.length > 0) {
         hotelsToFilter = allHotels;
-        console.log('Using stored allHotels for error fallback:', hotelsToFilter.length);
+        // console.log('Using stored allHotels for error fallback:', hotelsToFilter.length);
       } else if (searchResults?.content?.hotels) {
         hotelsToFilter = searchResults.content.hotels;
-        console.log('Using searchResults hotels for error fallback:', hotelsToFilter.length);
+        // console.log('Using searchResults hotels for error fallback:', hotelsToFilter.length);
       } else {
-        console.log('No hotels available for error fallback');
+        // console.log('No hotels available for error fallback');
         setFilteredHotels([]);
         setTotalPages(1);
         setTotalHotels(0);
@@ -1178,9 +1178,9 @@ const HotelResults = () => {
             break;
           case 'Distance':
             if (value && value.min !== undefined && value.max !== undefined) {
-              console.log('=== DISTANCE FILTER DEBUG ===');
-              console.log('Distance range:', { min: value.min, max: value.max, label: value.label });
-              console.log('Hotels before distance filter:', filtered.length);
+              // console.log('=== DISTANCE FILTER DEBUG ===');
+              // console.log('Distance range:', { min: value.min, max: value.max, label: value.label });
+              // console.log('Hotels before distance filter:', filtered.length);
               
               filtered = filtered.filter(hotel => {
                 if (hotel.distance === undefined || hotel.distance === null) {
@@ -1189,7 +1189,7 @@ const HotelResults = () => {
                 }
                 const distance = parseFloat(hotel.distance);
                 if (isNaN(distance)) {
-                  console.log('Hotel has invalid distance:', hotel.name, 'Distance:', hotel.distance);
+                  // console.log('Hotel has invalid distance:', hotel.name, 'Distance:', hotel.distance);
                   return false;
                 }
                 const matches = distance >= value.min && distance <= value.max;
@@ -1214,13 +1214,13 @@ const HotelResults = () => {
             break;
           case 'Facilities':
             if (Array.isArray(value) && value.length > 0) {
-              console.log('=== CLIENT-SIDE FACILITIES FILTER ===');
-              console.log('Filtering for facilities:', value);
-              console.log('Hotels before filter:', filtered.length);
+              // console.log('=== CLIENT-SIDE FACILITIES FILTER ===');
+              // console.log('Filtering for facilities:', value);
+              // console.log('Hotels before filter:', filtered.length);
               
               filtered = filtered.filter(hotel => {
                 if (!hotel.facilities || !Array.isArray(hotel.facilities)) {
-                  console.log('Hotel has no facilities:', hotel.name);
+                  // console.log('Hotel has no facilities:', hotel.name);
                   return false;
                 }
                 
@@ -1237,7 +1237,7 @@ const HotelResults = () => {
                 return hasFacility;
               });
               
-              console.log('Hotels after facilities filter:', filtered.length);
+              // console.log('Hotels after facilities filter:', filtered.length);
             }
             break;
         }
@@ -1258,7 +1258,7 @@ const HotelResults = () => {
   };
 
   const handleHotelSelect = (hotelId) => {
-    console.log('Hotel selected:', hotelId);
+    // console.log('Hotel selected:', hotelId);
     
     // Validate search context before navigation
     const searchId = localStorage.getItem('hotelSearchId') || 
@@ -1266,7 +1266,7 @@ const HotelResults = () => {
                     (localStorage.getItem('hotelSearchResults') && JSON.parse(localStorage.getItem('hotelSearchResults')).searchId);
     
     if (!searchId) {
-      console.error('No search session found, redirecting to home');
+      // console.error('No search session found, redirecting to home');
       window.location.href = '/';
       return;
     }
@@ -1277,36 +1277,36 @@ const HotelResults = () => {
 
   // Test function to validate filtering system
   const testFilteringSystem = () => {
-    console.log('=== TESTING FILTERING SYSTEM ===');
-    console.log('Current filtered hotels:', filteredHotels.length);
-    console.log('Total hotels:', totalHotels);
-    console.log('Search ID:', searchId);
-    console.log('All hotels count:', allHotels.length);
+    // console.log('=== TESTING FILTERING SYSTEM ===');
+    // console.log('Current filtered hotels:', filteredHotels.length);
+    // console.log('Total hotels:', totalHotels);
+    // console.log('Search ID:', searchId);
+    // console.log('All hotels count:', allHotels.length);
     
     // Test price filtering with sample data
     if (filteredHotels.length > 0) {
       const sampleHotel = filteredHotels[0];
-      console.log('Sample hotel data:', {
-        name: sampleHotel.name,
-        rate: sampleHotel.rate,
-        facilities: sampleHotel.facilities,
-        starRating: sampleHotel.starRating
-      });
+      // console.log('Sample hotel data:', {
+      //   name: sampleHotel.name,
+      //   rate: sampleHotel.rate,
+      //   facilities: sampleHotel.facilities,
+      //   starRating: sampleHotel.starRating
+      // });
       
       // Test price validation
       if (sampleHotel.rate && sampleHotel.rate.total) {
-        console.log('Price validation test:', {
-          price: sampleHotel.rate.total,
-          isValid: typeof sampleHotel.rate.total === 'number' && sampleHotel.rate.total > 0
-        });
+        // console.log('Price validation test:', {
+        //   price: sampleHotel.rate.total,
+        //   isValid: typeof sampleHotel.rate.total === 'number' && sampleHotel.rate.total > 0
+        // });
       }
       
       // Test facilities validation
       if (sampleHotel.facilities && Array.isArray(sampleHotel.facilities)) {
-        console.log('Facilities validation test:', {
-          facilitiesCount: sampleHotel.facilities.length,
-          hasValidStructure: sampleHotel.facilities.every(f => f.id && f.name)
-        });
+        // console.log('Facilities validation test:', {
+        //   facilitiesCount: sampleHotel.facilities.length,
+        //   hasValidStructure: sampleHotel.facilities.every(f => f.id && f.name)
+        // });
       }
     }
   };
@@ -1326,27 +1326,27 @@ const HotelResults = () => {
   //   { value: 'distance', label: 'Distance' }
   // ];
 
-  console.log('=== HOTEL RESULTS HEADER HEIGHT ===');
-  console.log('Header height from hook:', headerHeight);
-  console.log('CSS custom property:', getComputedStyle(document.documentElement).getPropertyValue('--header-height'));
+  // console.log('=== HOTEL RESULTS HEADER HEIGHT ===');
+  // console.log('Header height from hook:', headerHeight);
+  // console.log('CSS custom property:', getComputedStyle(document.documentElement).getPropertyValue('--header-height'));
   
-  console.log('=== FILTERS DEBUG ===');
-  console.log('Filters state:', filters);
-  console.log('Filters length:', filters?.length);
-  console.log('Loading state:', loading);
-  console.log('=== HOTEL COUNTS DEBUG ===');
-  console.log('Total hotels:', totalHotels);
-  console.log('Filtered hotels count:', filteredHotels.length);
-  console.log('Filtered hotels array:', filteredHotels);
+  // console.log('=== FILTERS DEBUG ===');
+  // console.log('Filters state:', filters);
+  // console.log('Filters length:', filters?.length);
+  // console.log('Loading state:', loading);
+  // console.log('=== HOTEL COUNTS DEBUG ===');
+  // console.log('Total hotels:', totalHotels);
+  // console.log('Filtered hotels count:', filteredHotels.length);
+  // console.log('Filtered hotels array:', filteredHotels);
 
   // Monitor state changes
   useEffect(() => {
-    console.log('=== STATE CHANGE DETECTED ===');
-    console.log('Filtered hotels count:', filteredHotels.length);
-    console.log('Total hotels:', totalHotels);
-    console.log('Current page:', currentPage);
-    console.log('Total pages:', totalPages);
-    console.log('Force render count:', forceRender);
+    // console.log('=== STATE CHANGE DETECTED ===');
+    // console.log('Filtered hotels count:', filteredHotels.length);
+    // console.log('Total hotels:', totalHotels);
+    // console.log('Current page:', currentPage);
+    // console.log('Total pages:', totalPages);
+    // console.log('Force render count:', forceRender);
   }, [filteredHotels, totalHotels, currentPage, totalPages, forceRender]);
 
   return (
