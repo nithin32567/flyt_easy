@@ -8,7 +8,8 @@ import {
   fetchHotelPricing,
   filterHotels,
   getFilterData,
-  createItineraryForHotelRoom
+  createItineraryForHotelRoom,
+  fetchHotelSearchWorkflow
 } from "../controllers/hotel/hotel_controller_updated.js";
 import { 
   createHotelRazorpayOrder, 
@@ -37,6 +38,8 @@ router.get("/pricing/:searchId/:hotelId/:priceProvider/:roomRecommendationId", f
 router.post("/filter/:searchId", filterHotels);
 
 router.get("/filterdata/:searchId", getFilterData);
+
+router.get("/workflow/:searchId", fetchHotelSearchWorkflow);
 
 router.post("/create-itinerary", createItineraryForHotelRoom);
 

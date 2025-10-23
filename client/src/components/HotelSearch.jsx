@@ -124,11 +124,20 @@ const HotelSearch = ({
 
       // Store search IDs for subsequent API calls - these persist until next init request
       localStorage.setItem('hotelSearchId', initData.searchId);
+      localStorage.setItem('searchId', initData.searchId); // Also store as 'searchId' for compatibility
       localStorage.setItem('searchTracingKey', initData.searchTracingKey);
+      localStorage.setItem('lastSearchTime', Date.now().toString()); // Add timestamp
       
       console.log('=== FRONTEND: STORED IN LOCALSTORAGE ===');
       console.log('Search ID stored:', initData.searchId);
       console.log('Search Tracing Key stored:', initData.searchTracingKey);
+      
+      // Verify storage immediately
+      const storedSearchId = localStorage.getItem('hotelSearchId');
+      const storedSearchTracingKey = localStorage.getItem('searchTracingKey');
+      console.log('Verification - Stored Search ID:', storedSearchId);
+      console.log('Verification - Stored Search Tracing Key:', storedSearchTracingKey);
+      console.log('Storage verification successful:', storedSearchId === initData.searchId && storedSearchTracingKey === initData.searchTracingKey);
 
       // Step 2: Call content and rates APIs in parallel
       console.log('=== FRONTEND: CALLING CONTENT & RATES API ===');
@@ -185,7 +194,8 @@ const HotelSearch = ({
         children: children,
         priceRange: priceRange,
         searchId: initData.searchId,
-        searchTracingKey: initData.searchTracingKey
+        searchTracingKey: initData.searchTracingKey,
+        timestamp: Date.now() // Add timestamp for staleness detection
       };
       
       localStorage.setItem('hotelSearchData', JSON.stringify(searchData));

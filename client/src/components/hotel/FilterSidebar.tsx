@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Drawer,
   Box,
@@ -84,6 +84,8 @@ interface FilterSidebarProps {
   onFilterChange?: (filters: Record<string, any>) => void;
   isOpen?: boolean;
   onToggle?: () => void;
+  totalHotels?: number;
+  filteredHotels?: number;
 }
 
 const FilterSidebar: React.FC<FilterSidebarProps> = ({ 
@@ -91,7 +93,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   loading = false, 
   onFilterChange,
   isOpen = true,
-  onToggle
+  onToggle,
+  totalHotels = 0,
+  filteredHotels = 0
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -99,7 +103,17 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const [selectedFilters, setSelectedFilters] = useState<Record<string, any>>({});
   const [searchTexts, setSearchTexts] = useState<Record<string, string>>({});
 
+  // Debug logging (moved to useEffect to avoid rendering during render)
+  useEffect(() => {
+    console.log('=== FILTERSIDEBAR: PROPS ===');
+    console.log('Filters:', filters);
+    console.log('Total hotels:', totalHotels);
+    console.log('Filtered hotels:', filteredHotels);
+    console.log('Loading:', loading);
+  }, [filters, totalHotels, filteredHotels, loading]);
+  
   const toggleFilter = (filterCategory: string) => {
+    if (!filterCategory) return;
     setExpandedFilters(prev => ({
       ...prev,
       [filterCategory]: !prev[filterCategory]
@@ -107,26 +121,43 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   const handleFilterChange = (filterCategory: string, value: any, filterType: string) => {
-    const newFilters = { ...selectedFilters };
-    
-    if (filterType === 'list') {
-      if (!newFilters[filterCategory]) {
-        newFilters[filterCategory] = [];
+    try {
+      if (!filterCategory || !filterType) return;
+      console.log('=== FILTERSIDEBAR: HANDLE FILTER CHANGE ===');
+      console.log('Category:', filterCategory);
+      console.log('Value:', value);
+      console.log('Type:', filterType);
+      console.log('Current selectedFilters:', selectedFilters);
+      
+      const newFilters = { ...selectedFilters };
+      
+      if (filterType === 'list') {
+        if (!newFilters[filterCategory]) {
+          newFilters[filterCategory] = [];
+        }
+        
+        if (newFilters[filterCategory].includes(value)) {
+          newFilters[filterCategory] = newFilters[filterCategory].filter((v: any) => v !== value);
+        } else {
+          newFilters[filterCategory] = [...newFilters[filterCategory], value];
+        }
+      } else if (filterType === 'range') {
+        console.log('=== FILTERSIDEBAR: RANGE FILTER UPDATE ===');
+        console.log('Setting range filter for category:', filterCategory);
+        console.log('Range value:', value);
+        newFilters[filterCategory] = value;
+      } else if (filterType === 'text') {
+        newFilters[filterCategory] = value;
       }
       
-      if (newFilters[filterCategory].includes(value)) {
-        newFilters[filterCategory] = newFilters[filterCategory].filter((v: any) => v !== value);
-      } else {
-        newFilters[filterCategory] = [...newFilters[filterCategory], value];
-      }
-    } else if (filterType === 'range') {
-      newFilters[filterCategory] = value;
-    } else if (filterType === 'text') {
-      newFilters[filterCategory] = value;
+      console.log('=== FILTERSIDEBAR: NEW FILTERS ===');
+      console.log('Updated filters:', newFilters);
+      setSelectedFilters(newFilters);
+      // Auto-apply filters immediately
+      onFilterChange?.(newFilters);
+    } catch (error) {
+      console.error('Error in handleFilterChange:', error);
     }
-    
-    setSelectedFilters(newFilters);
-    onFilterChange?.(newFilters);
   };
 
   const applyFilters = () => {
@@ -139,10 +170,49 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   const clearAllFilters = () => {
+    console.log('=== FRONTEND: CLEARING ALL FILTERS ===');
+    console.log('Selected filters before clear:', selectedFilters);
     setSelectedFilters({});
     setSearchTexts({});
+    setExpandedFilters({});
     onFilterChange?.({});
+    console.log('=== FRONTEND: FILTERS CLEARED ===');
   };
+
+  // Count applied filters
+  const appliedFiltersCount = useMemo(() => {
+    let count = 0;
+    Object.values(selectedFilters).forEach(value => {
+      if (Array.isArray(value) && value.length > 0) {
+        count++;
+      } else if (value && typeof value === 'object' && (value.min !== undefined || value.max !== undefined)) {
+        count++;
+      } else if (value && typeof value === 'string' && value.trim() !== '') {
+        count++;
+      }
+    });
+    return Number(count) || 0;
+  }, [selectedFilters]);
+
+  // Debug: Log selected filters to identify the issue (moved to useEffect to avoid rendering issues)
+  useEffect(() => {
+    console.log('=== FILTERSIDEBAR: SELECTED FILTERS DEBUG ===');
+    console.log('Selected filters:', selectedFilters);
+    console.log('Applied filters count:', appliedFiltersCount);
+  }, [selectedFilters, appliedFiltersCount]);
+  
+  // Check for objects being rendered (moved to useEffect to avoid rendering issues)
+  useEffect(() => {
+    Object.entries(selectedFilters).forEach(([key, value]) => {
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        console.log(`Filter ${key} is object:`, value);
+        if (value.min !== undefined && value.max !== undefined) {
+          console.log(`Price filter detected: ${key}`, value);
+          console.log(`Label: ${value.label}`);
+        }
+      }
+    });
+  }, [selectedFilters]);
 
   const formatPrice = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -151,6 +221,22 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount);
+  };
+
+  // Helper function to safely render values in JSX
+  const safeRenderValue = (value: any): string => {
+    if (value === null || value === undefined) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return String(value);
+    if (typeof value === 'boolean') return String(value);
+    if (Array.isArray(value)) return value.length.toString();
+    if (typeof value === 'object') {
+      if (value.min !== undefined && value.max !== undefined) {
+        return value.label || `${value.min} - ${value.max}`;
+      }
+      return JSON.stringify(value);
+    }
+    return String(value);
   };
 
   const getFilterIcon = (filterType: string, filterName: string) => {
@@ -174,32 +260,66 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   const renderFilterOptions = (filter: Filter) => {
-    if (!filter.options || filter.options.length === 0) {
+    if (!filter || !filter.options || filter.options.length === 0) {
       return (
         <Alert severity="info" sx={{ mt: 1 }}>
           <Typography variant="body2">No options available</Typography>
         </Alert>
       );
     }
+    console.log('=== FILTERSIDEBAR: RENDERING FILTER ===');
+    console.log('Filter:', filter);
+    console.log('Filter options:', filter.options);
 
     switch (filter.type) {
       case 'range':
+        console.log('=== FILTERSIDEBAR: RENDERING RANGE FILTER (CHECKBOX VERSION) ===');
+        console.log('Filter category:', filter.category);
+        console.log('Filter options:', filter.options);
         return (
-          <FormControl component="fieldset" sx={{ width: '100%' }}>
-            <RadioGroup
-              value={selectedFilters[filter.category]?.value || ''}
-              onChange={(e) => handleFilterChange(filter.category, filter.options?.find(opt => opt.value === e.target.value), 'range')}
-            >
-              {filter.options.map((option, index) => (
+          <Box>
+            {filter.options.map((option, index) => {
+              if (!option) return null;
+              console.log('=== FILTERSIDEBAR: RENDERING RANGE OPTION (CHECKBOX) ===');
+              console.log('Selected option:', option);
+              console.log('Min:', option.min, 'Max:', option.max);
+              
+              // Check if this option is selected
+              const selectedFilter = selectedFilters[filter.category];
+              const isSelected = selectedFilter && typeof selectedFilter === 'object' && selectedFilter.label === option.label;
+              
+              return (
                 <FormControlLabel
-                  key={index}
-                  value={option.value || option.label}
-                  control={<Radio size="small" />}
+                  key={`${filter.category}-range-${option.label || index}`}
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={isSelected}
+                      onChange={() => {
+                        console.log('=== FRONTEND: RANGE FILTER SELECTED (CHECKBOX) ===');
+                        console.log('Selected option:', option);
+                        console.log('Min:', option.min, 'Max:', option.max);
+                        
+                        if (isSelected) {
+                          handleFilterChange(filter.category, null, 'range');
+                        } else {
+                          const rangeValue = {
+                            min: option.min,
+                            max: option.max,
+                            label: option.label
+                          };
+                          handleFilterChange(filter.category, rangeValue, 'range');
+                        }
+                      }}
+                    />
+                  }
                   label={
                     <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-                      <Typography variant="body2">{option.label}</Typography>
+                      <Typography variant="body2">
+                        {option && option.label ? safeRenderValue(option.label) : 'Unknown'}
+                      </Typography>
                       <Chip 
-                        label={option.count} 
+                        label={option && typeof option.count === 'number' ? option.count : 0} 
                         size="small" 
                         variant="outlined"
                         sx={{ ml: 1, fontSize: '0.7rem' }}
@@ -208,38 +328,52 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   }
                   sx={{ mb: 0.5 }}
                 />
-              ))}
-            </RadioGroup>
-          </FormControl>
+              );
+            })}
+          </Box>
         );
 
       case 'list':
         return (
           <Box>
-            {filter.options.map((option, index) => (
-              <FormControlLabel
-                key={index}
-                control={
-                  <Checkbox
-                    size="small"
-                    checked={selectedFilters[filter.category]?.includes(option.value || option.label) || false}
-                    onChange={() => handleFilterChange(filter.category, option.value || option.label, 'list')}
-                  />
-                }
-                label={
-                  <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
-                    <Typography variant="body2">{option.label}</Typography>
-                    <Chip 
-                      label={option.count} 
-                      size="small" 
-                      variant="outlined"
-                      sx={{ ml: 1, fontSize: '0.7rem' }}
+            {filter.options.map((option, index) => {
+              if (!option) return null;
+              console.log('=== FILTERSIDEBAR: RENDERING LIST OPTION ===');
+              console.log('Option:', option);
+              console.log('Option count type:', typeof option.count);
+              console.log('Option count value:', option.count);
+              return (
+                <FormControlLabel
+                  key={`${filter.category}-list-${option.value || option.label || index}`}
+                  control={
+                    <Checkbox
+                      size="small"
+                      checked={Array.isArray(selectedFilters[filter.category]) ? selectedFilters[filter.category]?.includes(String(option.value || option.label)) || false : false}
+                      onChange={() => {
+                        const value = String(option.value || option.label);
+                        if (value && value !== 'undefined' && value !== 'null') {
+                          handleFilterChange(filter.category, value, 'list');
+                        }
+                      }}
                     />
-                  </Box>
-                }
-                sx={{ mb: 0.5, width: '100%' }}
-              />
-            ))}
+                  }
+                  label={
+                    <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+                      <Typography variant="body2">
+                        {option && option.label ? safeRenderValue(option.label) : 'Unknown'}
+                      </Typography>
+                      <Chip 
+                        label={option && typeof option.count === 'number' ? option.count : 0} 
+                        size="small" 
+                        variant="outlined"
+                        sx={{ ml: 1, fontSize: '0.7rem' }}
+                      />
+                    </Box>
+                  }
+                  sx={{ mb: 0.5, width: '100%' }}
+                />
+              );
+            })}
           </Box>
         );
 
@@ -281,15 +415,16 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           <Box display="flex" alignItems="center" gap={1}>
             <Filter color='#fff' size={24} />
             <Typography color='#fff' variant="h6" fontWeight="600">
-              Filter Results
+              Available Hotels ({filteredHotels} / {totalHotels})
             </Typography>
             <Chip 
-              label={filters?.length || 0} 
+              label={`${Number(appliedFiltersCount) || 0} applied`} 
               size="small" 
               sx={{ 
-                backgroundColor: 'rgba(255,255,255,0.2)', 
-                color: 'white',
-                fontSize: '0.75rem'
+                backgroundColor: (Number(appliedFiltersCount) || 0) > 0 ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)', 
+                color: (Number(appliedFiltersCount) || 0) > 0 ? '#1976d2' : 'white',
+                fontSize: '0.75rem',
+                fontWeight: (Number(appliedFiltersCount) || 0) > 0 ? 'bold' : 'normal'
               }} 
             />
           </Box>
@@ -322,17 +457,19 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           </Box>
         ) : (
           <Stack spacing={2}>
-            {filters.map((filter, index) => (
-              <Accordion 
-                key={filter.category || index}
-                expanded={expandedFilters[filter.category]}
-                onChange={() => toggleFilter(filter.category)}
-                sx={{ 
-                  boxShadow: 1,
-                  '&:before': { display: 'none' },
-                  '&.Mui-expanded': { margin: 0 }
-                }}
-              >
+            {filters.map((filter, index) => {
+              if (!filter) return null;
+              return (
+                <Accordion 
+                  key={`filter-${filter.category || filter.name || index}`}
+                  expanded={expandedFilters[filter.category]}
+                  onChange={() => toggleFilter(filter.category)}
+                  sx={{ 
+                    boxShadow: 1,
+                    '&:before': { display: 'none' },
+                    '&.Mui-expanded': { margin: 0 }
+                  }}
+                >
                 <AccordionSummary
                   expandIcon={<ChevronDown size={20} />}
                   sx={{ 
@@ -351,7 +488,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     </Typography>
                     <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Chip 
-                        label={filter.options?.length || 0} 
+                        label={Array.isArray(filter.options) ? filter.options.length : 0} 
                         size="small" 
                         variant="outlined"
                         sx={{ fontSize: '0.7rem', height: 20 }}
@@ -367,7 +504,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   </Fade>
                 </AccordionDetails>
               </Accordion>
-            ))}
+              );
+            })}
           </Stack>
         )}
       </Box>
@@ -385,18 +523,24 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
               variant="contained"
               startIcon={<CheckCircle size={16} />}
               onClick={applyFilters}
+              disabled={(Number(appliedFiltersCount) || 0) === 0}
               sx={{ 
                 flex: 1,
-                background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+                background: (Number(appliedFiltersCount) || 0) > 0 
+                  ? 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)'
+                  : 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)',
+                color: (Number(appliedFiltersCount) || 0) > 0 ? 'white' : '#666',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
-                  transform: 'translateY(-1px)',
-                  boxShadow: 2
+                  background: (Number(appliedFiltersCount) || 0) > 0 
+                    ? 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)'
+                    : 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)',
+                  transform: (Number(appliedFiltersCount) || 0) > 0 ? 'translateY(-1px)' : 'none',
+                  boxShadow: (Number(appliedFiltersCount) || 0) > 0 ? 2 : 0
                 },
                 transition: 'all 0.2s ease-in-out'
               }}
             >
-              Apply
+              Apply {(Number(appliedFiltersCount) || 0) > 0 && `(${Number(appliedFiltersCount) || 0})`}
             </Button>
             <Button
               variant="outlined"
@@ -420,7 +564,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   );
 
   return (
-    <Drawer
+    <Drawer 
       variant={isMobile ? 'temporary' : 'persistent'}
       anchor="left"
       open={isOpen}

@@ -110,6 +110,45 @@ const HotelForm = ({
     setSearchterm(location.fullName);
     setShowResults(false);
   };
+
+  const handleTrendingSearch = async (locationName) => {
+    setSearchterm(locationName);
+    setShowResults(true);
+    setIsAutosuggestLoading(true);
+    
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/hotel/autosuggest`, {
+        params: { term: locationName },
+      });
+
+      console.log('Trending search autosuggest API response:', response.data);
+
+      let results = [];
+      if (response.data) {
+        if (response.data.locations) {
+          results = response.data.locations;
+        } else if (response.data.data) {
+          results = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          results = response.data;
+        } else if (response.data.results) {
+          results = response.data.results;
+        } else if (response.data.suggestions) {
+          results = response.data.suggestions;
+        } else if (response.data.items) {
+          results = response.data.items;
+        }
+      }
+
+      console.log('Processed trending search results:', results);
+      setAutosuggestResults(results);
+    } catch (error) {
+      console.error('Trending search autosuggest error:', error);
+      setAutosuggestResults([]);
+    } finally {
+      setIsAutosuggestLoading(false);
+    }
+  };
   return (
     <div className=' relative '>
       <div
@@ -185,7 +224,7 @@ const HotelForm = ({
                     {isAutosuggestLoading ? (
                       <div className="p-3 text-center">
                         <div className="spinner-border spinner-border-sm text-primary me-2"></div>
-                        Searching...
+                        <span className="text-muted">Searching locations...</span>
                       </div>
                     ) : autosuggestResults.length > 0 ? (
                       autosuggestResults.map((location, index) => (
@@ -291,13 +330,13 @@ const HotelForm = ({
           <h5>Trending Searches:</h5>
           <ul>
             <li>
-              <button>Dubai, United Arab Emirates</button>
+              <button onClick={() => handleTrendingSearch('Dubai, United Arab Emirates')}>Dubai, United Arab Emirates</button>
             </li>
             <li>
-              <button>Mumbai, India</button>
+              <button onClick={() => handleTrendingSearch('Mumbai, India')}>Mumbai, India</button>
             </li>
             <li>
-              <button>London, United Kingdom</button>
+              <button onClick={() => handleTrendingSearch('London, United Kingdom')}>London, United Kingdom</button>
             </li>
           </ul>
         </div>

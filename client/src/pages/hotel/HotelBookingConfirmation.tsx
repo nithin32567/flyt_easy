@@ -3,12 +3,81 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, MapPin, Calendar, Users, CreditCard, Phone, Mail, Clock } from 'lucide-react';
 import axios from 'axios';
 
+interface HotelAddress {
+  AddressLine1: string;
+  City: string;
+  Country: string;
+}
+
+interface HotelInfo {
+  Name: string;
+  heroimage: string;
+  HotelAddress: HotelAddress;
+  StarRating: number;
+  Phone: string;
+}
+
+interface RoomRate {
+  TotalRate: number;
+}
+
+interface Guest {
+  Title: string;
+  FirstName: string;
+  LastName: string;
+  PaxType: string;
+  Age: number;
+}
+
+interface Room {
+  ID: string;
+  Name: string;
+  Refundable: string;
+  Capacity: string;
+  NumberOfAdults: string;
+  NumberOfChildren: string;
+  RoomRates: RoomRate[];
+  Guests: Guest[];
+}
+
+interface ContactInfo {
+  Email: string;
+  Mobile: string;
+  Address: string;
+  City: string;
+}
+
+interface HotelFacility {
+  name: string;
+}
+
+interface MoreInfoItem {
+  Code?: string;
+  Name?: string;
+  Description: string;
+}
+
+interface BookingData {
+  TransactionId: string;
+  BookingStatus: string;
+  HotelInfo: HotelInfo;
+  CheckInDate: string;
+  CheckInTime: string;
+  CheckOutDate: string;
+  CheckOutTime: string;
+  Rooms: Room[];
+  NetFare: number;
+  ContactInfo: ContactInfo;
+  HotelFacilities: HotelFacility[];
+  MoreInfo: MoreInfoItem[];
+}
+
 const HotelBookingConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [bookingData, setBookingData] = useState(null);
+  const [bookingData, setBookingData] = useState<BookingData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState({
     importantInfo: false
   });
@@ -83,7 +152,7 @@ const HotelBookingConfirmation = () => {
         }
       } catch (error) {
         console.error('Error fetching booking details:', error);
-        setError(error.message);
+        setError(error instanceof Error ? error.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
@@ -92,7 +161,7 @@ const HotelBookingConfirmation = () => {
     fetchBookingDetails();
   }, [location.search]);
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -101,7 +170,7 @@ const HotelBookingConfirmation = () => {
     });
   };
 
-  const formatDateTime = (dateString, timeString) => {
+  const formatDateTime = (dateString: string, timeString: string) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     const formattedDate = date.toLocaleDateString('en-US', {
@@ -113,12 +182,12 @@ const HotelBookingConfirmation = () => {
     return `${formattedDate} ${time}`;
   };
 
-  const formatTime = (timeString) => {
+  const formatTime = (timeString: string) => {
     if (!timeString) return 'N/A';
     return timeString;
   };
 
-  const getBookingStatusColor = (status) => {
+  const getBookingStatusColor = (status: string) => {
     switch (status) {
       case 'B0': return 'text-green-600 bg-green-100';
       case 'B1': return 'text-blue-600 bg-blue-100';
@@ -127,7 +196,7 @@ const HotelBookingConfirmation = () => {
     }
   };
 
-  const getBookingStatusText = (status) => {
+  const getBookingStatusText = (status: string) => {
     switch (status) {
       case 'B0': return 'Confirmed';
       case 'B1': return 'Pending';
@@ -136,12 +205,12 @@ const HotelBookingConfirmation = () => {
     }
   };
 
-  const formatHeading = (heading) => {
+  const formatHeading = (heading: string) => {
     if (!heading) return 'General';
     // Add spaces before capital letters and convert to title case
     return heading
       .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
+      .replace(/^./, (str: string) => str.toUpperCase())
       .trim();
   };
 
@@ -283,7 +352,7 @@ const HotelBookingConfirmation = () => {
               <div>
                 <p className="text-sm text-gray-500">Guests</p>
                 <p className="font-semibold text-gray-900">
-                  {bookingData.Rooms?.reduce((total, room) => 
+                  {bookingData.Rooms?.reduce((total: number, room: Room) => 
                     total + parseInt(room.NumberOfAdults) + parseInt(room.NumberOfChildren), 0
                   )} Guests
                 </p>
@@ -304,7 +373,7 @@ const HotelBookingConfirmation = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Room Details</h2>
             <div className="space-y-4">
-              {bookingData.Rooms.map((room, index) => (
+              {bookingData.Rooms.map((room: Room, index: number) => (
                 <div key={room.ID} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-lg font-semibold text-gray-900">{room.Name}</h3>
@@ -337,7 +406,7 @@ const HotelBookingConfirmation = () => {
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <h4 className="text-sm font-semibold text-gray-700 mb-2">Guest Information</h4>
                       <div className="space-y-2">
-                        {room.Guests.map((guest, guestIndex) => (
+                        {room.Guests.map((guest: Guest, guestIndex: number) => (
                           <div key={guestIndex} className="flex items-center space-x-3 p-2 bg-gray-50 rounded">
                             <div>
                               <p className="font-medium text-gray-900">
@@ -395,7 +464,7 @@ const HotelBookingConfirmation = () => {
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Hotel Facilities</h2>
             <div className="flex flex-wrap gap-2">
-              {bookingData.HotelFacilities.map((facility, index) => (
+              {bookingData.HotelFacilities.map((facility: HotelFacility, index: number) => (
                 facility.name && (
                   <span
                     key={index}
@@ -434,7 +503,7 @@ const HotelBookingConfirmation = () => {
                 <div className="space-y-6 pt-4">
                   {/* Group by type */}
                   {(() => {
-                    const groupedInfo = bookingData.MoreInfo.reduce((acc, info) => {
+                    const groupedInfo = bookingData.MoreInfo.reduce((acc: Record<string, MoreInfoItem[]>, info: MoreInfoItem) => {
                       if (!info.Description) return acc;
                       const type = info.Code || info.Name || 'General';
                       if (!acc[type]) acc[type] = [];
@@ -442,14 +511,14 @@ const HotelBookingConfirmation = () => {
                       return acc;
                     }, {});
 
-                    return Object.entries(groupedInfo).map(([type, items]) => (
+                    return Object.entries(groupedInfo).map(([type, items]: [string, MoreInfoItem[]]) => (
                       <div key={type} className="border border-gray-200 rounded-lg p-4">
                         <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
                           <div className="w-1 h-6 bg-indigo-500 mr-3 rounded"></div>
                           {formatHeading(type)}
                         </h3>
                         <div className="space-y-2">
-                          {items.map((item, index) => (
+                          {items.map((item: MoreInfoItem, index: number) => (
                             <div key={index} className="flex items-start">
                               <div className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                               <p className="text-gray-600 text-sm leading-relaxed">{item.Description}</p>

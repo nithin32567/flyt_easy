@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import GoogleLoginButton from '../components/GoogleLoginButton';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
@@ -136,7 +136,7 @@ const Login = () => {
                 />
                 <button
                   type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute register-btn inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -155,16 +155,16 @@ const Login = () => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                    className="h-4 w-4 text-[#16437c] focus:ring-[#16437c] border-gray-300 rounded"
+                    className="h-4 w-4 text-[var(--PrimaryColor)] focus:ring-[var(--PrimaryColor)] border-gray-300 rounded"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                   Remember me
                 </label>
               </div>
               <div className="text-sm">
-                <a href="#" className="font-medium text-[#16437c] hover:text-[#16437c] transition duration-200">
+                <Link to='/forgot-password' className="font-medium text-[var(--PrimaryColor)] hover:text-[var(--PrimaryColor)] transition duration-200">
                   Forgot password?
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -172,15 +172,15 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-600 hover:bg-[#16437c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#16437c] disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
+              className="group register-btn relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[var(--YellowColor)] register-btn hover:bg-[var(--PrimaryColor)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--PrimaryColor)] disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
             >
               {isLoading ? (
                 <div className="flex items-center ">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animat bg-[var(--PrimaryColor)] rounded-full h-4 w-4 border-b-2 border-[var(--PrimaryColor)] mr-2"></div>
                   Signing in...
                 </div>
               ) : (
-                'Sign in'
+                <Link to='/login' className="text-white">Sign in</Link>
               )}
             </button>
           </form>
@@ -232,9 +232,9 @@ const Login = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-                <a href="#" className="font-medium text-[#16437c] hover:text-[#16437c] transition duration-200">
+                <Link to='/login' className="font-medium text-[var(--PrimaryColor)] hover:text-[var(--PrimaryColor)] transition duration-200">
                 Sign up
-              </a>
+              </Link>
             </p>
           </div>
         </div>

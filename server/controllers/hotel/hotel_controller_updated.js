@@ -99,7 +99,6 @@ export const initHotelSearch = async (req, res) => {
     }
   }
 };
-
 export const fetchHotelContentAndRates = async (req, res) => {
   try {
     const { searchId } = req.params;
@@ -388,8 +387,16 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
     let roomsSuccess = false;
     if (roomsResponse.status === 'fulfilled') {
       roomsData = roomsResponse.value.data;
-      roomsSuccess = true;
-      console.log('Rooms API success');
+      
+      // Check if the rooms data indicates an error (like code 1211)
+      if (roomsData && (roomsData.code === '1211' || roomsData.status === 'failure' || roomsData.message === 'No rooms found')) {
+        console.error('Rooms API returned error in response:', roomsData);
+        roomsSuccess = false;
+        // Keep the error data as is
+      } else {
+        roomsSuccess = true;
+        console.log('Rooms API success');
+      }
     } else {
       console.error('Rooms API failed:', roomsResponse.reason?.message);
       console.error('Rooms API error details:', roomsResponse.reason?.response?.data);
@@ -431,6 +438,13 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
       }
     };
 
+    console.log('=== FINAL API STATUS ===');
+    console.log('Content success:', contentSuccess);
+    console.log('Rooms success:', roomsSuccess);
+    console.log('Rooms data status:', roomsData?.status);
+    console.log('Rooms data code:', roomsData?.code);
+    console.log('Rooms data message:', roomsData?.message);
+
     console.log('Combined hotel details response prepared');
     res.status(200).json(combinedResponse);
 
@@ -454,7 +468,6 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
     }
   }
 };
-
 export const fetchHotelPricing = async (req, res) => {
   try {
     const { searchId, hotelId, priceProvider, roomRecommendationId } = req.params;
@@ -561,8 +574,6 @@ export const fetchHotelPricing = async (req, res) => {
     }
   }
 };
-
-
 export const filterHotels = async (req, res) => {
   try {
     const { searchId } = req.params;
@@ -596,13 +607,98 @@ export const filterHotels = async (req, res) => {
 
     console.log('=== FILTER HOTELS API CALL ===');
     console.log('Search ID:', searchId);
-    console.log('Filters:', JSON.stringify(filters, null, 2));
+    console.log('Original Filters:', JSON.stringify(filters, null, 2));
     console.log('Limit:', limit, 'Offset:', offset);
 
-    // Using HOTEL_SEARCH_URL constant
+    // Transform filters to match external API format (based on Postman collection)
+    const transformedFilters = {
+      filters: {}
+    };
+    
+    console.log('=== FILTER TRANSFORMATION DEBUG ===');
+    console.log('Original filters received:', JSON.stringify(filters, null, 2));
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      console.log(`Processing filter: ${key} = ${JSON.stringify(value)}`);
+      
+      if (value === null || value === undefined) {
+        console.log(`Skipping null/undefined filter: ${key}`);
+        return;
+      }
+      
+      // Handle PriceGroup filter specifically (matches Postman format)
+      if (key === 'PriceGroup' && value && typeof value === 'object') {
+        if (value.min !== undefined && value.max !== undefined) {
+          transformedFilters.filters.priceGroups = [{
+            minPrice: value.min,
+            maxPrice: value.max
+          }];
+          console.log(`PriceGroup transformed: minPrice=${value.min}, maxPrice=${value.max}`);
+        }
+      }
+      // Handle StarRating filter
+      else if (key === 'StarRating' && Array.isArray(value)) {
+        transformedFilters.filters.starRating = value;
+        console.log(`StarRating transformed: ${JSON.stringify(value)}`);
+      }
+      // Handle HotelName filter
+      else if (key === 'HotelName' && typeof value === 'string') {
+        transformedFilters.filters.hotelName = value;
+        console.log(`HotelName transformed: ${value}`);
+      }
+      // Handle Locations filter
+      else if (key === 'Locations' && Array.isArray(value)) {
+        transformedFilters.filters.locations = value;
+        console.log(`Locations transformed: ${JSON.stringify(value)}`);
+      }
+      // Handle Attraction filter
+      else if (key === 'Attraction' && Array.isArray(value)) {
+        transformedFilters.filters.attractions = value;
+        console.log(`Attraction transformed: ${JSON.stringify(value)}`);
+      }
+      // Handle Facilities filter
+      else if (key === 'Facilities' && Array.isArray(value)) {
+        transformedFilters.filters.facilities = value;
+        console.log(`Facilities transformed: ${JSON.stringify(value)}`);
+      }
+      // Handle Distance filter
+      else if (key === 'Distance' && value && typeof value === 'object' && value.min !== undefined && value.max !== undefined) {
+        transformedFilters.filters.distance = {
+          min: value.min,
+          max: value.max
+        };
+        console.log(`Distance transformed: min=${value.min}, max=${value.max}`);
+      }
+      // Handle other range filters
+      else if (value && typeof value === 'object' && value.min !== undefined && value.max !== undefined) {
+        transformedFilters.filters[key] = {
+          min: value.min,
+          max: value.max
+        };
+        console.log(`${key} range transformed: min=${value.min}, max=${value.max}`);
+      }
+      // Handle array values
+      else if (Array.isArray(value)) {
+        transformedFilters.filters[key] = value;
+        console.log(`${key} array transformed: ${JSON.stringify(value)}`);
+      }
+      // Handle primitive values
+      else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        transformedFilters.filters[key] = value;
+        console.log(`${key} primitive transformed: ${value}`);
+      }
+      else {
+        console.log(`Unknown filter type for ${key}: ${typeof value}`);
+      }
+    });
+
+    console.log('=== FILTER TRANSFORMATION COMPLETE ===');
+    console.log('Transformed filters:', JSON.stringify(transformedFilters, null, 2));
+
+    // Using HOTEL_SEARCH_URL constant (matches Postman collection format)
     const filterResponse = await axios.post(
       `${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}?limit=${limit}&offset=${offset}`,
-      filters,
+      transformedFilters,
       { headers }
     );
 
@@ -617,7 +713,8 @@ export const filterHotels = async (req, res) => {
       hotels: filterData,
       searchId: searchId,
       searchTracingKey: searchTracingKey,
-      filters: filters,
+      filters: transformedFilters,
+      originalFilters: filters,
       pagination: {
         limit: parseInt(limit),
         offset: parseInt(offset)
@@ -647,7 +744,6 @@ export const filterHotels = async (req, res) => {
     }
   }
 };
-
 export const getFilterData = async (req, res) => {
   try {
     const { searchId } = req.params;
@@ -702,6 +798,122 @@ export const getFilterData = async (req, res) => {
 
   } catch (error) {
     console.error('=== GET FILTER DATA API ERROR ===');
+    console.error('Error:', error.message);
+    if (error.response) {
+      return res.status(error.response.status).json({
+        message: error.response.data?.message || error.message,
+        status: error.response.status,
+        data: error.response.data
+      });
+    } else if (error.request) {
+      return res.status(503).json({
+        message: "External hotel API is not available",
+        status: 503
+      });
+    } else {
+      return res.status(500).json({
+        message: error.message,
+        status: 500
+      });
+    }
+  }
+};
+// Enhanced workflow following B2C API pattern
+export const fetchHotelSearchWorkflow = async (req, res) => {
+  try {
+    const { searchId } = req.params;
+    const authHeader = req.headers.authorization;
+    const searchTracingKey = req.headers['search-tracing-key'];
+
+    if (!authHeader) {
+      return res.status(401).json({
+        message: "Authorization header is required",
+        status: 401
+      });
+    }
+
+    if (!searchId) {
+      return res.status(400).json({
+        message: "Search ID is required",
+        status: 400
+      });
+    }
+
+    const headers = {
+      'Authorization': authHeader,
+      'Content-Type': 'application/json'
+    };
+
+    if (searchTracingKey) {
+      headers['search-tracing-key'] = searchTracingKey;
+    }
+
+    console.log('=== HOTEL SEARCH WORKFLOW ===');
+    console.log('Search ID:', searchId);
+    console.log('Search Tracing Key:', searchTracingKey);
+
+    // Step 1: Get Content and Rates in parallel (Availability Phase)
+    console.log('=== STEP 1: AVAILABILITY PHASE ===');
+    const [contentResponse, ratesResponse] = await Promise.allSettled([
+      axios.get(`${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}/content?limit=50&offset=0&filterdata=false`, {
+        headers: headers
+      }),
+      axios.get(`${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}/rate`, {
+        headers: headers
+      })
+    ]);
+
+    let contentData = null;
+    let ratesData = null;
+
+    if (contentResponse.status === 'fulfilled') {
+      contentData = contentResponse.value.data;
+      console.log('Content API success');
+    } else {
+      console.error('Content API failed:', contentResponse.reason?.message);
+    }
+
+    if (ratesResponse.status === 'fulfilled') {
+      ratesData = ratesResponse.value.data;
+      console.log('Rates API success');
+    } else {
+      console.error('Rates API failed:', ratesResponse.reason?.message);
+    }
+
+    // Step 2: Get Filter Data (only after rates are available)
+    console.log('=== STEP 2: FILTER DATA PHASE ===');
+    let filterData = null;
+    if (ratesResponse.status === 'fulfilled') {
+      try {
+        const filterResponse = await axios.get(`${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}/filterdata`, {
+          headers: headers
+        });
+        filterData = filterResponse.data;
+        console.log('Filter data API success');
+      } catch (filterError) {
+        console.error('Filter data error:', filterError.message);
+      }
+    }
+
+    const workflowResponse = {
+      status: 'success',
+      workflow: 'B2C Hotel API Workflow',
+      phase: 'Availability',
+      content: contentData,
+      rates: ratesData,
+      filterData: filterData,
+      searchId: searchId,
+      searchTracingKey: searchTracingKey,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log('=== WORKFLOW RESPONSE ===');
+    console.log(JSON.stringify(workflowResponse, null, 2));
+
+    res.status(200).json(workflowResponse);
+
+  } catch (error) {
+    console.error('=== HOTEL SEARCH WORKFLOW ERROR ===');
     console.error('Error:', error.message);
     if (error.response) {
       return res.status(error.response.status).json({
@@ -777,6 +989,37 @@ export const createItineraryForHotelRoom = async (req, res) => {
       });
     }
 
+    // Validate pricing data
+    if (!itineraryData.NetAmount || itineraryData.NetAmount === '' || itineraryData.NetAmount === '0') {
+      return res.status(400).json({
+        message: 'NetAmount is required and must be greater than 0',
+        status: 400,
+        field: 'NetAmount'
+      });
+    }
+
+    // Validate date format and ensure dates are in the future
+    const checkInDate = new Date(itineraryData.CheckInDate);
+    const checkOutDate = new Date(itineraryData.CheckOutDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (checkInDate < today) {
+      return res.status(400).json({
+        message: 'Check-in date must be today or in the future',
+        status: 400,
+        field: 'CheckInDate'
+      });
+    }
+
+    if (checkOutDate <= checkInDate) {
+      return res.status(400).json({
+        message: 'Check-out date must be after check-in date',
+        status: 400,
+        field: 'CheckOutDate'
+      });
+    }
+
     // Validate and transform the payload according to API provider structure
     const transformedPayload = {
       TUI: itineraryData.TUI || searchTracingKey,
@@ -799,7 +1042,7 @@ export const createItineraryForHotelRoom = async (req, res) => {
         IsGuest: itineraryData.ContactInfo?.IsGuest !== undefined ? itineraryData.ContactInfo.IsGuest : false,
         CountryCode: itineraryData.ContactInfo?.CountryCode || "IN",
         MobileCountryCode: itineraryData.ContactInfo?.MobileCountryCode || "+91",
-        NetAmount: "",
+        NetAmount: itineraryData.NetAmount || "",
         DestMobCountryCode: itineraryData.ContactInfo?.DestMobCountryCode || "",
         DestMob: itineraryData.ContactInfo?.DestMob || ""
       },
@@ -902,11 +1145,40 @@ export const createItineraryForHotelRoom = async (req, res) => {
     console.log('CheckOutDate: Expected=2023-07-20, Actual=' + transformedPayload.CheckOutDate);
     console.log('TravelingFor: Expected=NTF, Actual=' + transformedPayload.TravelingFor);
 
-    const itineraryResponse = await axios.post(
-      `https://b2bapihotels.benzyinfotech.com/Hotel/CreateItinerary`,
-      transformedPayload,
-      { headers }
-    );
+    // Add retry mechanism for pricing failures
+    let itineraryResponse;
+    let retryCount = 0;
+    const maxRetries = 2;
+
+    while (retryCount <= maxRetries) {
+      try {
+        console.log(`=== ATTEMPT ${retryCount + 1} ===`);
+        console.log('Making Create Itinerary API call...');
+        
+        itineraryResponse = await axios.post(
+          `https://b2bapihotels.benzyinfotech.com/Hotel/CreateItinerary`,
+          transformedPayload,
+          { headers }
+        );
+        
+        // If we get here, the request was successful
+        break;
+        
+      } catch (error) {
+        retryCount++;
+        console.error(`=== ATTEMPT ${retryCount} FAILED ===`);
+        console.error('Error:', error.message);
+        
+        if (retryCount > maxRetries) {
+          throw error; // Re-throw if we've exhausted retries
+        }
+        
+        // Wait before retrying (exponential backoff)
+        const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
+        console.log(`Waiting ${delay}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
 
     console.log('=== CREATE ITINERARY API RESPONSE ===');
     console.log('Status:', itineraryResponse.status);
@@ -926,9 +1198,24 @@ export const createItineraryForHotelRoom = async (req, res) => {
       console.error('Error Code:', itineraryResult.Code);
       console.error('Error Messages:', itineraryResult.Msg);
       
-      return res.status(400).json({
+      // Handle specific error codes
+      let errorMessage = 'Hotel API returned an error';
+      let statusCode = 400;
+      
+      if (itineraryResult.Code === '5102') {
+        errorMessage = 'Pricing response failure - The pricing information is invalid or expired. Please try searching again.';
+        statusCode = 422; // Unprocessable Entity
+      } else if (itineraryResult.Code === '5101') {
+        errorMessage = 'Room availability issue - The selected room is no longer available.';
+        statusCode = 409; // Conflict
+      } else if (itineraryResult.Code === '5103') {
+        errorMessage = 'Hotel booking validation failed - Please check your booking details.';
+        statusCode = 400;
+      }
+      
+      return res.status(statusCode).json({
         status: 'error',
-        message: 'Hotel API returned an error',
+        message: errorMessage,
         apiError: {
           code: itineraryResult.Code,
           messages: itineraryResult.Msg,
@@ -936,7 +1223,8 @@ export const createItineraryForHotelRoom = async (req, res) => {
           netAmount: itineraryResult.NetAmount
         },
         searchTracingKey: searchTracingKey,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        suggestion: itineraryResult.Code === '5102' ? 'Please refresh the hotel search and try booking again' : null
       });
     }
 
