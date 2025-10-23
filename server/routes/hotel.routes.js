@@ -14,7 +14,10 @@ import {
   createHotelRazorpayOrder, 
   verifyHotelPayment, 
   startHotelPay, 
-  getHotelItineraryStatus 
+  getHotelItineraryStatus, 
+  retrieveHotelBooking,
+  getUserHotelBookings,
+  getHotelBookingById
 } from "../controllers/hotelBooking.controller.js";
 
 const router = express.Router();
@@ -42,5 +45,8 @@ router.post("/create-razorpay-order", createHotelRazorpayOrder);
 router.post("/verify-payment", verifyHotelPayment);
 router.post("/start-pay", startHotelPay);
 router.post("/get-itinerary-status", getHotelItineraryStatus);
+router.post("/retrieve-booking", retrieveHotelBooking);
+router.get("/bookings", getUserHotelBookings);
+router.get("/bookings/:bookingId", getHotelBookingById);
 
 export default router;

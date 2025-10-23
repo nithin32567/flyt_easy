@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticateToken } from '../middleware/authenticateToken.js';
+import { authenticateUser } from '../middleware/authenticateToken.js';
 import {
   getUserProfile,
   updateUserProfile,
@@ -13,17 +13,17 @@ import {
 const router = express.Router();
 
 // Apply authentication middleware to all routes
-router.use(authenticateToken);
+router.use(authenticateUser);
 
 // User profile routes
-router.get('/profile', getUserProfile);
-router.put('/profile', updateUserProfile);
+router.get('/profile', authenticateUser, getUserProfile);
+router.put('/profile', authenticateUser, updateUserProfile);
 
 // Address management routes
-router.post('/addresses', createAddress);
-router.get('/addresses', getUserAddresses);
-router.put('/addresses/:addressId', updateAddress);
-router.delete('/addresses/:addressId', deleteAddress);
-router.patch('/addresses/:addressId/default', setDefaultAddress);
+router.post('/addresses', authenticateUser, createAddress);
+router.get('/addresses',  getUserAddresses);
+router.put('/addresses/:addressId', authenticateUser, updateAddress);
+router.delete('/addresses/:addressId', authenticateUser, deleteAddress);
+router.patch('/addresses/:addressId/default', authenticateUser, setDefaultAddress);
 
 export default router;

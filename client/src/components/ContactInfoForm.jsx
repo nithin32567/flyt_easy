@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { validateContactInfo, validateField } from '../utils/validation';
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
 
 const ContactInfoForm = ({ contactData, onSave, onNext }) => {
+  const { user, isAuthenticated } = useAuth();
   const [contactInfo, setContactInfo] = useState({
     Title: "Mr",
     FName: "",
@@ -24,6 +27,8 @@ const ContactInfoForm = ({ contactData, onSave, onNext }) => {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [loadingAddress, setLoadingAddress] = useState(false);
+  const [addressMessage, setAddressMessage] = useState('');
 
   useEffect(() => {
     if (contactData) {
@@ -124,10 +129,121 @@ const ContactInfoForm = ({ contactData, onSave, onNext }) => {
     }`;
   };
 
+  const loadUserAddress = async () => {
+    if (!isAuthenticated) {
+      setAddressMessage('Please log in to load your address');
+      return;
+    }
+
+    setLoadingAddress(true);
+    setAddressMessage('');
+
+    try {
+      const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
+      const response = await axios.get(`${baseUrl}/api/user/profile`, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data.user && response.data.addresses) {
+        const defaultAddress = response.data.addresses.find(addr => addr.isDefault) || response.data.addresses[0];
+        
+        if (defaultAddress) {
+          // Map address data to contact form format
+          const addressData = {
+            Title: defaultAddress.title || user?.title || "Mr",
+            FName: user?.name?.split(' ')[0] || "",
+            LName: user?.name?.split(' ').slice(1).join(' ') || "",
+            Mobile: defaultAddress.contactMobile || "",
+            Phone: defaultAddress.contactPhone || "",
+            Email: defaultAddress.contactEmail || user?.email || "",
+            Address: defaultAddress.housename || "",
+            CountryCode: defaultAddress.countryCode || "IN",
+            State: defaultAddress.state || "",
+            City: defaultAddress.city || "",
+            PIN: defaultAddress.pin || "",
+            GSTCompanyName: defaultAddress.gstCompanyName || "",
+            GSTTIN: defaultAddress.gstTin || "",
+            GSTMobile: defaultAddress.gstMobile || "",
+            GSTEmail: defaultAddress.gstEmail || "",
+            UpdateProfile: false,
+            IsGuest: false
+          };
+
+          setContactInfo(addressData);
+          setAddressMessage('Address loaded successfully!');
+          
+          // Clear any existing errors
+          setErrors({});
+        } else {
+          setAddressMessage('No address found. Please add an address in your profile first.');
+        }
+      } else {
+        setAddressMessage('Unable to load address data');
+      }
+    } catch (error) {
+      console.error('Error loading address:', error);
+      setAddressMessage('Failed to load address. Please try again.');
+    } finally {
+      setLoadingAddress(false);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Contact Information</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Contact Information</h2>
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={loadUserAddress}
+              disabled={loadingAddress}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2"
+            >
+              {loadingAddress ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  Load My Address
+                </>
+              )}
+            </button>
+          )}
+        </div>
+
+        {/* Address loading message */}
+        {addressMessage && (
+          <div className={`mb-4 p-3 rounded-md ${
+            addressMessage.includes('successfully') 
+              ? 'bg-green-50 border border-green-200 text-green-800' 
+              : 'bg-red-50 border border-red-200 text-red-800'
+          }`}>
+            {addressMessage}
+          </div>
+        )}
+
+        {/* Info message for non-authenticated users */}
+        {!isAuthenticated && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-md">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm">
+                <strong>Tip:</strong> Log in to quickly load your saved address information.
+              </span>
+            </div>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal Information */}
@@ -472,7 +588,7 @@ const ContactInfoForm = ({ contactData, onSave, onNext }) => {
               type="submit"
               className="flex-1 bg-[#f48f22] hover:bg-[#16437c] text-white py-3 px-6 rounded-md font-semibold transition-colors"
             >
-              Save Contact Information
+             Next
             </button>
             {onNext && (
               <button

@@ -11,8 +11,10 @@ import PaymentButton from '../components/PaymentButton';
 import TravelCheckListDisplay from '../components/TravelCheckListDisplay';
 import { useWebSettingsData } from '../hooks/useWebSettingsData';
 import { clearBookingData } from '../utils/clearBookingData';
+import useHeaderHeight from '../hooks/useHeaderHeight';
 
 const Createitenary = () => {
+  const headerHeight = useHeaderHeight();
   const [currentStep, setCurrentStep] = useState(1);
   const [contactInfo, setContactInfo] = useState(null);
   const [travelers, setTravelers] = useState([]);
@@ -376,6 +378,23 @@ const Createitenary = () => {
   };
 
   const handleNextToSSR = () => {
+    // Validate travelers before proceeding
+    if (searchPayload) {
+      const { ADT, CHD, INF } = searchPayload;
+      const totalRequired = ADT + CHD + INF;
+      
+      if (travelers.length < totalRequired) {
+        alert(`Please add ${totalRequired} travelers. Required: ${ADT} adults, ${CHD} children, ${INF} infants`);
+        return;
+      }
+      
+      const incompleteTravelers = travelers.filter(t => !t.FName || !t.LName || !t.DOB || !t.Gender || !t.Nationality);
+      if (incompleteTravelers.length > 0) {
+        alert('Please complete all traveler details. Click "Edit" on each traveler to fill in missing information.');
+        return;
+      }
+    }
+    
     setCurrentStep(3);
   };
 
@@ -886,6 +905,7 @@ const Createitenary = () => {
               travelers={travelers}
               onTravelersChange={handleTravelersChange}
               searchPayload={searchPayload}
+              requiredTravelers={searchPayload ? { adults: searchPayload.ADT, children: searchPayload.CHD, infants: searchPayload.INF } : null}
             />
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row gap-4 justify-end">
@@ -1156,7 +1176,10 @@ const Createitenary = () => {
   // Show loading state while validating data
   if (!isDataValid) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-40 flex justify-center items-center">
+      <div 
+        className="min-h-screen bg-gray-50 flex justify-center items-center"
+        style={{ paddingTop: `${headerHeight + 20}px` }}
+      >
         <div className="text-center">
           <div className="text-xl text-gray-600">Loading itinerary data...</div>
           <div className="text-sm text-gray-500 mt-2">Please wait while we validate your booking information</div>
@@ -1166,7 +1189,10 @@ const Createitenary = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div 
+      className="min-h-screen bg-gray-50"
+      style={{ paddingTop: `${headerHeight + 20}px` }}
+    >
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">

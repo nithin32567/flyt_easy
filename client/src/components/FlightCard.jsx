@@ -163,10 +163,10 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
 
   return (
     <div 
-      className={`relative bg-white backdrop-blur-sm rounded-3xl py-4 px-6 flex flex-col gap- sm:gap-4 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border-l ${
+      className={`relative bg-white backdrop-blur-sm rounded-3xl py-2 px-4 flex flex-col gap- sm:gap-4 hover:-translate-y-1 transition-all duration-300 border-l ${
         isSelected 
-          ? 'ring-2 ring-yellow-500 bg-yellow-50/80 border-l-yellow-500' 
-          : 'border-l-gradient-to-b from-yellow-500 to-amber-500 shadow-lg hover:shadow-2xl'
+          ? ' bg-yellow-50/80'  
+          : 'border-l-gradient-to-b from-yellow-500 to-amber-500'
       }`}
       role="article"
       aria-label={`Flight from ${From} to ${To} by ${AirlineName?.split("|")[0] || 'Unknown Airline'}`}
@@ -269,11 +269,11 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div className="flex flex-col">
-          <div className="bg-gradient-to-r from-blue-50 font-bold to-blue-300 rounded-xl p-3">
-            <p className="text-xl font-extrabold text-blue-900">₹ {GrossFare || 'N/A'}</p>
-            <div className="flex items-center gap-1 mt-1">
-              {/* <Sparkles className="w-3 h-3 text-yellow-500 flex-shrink-0" /> */}
-              <span className="text-xs text-gray-600">Best Price</span>
+          <div className="bg-gradient-to-r from-[var(--PrimaryColor)] font-bold to-[var(--LightBg)] text-white flex justify-center items-center rounded-xl p-2">
+            <p className="font-extrabold text-white">₹ {GrossFare || 'N/A'}</p>
+            <div className="flex items-center gap-1 justify-center ">
+              <Plane className="w-3 h-3 text-[var(--whitecolor)] " />
+              <span className="text-xs text-[var(--PrimaryColor)]">Best Price</span>
             </div>
           </div>
         </div>
@@ -289,10 +289,10 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
             onClick={handleSelectFlight}
             disabled={isLoading}
             style={{borderRadius: '10px'}}
-            className={`px-4 sm:px-6 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 ${
+            className={`px-4 sm:px-2 py-2 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 ${
               isSelected 
-                ? 'border-2 bg-[#16437c] text-white rounded-md ' 
-                : 'bg-gradient-to-r from-yellow-500 to-yellow-500 text-white hover:shadow-sm'
+                ? 'border-2 bg-[var(--PrimaryColor)] text-white rounded-md ' 
+                : 'bg-gradient-to-r from-[var(--YellowColor)] to-[var(--YellowColor)] text-white hover:shadow-sm'
             } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             aria-label={isSelected ? "Flight selected" : "Select this flight"}
           >
@@ -402,7 +402,7 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
             Flight Details
           </Typography>
         </AccordionSummary>
-        <AccordionDetails sx={{ padding: 0 }}>
+        <AccordionDetails sx={{ padding: 0, boxShadow: 'none' }}>
           <div className="mt-4 p-4 bg-gray-50/80 rounded-xl border-t border-gray-200" role="region" aria-label="Flight details">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

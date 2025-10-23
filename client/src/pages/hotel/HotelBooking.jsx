@@ -25,6 +25,10 @@ const HotelBooking = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Payment loading states
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState('');
+  
   // Get data from localStorage or location state
   useEffect(() => {
     const hotelSearchData = JSON.parse(localStorage.getItem('hotelSearchData') || '{}');
@@ -395,6 +399,10 @@ const HotelBooking = () => {
     try {
       console.log('=== CALLING HOTEL STARTPAY API ===');
       
+      // Show loading popup
+      setIsPaymentProcessing(true);
+      setPaymentStatus('Processing payment and confirming booking...');
+      
       const token = localStorage.getItem('token');
       const searchTracingKey = localStorage.getItem('searchTracingKey');
       
@@ -468,11 +476,21 @@ const HotelBooking = () => {
 
       if (startPayResponse.data.success) {
         if (startPayResponse.data.shouldPoll) {
+          setPaymentStatus('Booking in progress, please wait...');
           // Poll for booking status
           await pollHotelBookingStatus(itineraryData);
         } else if (startPayResponse.data.status === "SUCCESS") {
           console.log('✅ Hotel booking completed successfully');
-          setCurrentStep(4);
+          setPaymentStatus('Booking confirmed successfully!');
+          
+          // Store transaction ID for confirmation page
+          localStorage.setItem('hotelTransactionID', itineraryData.TransactionID);
+          
+          setTimeout(() => {
+            setIsPaymentProcessing(false);
+            // Redirect to confirmation page
+            navigate('/hotel-booking-confirmation');
+          }, 2000);
         }
       } else {
         throw new Error(startPayResponse.data.message || 'StartPay failed');
@@ -480,7 +498,14 @@ const HotelBooking = () => {
 
     } catch (error) {
       console.error('Hotel StartPay error:', error);
+      setIsPaymentProcessing(false);
       alert(`Hotel booking failed: ${error.response?.data?.message || error.message}`);
+      navigate('/', { 
+        state: { 
+          message: `Hotel booking failed: ${error.response?.data?.message || error.message}`,
+          type: 'error'
+        }
+      });
     }
   };
 
@@ -516,13 +541,25 @@ const HotelBooking = () => {
 
         if (statusResponse.data.success && statusResponse.data.status === "SUCCESS") {
           console.log('✅ Hotel booking completed successfully');
-          setCurrentStep(4);
+          setPaymentStatus('Booking confirmed successfully!');
+          
+          // Store transaction ID for confirmation page
+          localStorage.setItem('hotelTransactionID', itineraryData.TransactionID);
+          
+          setTimeout(() => {
+            setIsPaymentProcessing(false);
+            // Redirect to confirmation page
+            navigate('/hotel-booking-confirmation');
+          }, 2000);
         } else if (statusResponse.data.status === "FAILED") {
+          setIsPaymentProcessing(false);
           throw new Error(statusResponse.data.message || 'Hotel booking failed');
         } else if (attempts < maxAttempts && statusResponse.data.shouldPoll) {
+          setPaymentStatus(`Booking in progress... (${attempts}/${maxAttempts})`);
           // Continue polling
           setTimeout(pollStatus, 3000); // Poll every 3 seconds
         } else {
+          setIsPaymentProcessing(false);
           throw new Error('Hotel booking timeout - please contact support');
         }
       };
@@ -531,7 +568,14 @@ const HotelBooking = () => {
 
     } catch (error) {
       console.error('Hotel booking status polling error:', error);
-      alert(`Hotel booking status check failed: ${error.message}`);
+      setIsPaymentProcessing(false);
+      alert(`Hotel booking failed: ${error.message}`);
+      navigate('/', { 
+        state: { 
+          message: `Hotel booking failed: ${error.message}`,
+          type: 'error'
+        }
+      });
     }
   };
   
@@ -786,6 +830,48 @@ const HotelBooking = () => {
         adults={searchData?.adults || 1}
         children={searchData?.children || 0}
       />
+      
+      {/* Payment Processing Loading Popup */}
+      {isPaymentProcessing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 shadow-xl">
+            <div className="text-center">
+              {/* Loading Spinner */}
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+              
+              {/* Hotel Icon */}
+              <div className="mb-4">
+                <div className="w-12 h-12 mx-auto bg-indigo-100 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+              </div>
+              
+              {/* Title */}
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Processing Your Hotel Booking
+              </h3>
+              
+              {/* Status Message */}
+              <p className="text-gray-600 mb-4">
+                {paymentStatus}
+              </p>
+              
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                <div className="bg-indigo-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+              </div>
+              
+              {/* Additional Info */}
+              <div className="text-sm text-gray-500">
+                <p>Please don't close this window</p>
+                <p>This may take a few moments...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

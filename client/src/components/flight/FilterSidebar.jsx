@@ -1,116 +1,91 @@
 import React, { useState, useEffect } from 'react';
 import { useFlight } from '../../contexts/FlightContext';
-import { 
-  Filter, 
-  X, 
-  ChevronDown, 
-  ChevronUp, 
-  DollarSign, 
-  Plane, 
-  MapPin, 
-  RefreshCw, 
-  ArrowUpDown, 
+import {
+  Filter,
+  X,
+  ChevronDown,
+  ChevronUp,
+  DollarSign,
+  Plane,
+  MapPin,
+  RefreshCw,
+  ArrowUpDown,
   RotateCcw,
-  Menu
 } from 'lucide-react';
 
 const FilterSidebar = ({ onClose }) => {
-  const { 
-    filters, 
-    updateFilters, 
-    resetFilters, 
-    getUniqueAirlines, 
+  const {
+    filters,
+    updateFilters,
+    resetFilters,
+    getUniqueAirlines,
     getPriceRange,
     filteredFlights,
     filteredReturnFlights,
     flights,
-    returnFlights
+    returnFlights,
   } = useFlight();
 
-  const [isMobile, setIsMobile] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     price: true,
     airlines: true,
     stops: true,
     refundable: true,
-    sort: true
+    sort: true,
   });
 
-  useEffect(() => {
-    const checkMobile = () => {
-      const width = window.innerWidth;
-      setIsMobile(width < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const availableAirlines = getUniqueAirlines();
   const priceRange = getPriceRange();
+  const availableAirlines = getUniqueAirlines();
 
+  // Handlers
   const handlePriceChange = (type, value) => {
     updateFilters({
-      priceRange: {
-        ...filters.priceRange,
-        [type]: parseInt(value) || 0
-      }
+      priceRange: { ...filters.priceRange, [type]: parseInt(value) || 0 },
     });
   };
 
   const handleAirlineToggle = (airline) => {
-    const currentAirlines = filters.airlines || [];
-    const newAirlines = currentAirlines.includes(airline)
-      ? currentAirlines.filter(a => a !== airline)
-      : [...currentAirlines, airline];
-    
+    const newAirlines = filters.airlines.includes(airline)
+      ? filters.airlines.filter((a) => a !== airline)
+      : [...filters.airlines, airline];
     updateFilters({ airlines: newAirlines });
   };
 
-  const handleFilterChange = (filterType, value) => {
-    updateFilters({ [filterType]: value });
-  };
+  const handleFilterChange = (type, value) => updateFilters({ [type]: value });
 
-  const toggleSection = (section) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
+  const toggleSection = (key) =>
+    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const getTotalFilteredCount = () => {
-    return filteredFlights.length + filteredReturnFlights.length;
-  };
+  const clearAllFilters = () => resetFilters();
 
-  const getTotalCount = () => {
-    return flights.length + returnFlights.length;
-  };
+  const getTotalFilteredCount = () =>
+    filteredFlights.length + filteredReturnFlights.length;
+
+  const getTotalCount = () => flights.length + returnFlights.length;
 
   const getActiveFilterCount = () => {
     let count = 0;
     if (filters.airlines.length > 0) count++;
     if (filters.stops !== 'all') count++;
     if (filters.refundable !== 'all') count++;
-    if (filters.priceRange.min !== priceRange.min || filters.priceRange.max !== priceRange.max) count++;
+    if (
+      filters.priceRange.min !== priceRange.min ||
+      filters.priceRange.max !== priceRange.max
+    )
+      count++;
     return count;
   };
 
-  const clearAllFilters = () => {
-    resetFilters();
-  };
-
+  // Local Section Component
   const FilterSection = ({ title, icon: Icon, sectionKey, children }) => (
     <div className="border-b border-gray-200 pb-4">
       <button
         onClick={() => toggleSection(sectionKey)}
-        className="flex items-center justify-between w-full py-3 text-left hover:bg-gray-50 rounded-lg px-2 transition-colors"
-        aria-expanded={expandedSections[sectionKey]}
-        aria-controls={`filter-${sectionKey}`}
+        className="flex items-center justify-between w-full py-3 px-3 hover:bg-gray-50 rounded-lg transition-all"
       >
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <Icon className="w-5 h-5 text-gray-600" />
-          <span className="text-lg font-semibold text-gray-800">{title}</span>
+          <span className="font-semibold text-gray-800 text-[15px]">{title}</span>
         </div>
         {expandedSections[sectionKey] ? (
           <ChevronUp className="w-5 h-5 text-gray-500" />
@@ -118,133 +93,118 @@ const FilterSidebar = ({ onClose }) => {
           <ChevronDown className="w-5 h-5 text-gray-500" />
         )}
       </button>
-      
+
       <div
-        id={`filter-${sectionKey}`}
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          expandedSections[sectionKey] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          expandedSections[sectionKey]
+            ? 'max-h-[400px] opacity-100'
+            : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="pt-2">
-          {children}
-        </div>
+        <div className="pt-2 px-3">{children}</div>
       </div>
     </div>
   );
 
-  const sidebarContent = (
-    <div className="h-full flex flex-col bg-white">
+  return (
+    <div
+      className="flex flex-col h-full bg-white shadow-xl rounded-lg overflow-y-auto"
+      style={{
+        width: '100%',
+        maxWidth: '340px',
+        border: '1px solid #e5e7eb',
+      }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center space-x-2">
-          <Filter className="w-6 h-6 text-blue-600" />
-          <h3 className="text-xl font-semibold text-gray-800">
-            Filters ({getTotalFilteredCount()} of {getTotalCount()})
-          </h3>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-[var(--PrimaryColor)]">
+        <div className="flex items-center gap-2">
+          <h6 className="text-sm font-semibold text-white">
+            Available Flights ({getTotalFilteredCount()} / {getTotalCount()})
+          </h6>
         </div>
-        <button
-          onClick={onClose}
-          className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-          aria-label="Close filters"
-        >
-          <X className="w-6 h-6 text-gray-600" />
-        </button>
       </div>
 
       {/* Active Filters */}
       {getActiveFilterCount() > 0 && (
         <div className="p-4 bg-blue-50 border-b border-blue-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-base font-medium text-blue-800">
+          <div className="flex justify-between mb-2 items-center">
+            <span className="font-medium text-blue-800 text-sm">
               Active Filters ({getActiveFilterCount()})
             </span>
             <button
               onClick={clearAllFilters}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium underline"
+              className="text-blue-600 text-sm font-medium hover:text-blue-800 underline"
             >
               Clear All
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
             {filters.airlines.length > 0 && (
-              <span className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+              <span className="tag-chip bg-blue-100 text-blue-800">
                 Airlines: {filters.airlines.join(', ')}
               </span>
             )}
             {filters.stops !== 'all' && (
-              <span className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">
-                {filters.stops === 'direct' ? 'Direct' : filters.stops}
+              <span className="tag-chip bg-green-100 text-green-800">
+                {filters.stops}
               </span>
             )}
             {filters.refundable !== 'all' && (
-              <span className="bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full">
+              <span className="tag-chip bg-purple-100 text-purple-800">
                 {filters.refundable}
               </span>
             )}
-            <span className="bg-gray-100 text-gray-800 text-sm px-3 py-1 rounded-full">
+            <span className="tag-chip bg-gray-100 text-gray-800">
               ₹{filters.priceRange.min} - ₹{filters.priceRange.max}
             </span>
           </div>
         </div>
       )}
 
-      {/* Filter Sections */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      {/* Sections */}
+      <div className="flex-1 px-2 py-3 space-y-4 overflow-y-auto">
         {/* Price Range */}
         <FilterSection title="Price Range" icon={DollarSign} sectionKey="price">
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-base font-medium text-gray-600 mb-2">
-                  Min Price
-                </label>
-                <input
-                  type="number"
-                  value={filters.priceRange.min}
-                  onChange={(e) => handlePriceChange('min', e.target.value)}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  min={priceRange.min}
-                  max={priceRange.max}
-                  aria-label="Minimum price"
-                />
-              </div>
-              <div>
-                <label className="block text-base font-medium text-gray-600 mb-2">
-                  Max Price
-                </label>
-                <input
-                  type="number"
-                  value={filters.priceRange.max}
-                  onChange={(e) => handlePriceChange('max', e.target.value)}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  min={priceRange.min}
-                  max={priceRange.max}
-                  aria-label="Maximum price"
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-gray-600 mb-1 block">Min</label>
+              <input
+                type="number"
+                value={filters.priceRange.min}
+                onChange={(e) => handlePriceChange('min', e.target.value)}
+                className="filter-input"
+              />
             </div>
-            <div className="text-base text-gray-500 bg-gray-50 p-3 rounded-lg">
-              Range: ₹{priceRange.min} - ₹{priceRange.max}
+            <div>
+              <label className="text-sm text-gray-600 mb-1 block">Max</label>
+              <input
+                type="number"
+                value={filters.priceRange.max}
+                onChange={(e) => handlePriceChange('max', e.target.value)}
+                className="filter-input"
+              />
             </div>
           </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Available range: ₹{priceRange.min} - ₹{priceRange.max}
+          </p>
         </FilterSection>
 
         {/* Airlines */}
         <FilterSection title="Airlines" icon={Plane} sectionKey="airlines">
-          <div className="space-y-2 max-h-48 overflow-y-auto">
+          <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
             {availableAirlines.map((airline) => (
-              <label 
-                key={airline} 
-                className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+              <label
+                key={airline}
+                className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 cursor-pointer text-sm"
               >
                 <input
                   type="checkbox"
                   checked={filters.airlines.includes(airline)}
                   onChange={() => handleAirlineToggle(airline)}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
-                  aria-label={`Filter by ${airline} airline`}
+                  className="accent-blue-600 w-4 h-4"
                 />
-                <span className="text-base text-gray-700 flex-1">{airline}</span>
+                <span className="text-gray-700">{airline}</span>
               </label>
             ))}
           </div>
@@ -252,71 +212,68 @@ const FilterSidebar = ({ onClose }) => {
 
         {/* Stops */}
         <FilterSection title="Stops" icon={MapPin} sectionKey="stops">
-          <div className="space-y-2">
-            {[
-              { value: 'all', label: 'All Flights' },
-              { value: 'direct', label: 'Direct Flights' },
-              { value: '1-stop', label: '1 Stop' },
-              { value: '2-stops', label: '2+ Stops' }
-            ].map((option) => (
-              <label 
-                key={option.value} 
-                className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-              >
-                <input
-                  type="radio"
-                  name="stops"
-                  value={option.value}
-                  checked={filters.stops === option.value}
-                  onChange={(e) => handleFilterChange('stops', e.target.value)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2"
-                  aria-label={`Filter by ${option.label}`}
-                />
-                <span className="text-base text-gray-700 flex-1">{option.label}</span>
-              </label>
-            ))}
-          </div>
+          {[
+            { value: 'all', label: 'All Flights' },
+            { value: 'direct', label: 'Direct' },
+            { value: '1-stop', label: '1 Stop' },
+            { value: '2-stops', label: '2+ Stops' },
+          ].map((option) => (
+            <label
+              key={option.value}
+              className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 cursor-pointer text-sm"
+            >
+              <input
+                type="radio"
+                name="stops"
+                value={option.value}
+                checked={filters.stops === option.value}
+                onChange={(e) => handleFilterChange('stops', e.target.value)}
+                className="accent-blue-600 w-4 h-4"
+              />
+              <span className="text-gray-700">{option.label}</span>
+            </label>
+          ))}
         </FilterSection>
 
         {/* Refundable */}
-        <FilterSection title="Refund Policy" icon={RefreshCw} sectionKey="refundable">
-          <div className="space-y-2">
-            {[
-              { value: 'all', label: 'All Flights' },
-              { value: 'refundable', label: 'Refundable' },
-              { value: 'non-refundable', label: 'Non-refundable' }
-            ].map((option) => (
-              <label 
-                key={option.value} 
-                className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-              >
-                <input
-                  type="radio"
-                  name="refundable"
-                  value={option.value}
-                  checked={filters.refundable === option.value}
-                  onChange={(e) => handleFilterChange('refundable', e.target.value)}
-                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 focus:ring-2"
-                  aria-label={`Filter by ${option.label}`}
-                />
-                <span className="text-base text-gray-700 flex-1">{option.label}</span>
-              </label>
-            ))}
-          </div>
+        <FilterSection
+          title="Refund Policy"
+          icon={RefreshCw}
+          sectionKey="refundable"
+        >
+          {[
+            { value: 'all', label: 'All Flights' },
+            { value: 'refundable', label: 'Refundable' },
+            { value: 'non-refundable', label: 'Non-refundable' },
+          ].map((option) => (
+            <label
+              key={option.value}
+              className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 cursor-pointer text-sm"
+            >
+              <input
+                type="radio"
+                name="refundable"
+                value={option.value}
+                checked={filters.refundable === option.value}
+                onChange={(e) => handleFilterChange('refundable', e.target.value)}
+                className="accent-blue-600 w-4 h-4"
+              />
+              <span className="text-gray-700">{option.label}</span>
+            </label>
+          ))}
         </FilterSection>
 
-        {/* Sort Options */}
+        {/* Sort */}
         <FilterSection title="Sort By" icon={ArrowUpDown} sectionKey="sort">
           <div className="space-y-3">
             <div>
-              <label className="block text-base font-medium text-gray-600 mb-2">
+              <label className="block text-sm text-gray-600 mb-1">
                 Sort By
               </label>
               <select
                 value={filters.sortBy}
                 onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                aria-label="Sort flights by"
+                className="filter-input"
               >
                 <option value="price">Price</option>
                 <option value="duration">Duration</option>
@@ -324,14 +281,11 @@ const FilterSidebar = ({ onClose }) => {
               </select>
             </div>
             <div>
-              <label className="block text-base font-medium text-gray-600 mb-2">
-                Order
-              </label>
+              <label className="block text-sm text-gray-600 mb-1">Order</label>
               <select
                 value={filters.sortOrder}
                 onChange={(e) => handleFilterChange('sortOrder', e.target.value)}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                aria-label="Sort order"
+                className="filter-input"
               >
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
@@ -342,19 +296,40 @@ const FilterSidebar = ({ onClose }) => {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
+      <div className="border-t border-gray-200 bg-gray-50 p-3">
         <button
           onClick={resetFilters}
-          className="w-full flex items-center justify-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white font-medium py-4 px-4 rounded-lg transition-all duration-200 hover:scale-105"
+          className="w-full flex items-center justify-center gap-2 bg-[var(--PrimaryColor)] hover:bg-opacity-90 text-white font-semibold py-2 rounded-lg transition-transform hover:scale-[1.02]"
         >
-          <RotateCcw className="w-5 h-5" />
-          <span className="text-base">Reset Filters</span>
+          <RotateCcw className="w-4 h-4" />
+          <span>Reset Filters</span>
         </button>
       </div>
+
+      {/* Internal Scoped Styling */}
+      <style jsx>{`
+        .filter-input {
+          width: 100%;
+          padding: 0.6rem 0.75rem;
+          font-size: 0.9rem;
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem;
+          outline: none;
+          transition: all 0.2s ease;
+        }
+        .filter-input:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+        .tag-chip {
+          padding: 0.25rem 0.75rem;
+          border-radius: 9999px;
+          font-size: 0.8rem;
+          font-weight: 500;
+        }
+      `}</style>
     </div>
   );
-
-  return sidebarContent;
 };
 
 export default FilterSidebar;

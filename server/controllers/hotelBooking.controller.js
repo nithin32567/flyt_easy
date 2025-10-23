@@ -1,6 +1,7 @@
 import Razorpay from "razorpay";
 import axios from "axios";
 import crypto from "crypto";
+import HotelBooking from "../models/hotel.booking.model.js";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -336,6 +337,191 @@ export const getHotelItineraryStatus = async (req, res) => {
     return res.status(500).json({ 
       success: false, 
       message: error?.response?.data || error.message 
+    });
+  }
+};
+
+export const retrieveHotelBooking = async (req, res) => {
+  const token = req.headers.authorization.split(" ")[1];
+  
+  try {
+    const {
+      TUI,
+      ReferenceType,
+      ReferenceNumber,
+      ServiceType,
+      ClientID,
+      RequestMode,
+      Contact,
+      Name
+    } = req.body;
+
+    const payload = {
+      TUI: TUI || null,
+      ReferenceType: ReferenceType || "T",
+      ReferenceNumber: ReferenceNumber,
+      ServiceType: ServiceType || null,
+      ClientID: ClientID || "FVI6V120g22Ei5ztGK0FIQ==",
+      RequestMode: RequestMode || "RB",
+      Contact: Contact || null,
+      Name: Name || null
+    };
+
+    console.log("=== HOTEL RETRIEVE BOOKING PAYLOAD ===");
+    console.log(JSON.stringify(payload, null, 2));
+    console.log("=== END HOTEL RETRIEVE BOOKING PAYLOAD ===");
+    
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+      "Accept": "application/json"
+    };
+
+    const response = await axios.post(`${process.env.FLIGHT_URL}/Utils/RetrieveBooking`, payload, { headers });
+    
+    const responseData = response.data;
+    console.log("=== HOTEL RETRIEVE BOOKING RESPONSE ===");
+    console.log(JSON.stringify(responseData, null, 2));
+    console.log("=== END HOTEL RETRIEVE BOOKING RESPONSE ===");
+    
+            if (responseData.Code === "200" && responseData.Msg && responseData.Msg.includes("Success")) {
+              // Store booking data in database
+              try {
+                const userId = req.user?.id; // Assuming user ID is available in req.user
+                
+                if (userId) {
+                  const hotelBookingData = {
+                    userId: userId,
+                    bookingData: responseData,
+                    transactionId: responseData.TransactionId?.toString(),
+                    tui: responseData.TUI,
+                    totalAmount: responseData.NetFare || responseData.GrossFare,
+                    paymentStatus: 'success',
+                    hotelName: responseData.HotelInfo?.Name,
+                    checkInDate: new Date(responseData.CheckInDate),
+                    checkOutDate: new Date(responseData.CheckOutDate),
+                    bookingConfirmationId: responseData.BookingConfirmationId
+                  };
+
+                  // Check if booking already exists
+                  const existingBooking = await HotelBooking.findOne({ 
+                    transactionId: responseData.TransactionId?.toString() 
+                  });
+
+                  if (!existingBooking) {
+                    const hotelBooking = new HotelBooking(hotelBookingData);
+                    await hotelBooking.save();
+                    console.log("=== HOTEL BOOKING SAVED TO DATABASE ===");
+                    console.log("Booking ID:", hotelBooking._id);
+                    console.log("Transaction ID:", hotelBooking.transactionId);
+                    console.log("=== END HOTEL BOOKING SAVED ===");
+                  } else {
+                    console.log("=== HOTEL BOOKING ALREADY EXISTS ===");
+                    console.log("Existing Booking ID:", existingBooking._id);
+                    console.log("=== END HOTEL BOOKING EXISTS ===");
+                  }
+                } else {
+                  console.log("=== NO USER ID FOUND - SKIPPING DATABASE STORAGE ===");
+                }
+              } catch (dbError) {
+                console.error("Database storage error:", dbError);
+                // Don't fail the request if database storage fails
+              }
+
+              return res.status(200).json(responseData);
+            } else {
+              return res.status(400).json({
+                success: false,
+                message: responseData.Msg?.join(' ') || 'Failed to retrieve booking',
+                data: responseData
+              });
+            }
+    
+  } catch (error) {
+    console.error("Hotel retrieve booking error:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: error?.response?.data || error.message 
+    });
+  }
+};
+
+// Get all hotel bookings for a user
+export const getUserHotelBookings = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const hotelBookings = await HotelBooking.find({ userId })
+      .sort({ createdAt: -1 })
+      .populate('userId', 'name email');
+
+    console.log("=== USER HOTEL BOOKINGS RETRIEVED ===");
+    console.log("User ID:", userId);
+    console.log("Total Bookings:", hotelBookings.length);
+    console.log("=== END USER HOTEL BOOKINGS ===");
+
+    return res.status(200).json({
+      success: true,
+      data: hotelBookings,
+      count: hotelBookings.length
+    });
+
+  } catch (error) {
+    console.error("Get user hotel bookings error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// Get specific hotel booking by ID
+export const getHotelBookingById = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated'
+      });
+    }
+
+    const hotelBooking = await HotelBooking.findOne({ 
+      _id: bookingId, 
+      userId 
+    }).populate('userId', 'name email');
+
+    if (!hotelBooking) {
+      return res.status(404).json({
+        success: false,
+        message: 'Hotel booking not found'
+      });
+    }
+
+    console.log("=== HOTEL BOOKING RETRIEVED BY ID ===");
+    console.log("Booking ID:", bookingId);
+    console.log("Transaction ID:", hotelBooking.transactionId);
+    console.log("=== END HOTEL BOOKING BY ID ===");
+
+    return res.status(200).json({
+      success: true,
+      data: hotelBooking
+    });
+
+  } catch (error) {
+    console.error("Get hotel booking by ID error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };

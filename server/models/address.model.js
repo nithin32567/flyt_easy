@@ -6,39 +6,15 @@ const addressSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  
+  // Personal Information (for display purposes, references user data)
   title: {
     type: String,
-    required: true,
     enum: ['Mr', 'Mrs', 'Ms', 'Dr'],
     default: 'Mr'
   },
-  firstName: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  lastName: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  mobile: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  phone: {
-    type: String,
-    trim: true,
-    default: ''
-  },
-  email: {
-    type: String,
-    required: true,
-    lowercase: true,
-    trim: true
-  },
-  address: {
+  
+  housename: {
     type: String,
     required: true,
     trim: true
@@ -56,6 +32,20 @@ const addressSchema = new mongoose.Schema({
   city: {
     type: String,
     required: true,
+    trim: true
+  },
+  // Address-specific contact information (can override user defaults)
+  contactMobile: {
+    type: String,
+    trim: true
+  },
+  contactPhone: {
+    type: String,
+    trim: true
+  },
+  contactEmail: {
+    type: String,
+    lowercase: true,
     trim: true
   },
   pin: {
@@ -112,7 +102,7 @@ addressSchema.pre('save', function(next) {
 
 // Index for faster queries
 addressSchema.index({ userId: 1 });
-addressSchema.index({ email: 1 });
+addressSchema.index({ contactEmail: 1 });
 addressSchema.index({ isDefault: 1 });
 
 // Ensure only one default address per user

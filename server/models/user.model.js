@@ -43,20 +43,15 @@ const userSchema = new mongoose.Schema({
     ref: 'Address',
     default: null
   },
+  // Personal Information
+  title: {
+    type: String,
+    enum: ['Mr', 'Mrs', 'Ms', 'Dr'],
+    default: 'Mr'
+  },
+  
+  // Profile Information
   profile: {
-    firstName: {
-      type: String,
-      trim: true
-      
-    },
-    lastName: {
-      type: String,
-      trim: true
-    },
-    phone: {
-      type: String,
-      trim: true
-    },
     dateOfBirth: {
       type: Date
     },

@@ -33,7 +33,7 @@ const BookingAccordion: React.FC<BookingAccordionProps> = ({
   return (
     <motion.div
       layout
-      className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 ${
+      className={`bg-white rounded-2xl shadow-sm border  border-gray-100 overflow-hidden transition-all duration-300 ${
         isActive ? 'shadow-lg border-blue-200' : 'hover:shadow-md'
       }`}
       whileHover={{ scale: 1.01 }}
