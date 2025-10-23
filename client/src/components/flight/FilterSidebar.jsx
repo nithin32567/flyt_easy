@@ -84,8 +84,8 @@ const FilterSidebar = ({ onClose }) => {
         className="flex items-center justify-between w-full py-3 px-3 hover:bg-gray-50 rounded-lg transition-all"
       >
         <div className="flex items-center gap-2">
-          <Icon className="w-5 h-5 text-gray-600" />
-          <span className="font-semibold text-gray-800 text-[15px]">{title}</span>
+          {/* <Icon className="w-5 h-5 text-gray-600" /> */}
+          <span className="font-semibold text-[var(--PrimaryColor)] text-[15px]">{title}</span>
         </div>
         {expandedSections[sectionKey] ? (
           <ChevronUp className="w-5 h-5 text-gray-500" />
@@ -167,7 +167,7 @@ const FilterSidebar = ({ onClose }) => {
         <FilterSection title="Price Range" icon={DollarSign} sectionKey="price">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm text-gray-600 mb-1 block">Min</label>
+              <label className="text-sm text-[var(--PrimaryColor)] mb-1 block">Min</label>
               <input
                 type="number"
                 value={filters.priceRange.min}
@@ -220,7 +220,7 @@ const FilterSidebar = ({ onClose }) => {
           ].map((option) => (
             <label
               key={option.value}
-              className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 cursor-pointer text-sm"
+              className="flex items-center gap-2 p-2 rounded-md hover:bg-[var(--LightBg)] cursor-pointer text-sm text-[var(--PrimaryColor)]"
             >
               <input
                 type="radio"
@@ -230,7 +230,7 @@ const FilterSidebar = ({ onClose }) => {
                 onChange={(e) => handleFilterChange('stops', e.target.value)}
                 className="accent-blue-600 w-4 h-4"
               />
-              <span className="text-gray-700">{option.label}</span>
+              <span className="text-gray-700">{option.label} </span>
             </label>
           ))}
         </FilterSection>

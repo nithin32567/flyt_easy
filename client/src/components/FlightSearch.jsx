@@ -150,7 +150,11 @@ const FlightSearch = ({
           ? "E"
           : travelClass === "Premium Economy"
             ? "PE"
-            : "B",
+            : travelClass === "Business"
+              ? "B"
+              : travelClass === "First Class"
+                ? "F"
+                : "E",
       Source: "CF",
       Mode: "AS",
       ClientID: localStorage.getItem("ClientID"),
@@ -178,6 +182,8 @@ const FlightSearch = ({
     console.log("To:", to);
     console.log("Departure Date:", departureDate);
     console.log("Return Date:", returnDate);
+    console.log("Travel Class:", travelClass);
+    console.log("Cabin Code:", payload.Cabin);
     console.log(payload, "payload to the backend========================= 221");
     // Clear previous search data to prevent conflicts
     clearSearchData();
@@ -246,7 +252,11 @@ const FlightSearch = ({
           ? "E"
           : travelClass === "Premium Economy"
             ? "PE"
-            : "B",
+            : travelClass === "Business"
+              ? "B"
+              : travelClass === "First Class"
+                ? "F"
+                : "E",
       Source: "CF",
       Mode: "AS",
       ClientID: localStorage.getItem("ClientID"),
@@ -262,6 +272,8 @@ const FlightSearch = ({
       IsNearbyAirport: isNearbyAirport,
     };
 
+    console.log("Multi-city Travel Class:", travelClass);
+    console.log("Multi-city Cabin Code:", payload.Cabin);
     console.log(payload, "multi-city payload to the express search=========================");
     // Clear previous search data to prevent conflicts
     clearSearchData();

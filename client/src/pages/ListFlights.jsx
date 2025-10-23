@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import FlightCard from "../components/FlightCard";
+import FlightDetailsPopup from "../components/FlightDetailsPopup";
 import FilterSidebar from "../components/flight/FilterSidebar";
 import { useFlight } from "../contexts/FlightContext";
 import axios from "axios";
@@ -29,8 +30,20 @@ const ListFlights = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(128);
+  const [showDetailsPopup, setShowDetailsPopup] = useState(false);
+  const [selectedFlightForDetails, setSelectedFlightForDetails] = useState(null);
 
   const navigate = useNavigate();
+
+  const handleShowFlightDetails = (flight) => {
+    setSelectedFlightForDetails(flight);
+    setShowDetailsPopup(true);
+  };
+
+  const handleCloseFlightDetails = () => {
+    setShowDetailsPopup(false);
+    setSelectedFlightForDetails(null);
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -307,6 +320,7 @@ const ListFlights = () => {
                     setSelectedFlight={setSelectedFlight}
                     isSelected={selectedFlight?.Index === flight.Index}
                     tripType="onward"
+                    onShowDetails={handleShowFlightDetails}
                   />
                 </div>
               )) : (
@@ -329,6 +343,7 @@ const ListFlights = () => {
                       setSelectedFlight={setSelectedReturnFlight}
                       isSelected={selectedReturnFlight?.Index === flight.Index}
                       tripType="return"
+                      onShowDetails={handleShowFlightDetails}
                     />
                   </div>
                 )) : (
@@ -404,6 +419,13 @@ const ListFlights = () => {
           </div>
         </div>
       </div>
+
+      {/* Flight Details Popup */}
+      <FlightDetailsPopup
+        isVisible={showDetailsPopup}
+        flight={selectedFlightForDetails}
+        onClose={handleCloseFlightDetails}
+      />
     </div>
   )
 };

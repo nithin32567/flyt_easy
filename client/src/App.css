@@ -69,6 +69,8 @@ body {
   --textcolor: #6b7076;
   --whitecolor: #ffffff;
   --borderColor: #e2e2e4;
+  --RedColor: #ff0000;
+  --GreenColor: #00ff00;
   font-family: "Poppins", sans-serif !important;
   background: var(--whitecolor);
 }
@@ -2335,5 +2337,336 @@ a:hover {
   .hotel-loading-spinner {
     width: 50px;
     height: 50px;
+  }
+}
+
+/* Flight Details Popup */
+.flight-details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.flight-details-container {
+  background: var(--whitecolor);
+  border-radius: 20px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.3);
+  animation: flight-popup-slide-in 0.3s ease-out;
+}
+
+@keyframes flight-popup-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.flight-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 30px;
+  border-bottom: 1px solid var(--borderColor);
+  background: var(--LightBg);
+  border-radius: 20px 20px 0 0;
+}
+
+.flight-details-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--headingColor);
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.flight-details-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  color: var(--textcolor);
+}
+
+.flight-details-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--headingColor);
+}
+
+.flight-details-content {
+  padding: 30px;
+}
+
+.flight-route-section {
+  margin-bottom: 30px;
+}
+
+.flight-route-header {
+  background: linear-gradient(135deg, var(--PrimaryColor), var(--LightBg));
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+}
+
+.flight-route-airports {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.flight-route-from,
+.flight-route-to {
+  flex: 1;
+  text-align: center;
+}
+
+.flight-route-code {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--whitecolor);
+  margin: 0 0 5px 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.flight-route-name {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 10px 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.flight-route-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: var(--whitecolor);
+  font-weight: 500;
+}
+
+.flight-route-middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.flight-route-duration {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--whitecolor);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.flight-route-line {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flight-route-line::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--whitecolor), transparent);
+}
+
+.flight-route-stops {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--whitecolor);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.flight-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.flight-info-section {
+  background: var(--LightBg);
+  border-radius: 15px;
+  padding: 25px;
+}
+
+.flight-info-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--headingColor);
+  margin: 0 0 20px 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.flight-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flight-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.flight-info-item:last-child {
+  border-bottom: none;
+}
+
+.flight-info-label {
+  font-weight: 500;
+  color: var(--textcolor);
+  font-size: 14px;
+}
+
+.flight-info-value {
+  font-weight: 600;
+  color: var(--headingColor);
+  font-size: 14px;
+}
+
+.flight-info-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.flight-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flight-service-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  color: var(--headingColor);
+  font-size: 14px;
+}
+
+.flight-inclusions-section {
+  background: var(--LightBg);
+  border-radius: 15px;
+  padding: 25px;
+}
+
+.flight-inclusions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.flight-inclusion-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+@media screen and (max-width: 768px) {
+  .flight-details-container {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .flight-details-header {
+    padding: 20px 25px;
+  }
+  
+  .flight-details-content {
+    padding: 25px;
+  }
+  
+  .flight-route-airports {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .flight-route-middle {
+    order: -1;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .flight-route-line {
+    flex: 1;
+    margin: 0 10px;
+  }
+  
+  .flight-info-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .flight-info-section {
+    padding: 20px;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .flight-details-container {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    max-height: none;
+  }
+  
+  .flight-details-header {
+    padding: 15px 20px;
+  }
+  
+  .flight-details-content {
+    padding: 20px;
+  }
+  
+  .flight-route-header {
+    padding: 20px;
+  }
+  
+  .flight-route-code {
+    font-size: 24px;
+  }
+  
+  .flight-info-section {
+    padding: 15px;
   }
 }

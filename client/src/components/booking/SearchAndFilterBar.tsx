@@ -5,11 +5,24 @@ interface SearchAndFilterBarProps {
   onSearch: (query: string) => void;
   onFilter: (filter: string) => void;
   totalBookings: number;
+  statusCounts?: {
+    current: number;
+    completed: number;
+    cancelled: number;
+    pending: number;
+  };
+  initialFilter?: string;
 }
 
-const SearchAndFilterBar: React.FC<SearchAndFilterBarProps> = ({ onSearch, onFilter, totalBookings }) => {
+const SearchAndFilterBar: React.FC<SearchAndFilterBarProps> = ({ 
+  onSearch, 
+  onFilter, 
+  totalBookings, 
+  statusCounts = { current: 0, completed: 0, cancelled: 0, pending: 0 },
+  initialFilter = 'all'
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedFilter, setSelectedFilter] = useState(initialFilter);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -24,10 +37,10 @@ const SearchAndFilterBar: React.FC<SearchAndFilterBarProps> = ({ onSearch, onFil
 
   const filterOptions = [
     { value: 'all', label: 'All Bookings', count: totalBookings },
-    { value: 'current', label: 'Current', count: 0 },
-    { value: 'completed', label: 'Completed', count: 0 },
-    { value: 'cancelled', label: 'Cancelled', count: 0 },
-    { value: 'pending', label: 'Pending', count: 0 }
+    { value: 'current', label: 'Current', count: statusCounts.current },
+    { value: 'completed', label: 'Completed', count: statusCounts.completed },
+    { value: 'cancelled', label: 'Cancelled', count: statusCounts.cancelled },
+    { value: 'pending', label: 'Pending', count: statusCounts.pending }
   ];
 
   return (
@@ -79,8 +92,8 @@ const SearchAndFilterBar: React.FC<SearchAndFilterBarProps> = ({ onSearch, onFil
             onClick={() => handleFilterChange(option.value)}
             className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${
               selectedFilter === option.value
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-[var(--PrimaryColor)] text-white'
+                : 'bg-[var(--LightBg)] text-[var(--PrimaryColor)] hover:bg-[var(--LightBg)]'
             }`}
           >
             {option.label}

@@ -14,9 +14,10 @@ const BookingDetailsAccordion = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('current');
   const [expandedBookings, setExpandedBookings] = useState(new Set());
   const [allExpanded, setAllExpanded] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(194);
 
   useEffect(() => {
     if (!user) {
@@ -33,8 +34,37 @@ const BookingDetailsAccordion = () => {
   }, [user, navigate]);
 
   useEffect(() => {
+    const calculateHeaderHeight = () => {
+      const headerElement = document.querySelector('.header-wrapper-div');
+      if (headerElement) {
+        const height = headerElement.offsetHeight;
+        setHeaderHeight(height);
+        console.log('Header height calculated:', height);
+      }
+    };
+
+    calculateHeaderHeight();
+    window.addEventListener('resize', calculateHeaderHeight);
+    
+    return () => {
+      window.removeEventListener('resize', calculateHeaderHeight);
+    };
+  }, []);
+
+  useEffect(() => {
     filterBookings();
   }, [bookings, searchQuery, filter]);
+
+  // Handle initial filter state
+  useEffect(() => {
+    if (bookings.length > 0 && filter === 'current') {
+      const currentBookings = bookings.filter(b => b.status === 'current');
+      if (currentBookings.length > 0) {
+        const currentIds = new Set(currentBookings.map(booking => booking._id));
+        setExpandedBookings(currentIds);
+      }
+    }
+  }, [bookings, filter]);
 
   // Sync allExpanded state with actual expanded state
   useEffect(() => {
@@ -122,11 +152,9 @@ const BookingDetailsAccordion = () => {
   const toggleAllBookings = () => {
     if (allExpanded) {
       setExpandedBookings(new Set());
-      setAllExpanded(false);
     } else {
       const allIds = new Set(filteredBookings.map(booking => booking._id));
       setExpandedBookings(allIds);
-      setAllExpanded(true);
     }
   };
 
@@ -145,8 +173,8 @@ const BookingDetailsAccordion = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your bookings...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--PrimaryColor)] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your bookings...</p> 
         </div>
       </div>
     );
@@ -156,7 +184,7 @@ const BookingDetailsAccordion = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--PrimaryColor)] mx-auto mb-4"></div>
           <p className="text-gray-600">Authenticating...</p>
         </div>
       </div>
@@ -167,11 +195,11 @@ const BookingDetailsAccordion = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+          <h2 className="text-2xl font-bold text-[var(--RedColor)] mb-4">Error</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => navigate('/')}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-2 bg-[var(--PrimaryColor)] text-white rounded-lg hover:bg-[var(--PrimaryColor)]"
           >
             Go Home
           </button>
@@ -183,13 +211,18 @@ const BookingDetailsAccordion = () => {
   const statusCounts = getStatusCounts();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div 
+      className="min-h-screen bg-gray-50 py-8"
+      style={{ paddingTop: `${headerHeight + 32}px` }}
+    >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header with Search and Filter */}
         <SearchAndFilterBar
           onSearch={handleSearch}
           onFilter={handleFilter}
           totalBookings={bookings.length}
+          statusCounts={statusCounts}
+          initialFilter="current"
         />
 
         {/* Expand/Collapse All Control */}
@@ -199,7 +232,7 @@ const BookingDetailsAccordion = () => {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={toggleAllBookings}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-[var(--PrimaryColor)] text-white rounded-lg hover:bg-[var(--PrimaryColor)] transition-colors"
                 >
                   {allExpanded ? (
                     <>
@@ -213,7 +246,7 @@ const BookingDetailsAccordion = () => {
                     </>
                   )}
                 </button>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-[var(--PrimaryColor)]">
                   {expandedBookings.size} of {filteredBookings.length} expanded
                 </div>
               </div>
@@ -221,15 +254,15 @@ const BookingDetailsAccordion = () => {
               {/* Status Summary */}
               <div className="flex items-center space-x-4 text-sm">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                  <div className="w-3 h-3 bg-[var(--PrimaryColor)] rounded-full"></div>
                   <span>Current: {statusCounts.current}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                  <div className="w-3 h-3 bg-[var(--GreenColor)] rounded-full"></div>
                   <span>Completed: {statusCounts.completed}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-600 rounded-full"></div>
+                  <div className="w-3 h-3 bg-[var(--RedColor)] rounded-full"></div>
                   <span>Cancelled: {statusCounts.cancelled}</span>
                 </div>
               </div>
@@ -244,11 +277,11 @@ const BookingDetailsAccordion = () => {
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center"
           >
-            <div className="text-gray-400 text-6xl mb-4">✈️</div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            <div className="text-[var(--PrimaryColor)] text-6xl mb-4">✈️</div> 
+            <h3 className="text-xl font-semibold text-[var(--textcolor)] mb-2">
               {filter === 'all' ? 'No bookings found' : `No ${filter} bookings found`}
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-[var(--textcolor)] mb-6">
               {filter === 'all' 
                 ? 'You haven\'t made any bookings yet.' 
                 : `You don't have any ${filter} bookings.`
@@ -256,7 +289,7 @@ const BookingDetailsAccordion = () => {
             </p>
             <button
               onClick={() => navigate('/')}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-2 bg-[var(--PrimaryColor)] text-white rounded-lg hover:bg-[var(--PrimaryColor)]"
             >
               Book a Flight
             </button>

@@ -34,19 +34,8 @@ import thaiLogo from '../assets/img/thai.jpg';
 import malaysiaLogo from '../assets/img/malaysia.jpg';
 import piaLogo from '../assets/img/pia.jpg';
 import iarindiaLogo from '../assets/img/iarindia.jpg';
-import Accordion, {
-  accordionClasses,
-} from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails, {
-  accordionDetailsClasses,
-} from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Fade from '@mui/material/Fade';
 
-const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = "onward" }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = "onward", onShowDetails }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Function to get airline logo based on airline name
@@ -344,92 +333,17 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
       {/* Pricing & Booking */}
     
 
-      {/* Expandable Details Accordion */}
-      <Accordion
-        expanded={isExpanded}
-        onChange={() => setIsExpanded(!isExpanded)}
-        slots={{ transition: Fade }}
-        slotProps={{ transition: { timeout: 400 } }}
-        sx={[
-          {
-            boxShadow: 'none',
-            '&:before': {
-              display: 'none',
-            },
-            '&.Mui-expanded': {
-              margin: 0,
-            },
-          },
-          isExpanded
-            ? {
-                [`& .${accordionClasses.region}`]: {
-                  height: 'auto',
-                },
-                [`& .${accordionDetailsClasses.root}`]: {
-                  display: 'block',
-                },
-              }
-            : {
-                [`& .${accordionClasses.region}`]: {
-                  height: 0,
-                },
-                [`& .${accordionDetailsClasses.root}`]: {
-                  display: 'none',
-                },
-              },
-        ]}
-      >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="flight-details-content"
-          id="flight-details-header"
-          sx={{
-            backgroundColor: 'transparent',
-            padding: 0,
-            minHeight: 'auto',
-            '&.Mui-expanded': {
-              minHeight: 'auto',
-            },
-            '& .MuiAccordionSummary-content': {
-              margin: 0,
-              '&.Mui-expanded': {
-                margin: 0,
-              },
-            },
-          }}
+      {/* Flight Details Button */}
+      <div className="mt-4 flex justify-center">
+        <button
+          onClick={() => onShowDetails(flight)}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all duration-200"
+          aria-label="View flight details"
         >
-          <Typography component="span" sx={{ display: 'none' }}>
-            Flight Details
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ padding: 0, boxShadow: 'none' }}>
-          <div className="mt-4 p-4 bg-gray-50/80 rounded-xl border-t border-gray-200" role="region" aria-label="Flight details">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">Flight Details</h4>
-                <div className="space-y-1 text-sm text-gray-600">
-                  <p><span className="font-medium">Flight Number:</span> {FlightNo?.trim() || 'N/A'}</p>
-                  <p><span className="font-medium">Fare Class:</span> {FareClass || 'N/A'}</p>
-                  <p><span className="font-medium">Duration:</span> {Duration?.trim() || 'N/A'}</p>
-                  <p><span className="font-medium">Stops:</span> {getStopsText()}</p>
-                </div>
-              </div>
-              <div>
-                <h4 className="font-medium text-gray-800 mb-2">Additional Info</h4>
-                <div className="space-y-1 text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <Leaf className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-                    <span>Carbon Neutral Flight</span>
-                  </div>
-                  <p>Seat Selection Available</p>
-                  <p>Priority Boarding</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </AccordionDetails>
-      </Accordion>
-      
+          <Info className="w-4 h-4" />
+          <span>View Flight Details</span>
+        </button>
+      </div>
     </div>
   );
 };

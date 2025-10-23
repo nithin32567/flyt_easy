@@ -139,40 +139,54 @@ const FlightBookingDetails = () => {
                 <h2 className="text-xl font-semibold mb-4">Flight Information</h2>
                 {trips.map((trip, tripIndex) => (
                   <div key={tripIndex} className="mb-6">
-                    {trip.Journey?.map((journey, journeyIndex) => (
-                      <div key={journeyIndex} className="border rounded-lg p-4 mb-4">
-                        <div className="flex justify-between items-center mb-3">
-                          <div>
-                            <span className="text-2xl font-bold">{journey.DepartureCode || bookingData.From}</span>
-                            <span className="mx-2">→</span>
-                            <span className="text-2xl font-bold">{journey.ArrivalCode || bookingData.To}</span>
+                    {trip.Journey?.map((journey, journeyIndex) => {
+                      // Get flight details from the first segment
+                      const flight = journey.Segments?.[0]?.Flight;
+                      const departureTime = flight?.DepartureTime;
+                      const arrivalTime = flight?.ArrivalTime;
+                      const departureCode = flight?.DepartureCode || bookingData.From;
+                      const arrivalCode = flight?.ArrivalCode || bookingData.To;
+                      const airline = flight?.Airline?.split('|')[0] || 'Flight';
+                      const flightNo = flight?.FlightNo || 'N/A';
+                      const depAirportName = flight?.DepAirportName || bookingData.FromName;
+                      const arrAirportName = flight?.ArrAirportName || bookingData.ToName;
+                      const duration = flight?.Duration || journey.Duration;
+
+                      return (
+                        <div key={journeyIndex} className="border rounded-lg p-4 mb-4">
+                          <div className="flex justify-between items-center mb-3">
+                            <div>
+                              <span className="text-2xl font-bold">{departureCode}</span>
+                              <span className="mx-2">→</span>
+                              <span className="text-2xl font-bold">{arrivalCode}</span>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-gray-600">{airline}</div>
+                              <div className="text-sm text-gray-600">{flightNo}</div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <div className="text-sm text-gray-600">{journey.Airline || 'Flight'}</div>
-                            <div className="text-sm text-gray-600">{journey.FlightNo || 'N/A'}</div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="font-medium">Departure</div>
+                              <div>{departureTime ? formatDate(departureTime) : 'N/A'}</div>
+                              <div>{departureTime ? formatTime(departureTime) : 'N/A'}</div>
+                              <div className="text-gray-600">{depAirportName}</div>
+                            </div>
+                            <div>
+                              <div className="font-medium">Arrival</div>
+                              <div>{arrivalTime ? formatDate(arrivalTime) : 'N/A'}</div>
+                              <div>{arrivalTime ? formatTime(arrivalTime) : 'N/A'}</div>
+                              <div className="text-gray-600">{arrAirportName}</div>
+                            </div>
                           </div>
+                          {duration && (
+                            <div className="mt-3 text-sm text-gray-600">
+                              <span className="font-medium">Duration:</span> {duration}
+                            </div>
+                          )}
                         </div>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <div className="font-medium">Departure</div>
-                            <div>{formatDate(journey.DepartureTime)}</div>
-                            <div>{formatTime(journey.DepartureTime)}</div>
-                            <div className="text-gray-600">{journey.DepAirportName || bookingData.FromName}</div>
-                          </div>
-                          <div>
-                            <div className="font-medium">Arrival</div>
-                            <div>{formatDate(journey.ArrivalTime)}</div>
-                            <div>{formatTime(journey.ArrivalTime)}</div>
-                            <div className="text-gray-600">{journey.ArrAirportName || bookingData.ToName}</div>
-                          </div>
-                        </div>
-                        {journey.Duration && (
-                          <div className="mt-3 text-sm text-gray-600">
-                            <span className="font-medium">Duration:</span> {journey.Duration}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ))}
               </div>

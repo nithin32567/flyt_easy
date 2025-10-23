@@ -51,7 +51,7 @@ const BookingAccordion: React.FC<BookingAccordionProps> = ({
           transition={{ duration: 0.2 }}
           className="ml-4 flex-shrink-0"
         >
-          <ChevronDown className="h-5 w-5 text-gray-500" />
+          <ChevronDown className="h-5 w-5 text-[var(--PrimaryColor)]" />
         </motion.div>
       </button>
 
