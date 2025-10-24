@@ -11,18 +11,47 @@ export default function HotelRoomsModal({
   const [rooms, setRooms] = useState(initial.rooms || 1);
   const [adults, setAdults] = useState(initial.adults || 1);
   const [children, setChildren] = useState(initial.children || 0);
+  const [childAges, setChildAges] = useState(initial.childAges || []);
 
   useEffect(() => {
     setRooms(initial.rooms || 1);
     setAdults(initial.adults || 1);
     setChildren(initial.children || 0);
+    setChildAges(initial.childAges || []);
   }, [isOpen, initial]);
+
+  // Update childAges when children count changes
+  useEffect(() => {
+    if (children === 0) {
+      setChildAges([]);
+    } else if (children > childAges.length) {
+      // Add new child ages (default to 5 years old)
+      const newAges = [...childAges];
+      for (let i = childAges.length; i < children; i++) {
+        newAges.push(5);
+      }
+      setChildAges(newAges);
+    } else if (children < childAges.length) {
+      // Remove excess child ages
+      setChildAges(childAges.slice(0, children));
+    }
+  }, [children, childAges.length]);
 
   // Handle click outside to close
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
       setIsOpen(false);
     }
+  };
+
+  // Validate child ages
+  const validateChildAges = () => {
+    return childAges.every(age => age >= 0 && age <= 17);
+  };
+
+  // Format childAges as comma-separated string for API
+  const formatChildAges = () => {
+    return childAges.join(',');
   };
 
   if (!isOpen) return null;
@@ -103,11 +132,68 @@ export default function HotelRoomsModal({
                 </button>
               </div>
             </div>
+            
+            {/* Child Ages Section */}
+            {children > 0 && (
+              <div className="mb-4">
+                <div className="text-sm font-medium text-gray-700 mb-3">
+                  Child Ages
+                </div>
+                <div className="space-y-2">
+                  {childAges.map((age, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">
+                        Child {index + 1} Age
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newAges = [...childAges];
+                            newAges[index] = Math.max(0, age - 1);
+                            setChildAges(newAges);
+                          }}
+                          className="rounded-full px-2 w-6 h-6 flex items-center justify-center border border-slate-200"
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center text-sm">{age}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newAges = [...childAges];
+                            newAges[index] = Math.min(17, age + 1);
+                            setChildAges(newAges);
+                          }}
+                          className="rounded-full px-2 w-6 h-6 flex items-center justify-center border border-slate-200"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-xs text-gray-500 mt-2">
+                  Ages 0-17 years
+                </div>
+              </div>
+            )}
           </div>
           <button
-            className="w-full bg-[#f48f22] hover:bg-[#16437c] text-white py-2 rounded font-semibold transition-colors cursor-pointer"
+            className="w-full bg-[#f48f22] hover:bg-[#16437c] text-white py-2 rounded font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => {
-              onApply({ rooms, adults, children });
+              if (children > 0 && !validateChildAges()) {
+                alert('Please ensure all child ages are between 0-17 years');
+                return;
+              }
+              
+              onApply({ 
+                rooms, 
+                adults, 
+                children, 
+                childAges: children > 0 ? childAges : [],
+                childAgesFormatted: children > 0 ? formatChildAges() : ''
+              });
               setIsOpen(false);
             }}
           >

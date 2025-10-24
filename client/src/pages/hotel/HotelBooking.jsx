@@ -29,6 +29,13 @@ const HotelBooking = () => {
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState('');
   
+  // Error handling states
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  
+  // Header height state
+  const [headerHeight, setHeaderHeight] = useState(128);
+  
   // Get data from localStorage or location state
   useEffect(() => {
     const hotelSearchData = JSON.parse(localStorage.getItem('hotelSearchData') || '{}');
@@ -50,6 +57,40 @@ const HotelBooking = () => {
       navigate('/hotel-search');
     }
   }, [navigate]);
+
+  // Header height calculation
+  useEffect(() => {
+    const calculateHeaderHeight = () => {
+      const headerDiv = document.querySelector('.header-wrapper-div');
+      if (headerDiv) {
+        const height = headerDiv.offsetHeight;
+        setHeaderHeight(height);
+      } else {
+        // Fallback heights based on screen size
+        const width = window.innerWidth;
+        if (width < 540) {
+          setHeaderHeight(80);
+        } else if (width < 768) {
+          setHeaderHeight(90);
+        } else {
+          setHeaderHeight(128);
+        }
+      }
+    };
+
+    // Calculate immediately and after a delay
+    calculateHeaderHeight();
+    setTimeout(calculateHeaderHeight, 100);
+    setTimeout(calculateHeaderHeight, 200);
+
+    window.addEventListener('resize', calculateHeaderHeight);
+    window.addEventListener('scroll', calculateHeaderHeight);
+
+    return () => {
+      window.removeEventListener('resize', calculateHeaderHeight);
+      window.removeEventListener('scroll', calculateHeaderHeight);
+    };
+  }, []);
   
   const handleContactInfoSubmit = (data) => {
     setContactInfo(data);
@@ -289,8 +330,16 @@ const HotelBooking = () => {
       }
       
     } catch (error) {
-      // console.error('Hotel booking error:', error);
-      alert(`Booking failed: ${error.response?.data?.message || error.message}`);
+      console.error('Hotel booking error:', error);
+      
+      // Show error popup with session timeout message
+      setErrorMessage('Session timed out. Please search again.');
+      setShowErrorPopup(true);
+      
+      // Redirect to home page after 3 seconds
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
     } finally {
       setIsSubmitting(false);
     }
@@ -390,8 +439,16 @@ const HotelBooking = () => {
       razorpayInstance.open();
 
     } catch (error) {
-      // console.error('Payment initiation error:', error);
-      alert(`Payment initiation failed: ${error.message}`);
+      console.error('Payment initiation error:', error);
+      
+      // Show error popup with session timeout message
+      setErrorMessage('Session timed out. Please search again.');
+      setShowErrorPopup(true);
+      
+      // Redirect to home page after 3 seconds
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
     }
   };
 
@@ -497,15 +554,17 @@ const HotelBooking = () => {
       }
 
     } catch (error) {
-      // console.error('Hotel StartPay error:', error);
+      console.error('Hotel StartPay error:', error);
       setIsPaymentProcessing(false);
-      alert(`Hotel booking failed: ${error.response?.data?.message || error.message}`);
-      navigate('/', { 
-        state: { 
-          message: `Hotel booking failed: ${error.response?.data?.message || error.message}`,
-          type: 'error'
-        }
-      });
+      
+      // Show error popup with session timeout message
+      setErrorMessage('Session timed out. Please search again.');
+      setShowErrorPopup(true);
+      
+      // Redirect to home page after 3 seconds
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
     }
   };
 
@@ -567,15 +626,17 @@ const HotelBooking = () => {
       pollStatus();
 
     } catch (error) {
-      // console.error('Hotel booking status polling error:', error);
+      console.error('Hotel booking status polling error:', error);
       setIsPaymentProcessing(false);
-      alert(`Hotel booking failed: ${error.message}`);
-      navigate('/', { 
-        state: { 
-          message: `Hotel booking failed: ${error.message}`,
-          type: 'error'
-        }
-      });
+      
+      // Show error popup with session timeout message
+      setErrorMessage('Session timed out. Please search again.');
+      setShowErrorPopup(true);
+      
+      // Redirect to home page after 3 seconds
+      setTimeout(() => {
+        navigate('/');
+      }, 3000);
     }
   };
   
@@ -583,7 +644,7 @@ const HotelBooking = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--PrimaryColor)] mx-auto mb-4"></div>
           <p>Loading booking details...</p>
         </div>
       </div>
@@ -591,103 +652,179 @@ const HotelBooking = () => {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50" style={{ paddingTop: `${headerHeight}px` }}>
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Hotel Booking</h1>
-          <p className="text-gray-600">
-            {hotelData.hotel?.name} • {searchData?.checkIn} to {searchData?.checkOut}
-          </p>
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">Complete Your Hotel Booking</h1>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center text-gray-600">
+                  <svg className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <span className="font-medium">{hotelData.hotel?.name}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <svg className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]"  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="font-medium">{searchData?.checkIn} to {searchData?.checkOut}</span>
+                </div>
+              </div>
+            </div>
+            <div className="hidden md:block">
+              <div className="w-16 h-16 bg-gradient-to-br from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] rounded-2xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
         
         {/* Progress Steps */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
           <div className="flex items-center justify-between">
-            <div className={`flex items-center ${currentStep >= 1 ? 'text-indigo-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>
-                <User className="w-4 h-4" />
+            <div className={`flex items-center ${currentStep >= 1 ? 'text-[var(--PrimaryColor)]' : 'text-gray-400'}`}>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep >= 1 ? 'bg-gradient-to-br from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] text-white shadow-lg' : 'bg-gray-200'}`}>
+                <User className="w-5 h-5" />
               </div>
-              <span className="ml-2 font-medium">Contact Info</span>
+              <div className="ml-4">
+                <span className="font-semibold text-lg">Contact Info</span>
+                <p className="text-sm text-gray-500">Your contact details</p>
+              </div>
             </div>
             
-            <div className={`flex-1 h-0.5 mx-4 ${currentStep >= 2 ? 'bg-indigo-600' : 'bg-gray-200'}`}></div>
+            <div className={`flex-1 h-1 mx-6 rounded-full transition-all duration-300 ${currentStep >= 2 ? 'bg-gradient-to-r from-[var(--PrimaryColor)] to-[var(--PrimaryColor)]' : 'bg-gray-200'}`}></div>
             
-            <div className={`flex items-center ${currentStep >= 2 ? 'text-indigo-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>
-                <Users className="w-4 h-4" />
+            <div className={`flex items-center ${currentStep >= 2 ? 'text-[var(--PrimaryColor)]' : 'text-gray-400'}`}>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep >= 2 ? 'bg-gradient-to-br from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] text-white shadow-lg' : 'bg-gray-200'}`}>
+                <Users className="w-5 h-5" />
               </div>
-              <span className="ml-2 font-medium">Guest Details</span>
+              <div className="ml-4">
+                <span className="font-semibold text-lg">Guest Details</span>
+                <p className="text-sm text-gray-500">Guest information</p>
+              </div>
             </div>
             
-            <div className={`flex-1 h-0.5 mx-4 ${currentStep >= 3 ? 'bg-indigo-600' : 'bg-gray-200'}`}></div>
+            <div className={`flex-1 h-1 mx-6 rounded-full transition-all duration-300 ${currentStep >= 3 ? 'bg-gradient-to-r from-[var(--PrimaryColor)] to-[var(--PrimaryColor)]' : 'bg-gray-200'}`}></div>
             
-            <div className={`flex items-center ${currentStep >= 3 ? 'text-indigo-600' : 'text-gray-400'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 3 ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}>
-                <CreditCard className="w-4 h-4" />
+            <div className={`flex items-center ${currentStep >= 3 ? 'text-[var(--PrimaryColor)]' : 'text-gray-400'}`}>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep >= 3 ? 'bg-gradient-to-br from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] text-white shadow-lg' : 'bg-gray-200'}`}>
+                <CreditCard className="w-5 h-5" />
               </div>
-              <span className="ml-2 font-medium">Payment</span>
+              <div className="ml-4">
+                <span className="font-semibold text-lg">Payment</span>
+                <p className="text-sm text-gray-500">Secure payment</p>
+              </div>
             </div>
           </div>
         </div>
         
         {/* Step Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
             {currentStep === 1 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
-                <p className="text-gray-600 mb-6">
-                  Please provide your contact details for the booking.
-                </p>
-                <button
-                  onClick={() => setIsContactModalOpen(true)}
-                  className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
-                >
-                  Add Contact Information
-                </button>
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] rounded-xl flex items-center justify-center mr-4">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Contact Information</h2>
+                    <p className="text-gray-600">Please provide your contact details for the booking</p>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+                  <p className="text-gray-700 mb-6 leading-relaxed">
+                    We need your contact information to process your hotel booking and send you confirmation details.
+                  </p>
+                  <button
+                    onClick={() => setIsContactModalOpen(true)}
+                    className="w-full bg-gradient-to-r from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] text-white py-4 px-6 rounded-xl transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    <div className="flex items-center justify-center">
+                      <User className="w-5 h-5 mr-2" />
+                      Add Contact Information
+                    </div>
+                  </button>
+                </div>
               </div>
             )}
             
             {currentStep === 2 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Guest Details</h2>
-                <p className="text-gray-600 mb-6">
-                  Please provide details for all guests staying in the room.
-                </p>
-                <button
-                  onClick={() => setIsGuestModalOpen(true)}
-                  className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
-                >
-                  Add Guest Details
-                </button>
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] rounded-xl flex items-center justify-center mr-4">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Guest Details</h2>
+                    <p className="text-gray-600">Please provide details for all guests staying in the room</p>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+                  <p className="text-gray-700 mb-6 leading-relaxed">
+                    Add information for all guests who will be staying in the room. This information is required for hotel check-in.
+                  </p>
+                  <button
+                    onClick={() => setIsGuestModalOpen(true)}
+                    className="w-full bg-gradient-to-r from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] text-white py-4 px-6 rounded-xl hover:bg-[var(--PrimaryColor)] transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    <div className="flex items-center justify-center">
+                      <Users className="w-5 h-5 mr-2" />
+                      Add Guest Details
+                    </div>
+                  </button>
+                </div>
               </div>
             )}
             
             {currentStep === 3 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-semibold mb-4">Review & Book</h2>
-                <div className="space-y-4 mb-6">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+                <div className="flex items-center mb-6">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-4">
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
                   <div>
-                    <h3 className="font-medium">Contact Information</h3>
-                    <p className="text-gray-600">
-                      {contactInfo?.title} {contactInfo?.firstName} {contactInfo?.lastName}
-                    </p>
-                    <p className="text-gray-600">{contactInfo?.email}</p>
-                    <p className="text-gray-600">{contactInfo?.mobile}</p>
+                    <h2 className="text-2xl font-bold text-gray-900">Review & Book</h2>
+                    <p className="text-gray-600">Review your details and proceed to payment</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-6 mb-8">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                    <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center">
+                      <User className="w-5 h-5 mr-2 text-blue-600" />
+                      Contact Information
+                    </h3>
+                    <div className="space-y-2">
+                      <p className="text-gray-700 font-medium">
+                        {contactInfo?.title} {contactInfo?.firstName} {contactInfo?.lastName}
+                      </p>
+                      <p className="text-gray-600">{contactInfo?.email}</p>
+                      <p className="text-gray-600">{contactInfo?.mobile}</p>
+                    </div>
                   </div>
                   
-                  <div>
-                    <h3 className="font-medium">Guest Details</h3>
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+                    <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center">
+                      <Users className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]" />
+                      Guest Details
+                    </h3>
                     {guestDetails.map((room, roomIndex) => (
-                      <div key={roomIndex} className="mt-2">
-                        <p className="font-medium">Room {roomIndex + 1}</p>
-                        {room.guests.map((guest, guestIndex) => (
-                          <p key={guestIndex} className="text-gray-600 ml-4">
-                            {guest.title} {guest.firstName} {guest.lastName}
-                          </p>
-                        ))}
+                      <div key={roomIndex} className="mb-4 last:mb-0">
+                        <p className="font-semibold text-gray-800 mb-2">Room {roomIndex + 1}</p>
+                        <div className="space-y-1">
+                          {room.guests.map((guest, guestIndex) => (
+                            <p key={guestIndex} className="text-gray-600 ml-4">
+                              {guest.title} {guest.firstName} {guest.lastName}
+                            </p>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -696,23 +833,28 @@ const HotelBooking = () => {
                 <button
                   onClick={handleBookingSubmit}
                   disabled={isSubmitting}
-                  className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                  className="w-full bg-gradient-to-r from-[var(--YellowColor)] to-[var(--YellowColor)] text-white py-4 px-6 rounded-xl hover:bg-[var(--PrimaryColor)] transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:transform-none disabled:shadow-lg"
                 >
-                  {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
+                  <div className="flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 mr-2" />
+                    {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
+                  </div>
                 </button>
               </div>
             )}
             
             {currentStep === 4 && (
-              <div className="bg-white rounded-lg shadow-sm p-6 text-center">
-                <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold text-green-600 mb-2">Booking Successful!</h2>
-                <p className="text-gray-600 mb-6">
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center">
+                <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <CheckCircle className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-3xl font-bold text-green-600 mb-4">Booking Successful!</h2>
+                <p className="text-gray-600 mb-8 text-lg leading-relaxed">
                   Your hotel booking has been confirmed. You will receive a confirmation email shortly.
                 </p>
                 <button
                   onClick={() => navigate('/')}
-                  className="bg-indigo-600 text-white py-2 px-6 rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="bg-gradient-to-r from-[var(--YellowColor)] to-[var(--YellowColor)] text-white py-3 px-8 rounded-xl hover:bg-[var(--PrimaryColor)] transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   Back to Home
                 </button>
@@ -722,89 +864,187 @@ const HotelBooking = () => {
           
           {/* Sidebar - Room Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-6">
-              <h3 className="text-lg font-semibold mb-4">Booking Summary</h3>
+            <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 sticky top-6">
+              {/* Header */}
+              <div className="flex items-center mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Booking Summary</h3>
+              </div>
               
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium">{hotelData?.content?.hotel?.name || hotelData?.hotel?.name}</h4>
-                  <p className="text-sm text-gray-600">{hotelData?.content?.hotel?.contact?.address?.[0]?.city || hotelData?.hotel?.contact?.address?.[0]?.city}</p>
+              <div className="space-y-6">
+                {/* Hotel Information */}
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-gray-900 text-lg leading-tight mb-2">
+                        {hotelData?.content?.hotel?.name || hotelData?.hotel?.name}
+                      </h4>
+                      <p className="text-sm text-gray-600 flex items-center">
+                        <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {hotelData?.content?.hotel?.contact?.address?.[0]?.city || hotelData?.hotel?.contact?.address?.[0]?.city}
+                      </p>
+                    </div>
+                  </div>
                 </div>
                 
-                <div>
-                  <p className="text-sm text-gray-600">Check-in</p>
-                  <p className="font-medium">{searchData?.checkIn}</p>
+                {/* Dates Section */}
+                <div className="bg-gray-50 rounded-xl p-6">
+                  <h5 className="font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Stay Details
+                  </h5>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Check-in</p>
+                      <p className="font-bold text-gray-900">{searchData?.checkIn}</p>
+                    </div>
+                    <div className="text-center p-3 bg-white rounded-lg border border-gray-200">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Check-out</p>
+                      <p className="font-bold text-gray-900">{searchData?.checkOut}</p>
+                    </div>
+                  </div>
                 </div>
                 
-                <div>
-                  <p className="text-sm text-gray-600">Check-out</p>
-                  <p className="font-medium">{searchData?.checkOut}</p>
+                {/* Room Details */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h5 className="font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                    </svg>
+                    Room Information
+                  </h5>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-1">Room Type</p>
+                      <p className="font-bold text-gray-900 text-lg">
+                        {selectedRoom?.room?.name || selectedRoom?.roomName || 'Selected Room'}
+                      </p>
+                      {selectedRoom?.room?.description && (
+                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{selectedRoom.room.description}</p>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Occupancy</p>
+                        <p className="font-semibold text-gray-900 text-sm">
+                          {selectedRoom?.occupancies?.[0]?.numOfAdults || 0} Adults
+                        </p>
+                        <p className="font-semibold text-gray-900 text-sm">
+                          {selectedRoom?.occupancies?.[0]?.numOfChildren || 0} Children
+                        </p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Board Basis</p>
+                        <p className="font-semibold text-gray-900 text-sm">
+                          {selectedRoom?.boardBasis?.description || 'Not specified'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Provider</p>
+                      <div className="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
+                        <p className="font-semibold text-indigo-900">{selectedRoom?.providerName}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
-                <div>
-                  <p className="text-sm text-gray-600">Room</p>
-                  <p className="font-medium">{selectedRoom?.room?.name || selectedRoom?.roomName || 'Selected Room'}</p>
-                  {selectedRoom?.room?.description && (
-                    <p className="text-xs text-gray-500 mt-1">{selectedRoom.room.description}</p>
-                  )}
-                </div>
-                
-                <div>
-                  <p className="text-sm text-gray-600">Provider</p>
-                  <p className="font-medium">{selectedRoom?.providerName}</p>
-                </div>
-                
-                <div>
-                  <p className="text-sm text-gray-600">Room Features</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
+                {/* Room Features */}
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <h5 className="font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Room Features
+                  </h5>
+                  <div className="flex flex-wrap gap-2">
                     {selectedRoom?.refundable && (
-                      <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Refundable</span>
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Refundable
+                      </span>
                     )}
                     {selectedRoom?.onlineCancellable && (
-                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Online Cancellable</span>
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Online Cancellable
+                      </span>
                     )}
                     {selectedRoom?.specialRequestSupported && (
-                      <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Special Requests</span>
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Special Requests
+                      </span>
                     )}
                     {selectedRoom?.room?.smokingAllowed === false && (
-                      <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">Non-Smoking</span>
+                      <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Non-Smoking
+                      </span>
                     )}
                   </div>
                 </div>
                 
-                <div>
-                  <p className="text-sm text-gray-600">Occupancy</p>
-                  <p className="font-medium">
-                    {selectedRoom?.occupancies?.[0]?.numOfAdults || 0} Adults, {selectedRoom?.occupancies?.[0]?.numOfChildren || 0} Children
-                  </p>
-                </div>
-                
-                <div>
-                  <p className="text-sm text-gray-600">Board Basis</p>
-                  <p className="font-medium">{selectedRoom?.boardBasis?.description || 'Not specified'}</p>
-                </div>
-                
-                <div className="border-t pt-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Base Rate:</span>
-                      <span>₹{selectedRoom?.baseRate?.toLocaleString() || '0'}</span>
+                {/* Pricing Section */}
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                  <h5 className="font-semibold text-gray-900 mb-4 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                    Price Breakdown
+                  </h5>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-sm text-gray-600">Base Rate</span>
+                      <span className="font-semibold text-gray-900">₹{selectedRoom?.baseRate?.toLocaleString() || '0'}</span>
                     </div>
+                    
                     {selectedRoom?.taxes && selectedRoom.taxes.length > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span>Taxes:</span>
-                        <span>₹{selectedRoom.taxes.reduce((sum, tax) => sum + tax.amount, 0).toLocaleString()}</span>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm text-gray-600">Taxes & Fees</span>
+                        <span className="font-semibold text-gray-900">₹{selectedRoom.taxes.reduce((sum, tax) => sum + tax.amount, 0).toLocaleString()}</span>
                       </div>
                     )}
+                    
                     {selectedRoom?.commission && (
-                      <div className="flex justify-between text-sm text-green-600">
-                        <span>Commission:</span>
-                        <span>₹{selectedRoom.commission.amount?.toLocaleString() || '0'}</span>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm text-green-600">Commission</span>
+                        <span className="font-semibold text-green-600">₹{selectedRoom.commission.amount?.toLocaleString() || '0'}</span>
                       </div>
                     )}
-                    <div className="flex justify-between font-semibold text-lg border-t pt-2">
-                      <span>Total:</span>
-                      <span className="text-green-600">₹{selectedRoom?.totalRate?.toLocaleString() || '0'}</span>
+                    
+                    <div className="border-t border-green-200 pt-3 mt-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-lg font-bold text-gray-900">Total Amount</span>
+                        <span className="text-2xl font-bold text-green-600">₹{selectedRoom?.totalRate?.toLocaleString() || '0'}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -837,12 +1077,12 @@ const HotelBooking = () => {
           <div className="bg-white rounded-lg p-8 max-w-md mx-4 shadow-xl">
             <div className="text-center">
               {/* Loading Spinner */}
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[var(--PrimaryColor)] mx-auto mb-4"></div>
               
               {/* Hotel Icon */}
               <div className="mb-4">
                 <div className="w-12 h-12 mx-auto bg-indigo-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
@@ -860,13 +1100,49 @@ const HotelBooking = () => {
               
               {/* Progress Bar */}
               <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                <div className="bg-indigo-600 h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
+                <div className="bg-[var(--PrimaryColor)] h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
               </div>
               
               {/* Additional Info */}
               <div className="text-sm text-gray-500">
                 <p>Please don't close this window</p>
                 <p>This may take a few moments...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Error Popup */}
+      {showErrorPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md mx-4 shadow-xl">
+            <div className="text-center">
+              {/* Error Icon */}
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              
+              {/* Title */}
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Session Timeout
+              </h3>
+              
+              {/* Error Message */}
+              <p className="text-gray-600 mb-6">
+                {errorMessage}
+              </p>
+              
+              {/* Countdown */}
+              <div className="text-sm text-gray-500 mb-4">
+                <p>Redirecting to home page in 3 seconds...</p>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="bg-red-500 h-2 rounded-full animate-pulse" style={{width: '100%'}}></div>
               </div>
             </div>
           </div>

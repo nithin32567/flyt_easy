@@ -452,7 +452,7 @@ const HotelDetailsNew: React.FC = () => {
         <HotelPictures images={hotelData.content?.hotel?.images || []} />
 
         {/* API Status */}
-        {/* <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-xl font-bold mb-4">API Status</h2>
           <div className="grid grid-cols-3 gap-4">
             <div className="flex items-center">
@@ -497,7 +497,7 @@ const HotelDetailsNew: React.FC = () => {
               </div>
             </div>
           )}
-        </div> */}
+        </div>
 
         {/* Content Data */}
         {hotelData.content && (
@@ -588,12 +588,12 @@ const HotelDetailsNew: React.FC = () => {
         )}
 
         {/* Raw Data for Debugging */}
-        {/* <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-xl font-bold mb-4">Raw API Response</h2>
           <pre className="bg-gray-100 p-4 rounded-lg overflow-auto text-sm">
             {JSON.stringify(hotelData, null, 2)}
           </pre>
-        </div> */}
+        </div>
       </div>
     </div>
   );

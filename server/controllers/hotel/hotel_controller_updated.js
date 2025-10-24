@@ -18,7 +18,7 @@ export const autosuggest = async (req, res) => {
             params: { term },
         });
 
-        console.log(response.data);
+        // console.log(response.data);
         const data = response.data;
 
         res.status(200).json(data);
@@ -30,6 +30,7 @@ export const initHotelSearch = async (req, res) => {
   try {
     const payload = req.body;
     const authHeader = req.headers.authorization;
+    console.log(payload,"payload ============================================> init payload")
 
     if (!authHeader) {
       return res.status(401).json({
@@ -51,7 +52,7 @@ export const initHotelSearch = async (req, res) => {
 
     console.log('=== INIT API RESPONSE ===');
     console.log('Status:', initResponse.status);
-    console.log('Data:', JSON.stringify(initResponse.data, null, 2));
+    console.log('Data: initResponse.data', JSON.stringify(initResponse.data, null, 2));
     
     const initData = initResponse.data;
 
@@ -103,8 +104,10 @@ export const fetchHotelContentAndRates = async (req, res) => {
   try {
     const { searchId } = req.params;
     const authHeader = req.headers.authorization;
+    console.log(searchId,"searchId ============================================> fetchHotelContentAndRates searchId")
     const { page = 1, limit = 50 } = req.query;
     const searchTracingKey = req.headers['search-tracing-key'];
+    console.log(searchTracingKey,"searchTracingKey ============================================> fetchHotelContentAndRates searchTracingKey")
 
     if (!authHeader) {
       return res.status(401).json({
@@ -124,7 +127,7 @@ export const fetchHotelContentAndRates = async (req, res) => {
       'Authorization': authHeader,
       'Content-Type': 'application/json'
     };
-
+    console.log(headers,"headers ============================================> fetchHotelContentAndRates headers")
     if (searchTracingKey) {
       headers['search-tracing-key'] = searchTracingKey;
     }
@@ -149,7 +152,7 @@ export const fetchHotelContentAndRates = async (req, res) => {
       ratesData = ratesResponse.value.data;
       console.log('=== RATES API RESPONSE ===');
       console.log('Status:', ratesResponse.value.status);
-      console.log('Data:', JSON.stringify(ratesData, null, 2));
+      console.log('Data: ratesData', JSON.stringify(ratesData, null, 2));
     } else {
       console.error('=== RATES API ERROR ===');
       console.error('Error:', ratesResponse.reason?.message);
@@ -160,9 +163,9 @@ export const fetchHotelContentAndRates = async (req, res) => {
       contentData = contentResponse.value.data;
       console.log('=== CONTENT API RESPONSE ===');
       console.log('Status:', contentResponse.value.status);
-      console.log('Data:', JSON.stringify(contentData, null, 2));
+      console.log('Data: contentData', JSON.stringify(contentData, null, 2));
     } else {
-      console.error('=== CONTENT API ERROR ===');
+      // console.error('=== CONTENT API ERROR ===');
       console.error('Error:', contentResponse.reason?.message);
     }
 
@@ -196,14 +199,14 @@ export const fetchHotelContentAndRates = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log('=== CONTENT & RATES FINAL RESPONSE ===');
+    // console.log('=== CONTENT & RATES FINAL RESPONSE ===');
     console.log(JSON.stringify(combinedResponse, null, 2));
 
     res.status(200).json(combinedResponse);
 
   } catch (error) {
     console.error('=== CONTENT & RATES API ERROR ===');
-    console.error('Error:', error.message);
+      console.error('Error:', error.message);
     if (error.response) {
       console.error('Response Status:', error.response.status);
       console.error('Response Data:', error.response.data);
@@ -283,7 +286,7 @@ export const fetchHotelPage = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log('=== HOTEL PAGE FINAL RESPONSE ===');
+    // console.log('=== HOTEL PAGE FINAL RESPONSE ===');
     console.log(JSON.stringify(response, null, 2));
 
     res.status(200).json(response);
@@ -354,7 +357,7 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
     console.log('=== HOTEL DETAILS API CALL ===');
     console.log('Search ID:', searchId);
     console.log('Hotel ID:', hotelId);
-    console.log('Price Provider:', priceProvider);
+    console.log('Price Provider (query):', priceProvider);
     console.log('Search Tracing Key:', searchTracingKey);
     console.log('Content URL:', contentUrl);
     console.log('Rooms URL:', `${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}/${hotelId}/rooms`);
@@ -368,8 +371,8 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
       })
     ]);
 
-    // console.log(roomsResponse,"response of the room api")
-    // console.log(contentResponse,"response of the content api")
+    console.log(roomsResponse,"response of the room api")
+    console.log(contentResponse,"response of the content api")
 
     // Process content response
     let contentData = null;
@@ -378,13 +381,17 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
       contentData = contentResponse.value.data;
       contentSuccess = true;
       console.log('Content API success');
+      console.log('Content data structure:', JSON.stringify(contentData, null, 2));
     } else {
       console.error('Content API failed:', contentResponse.reason?.message);
+      console.error('Content API error details:', contentResponse.reason?.response?.data);
     }
 
     // Process rooms response
     let roomsData = null;
     let roomsSuccess = false;
+    let extractedPriceProvider = priceProvider; // Default to query param if provided
+    
     if (roomsResponse.status === 'fulfilled') {
       roomsData = roomsResponse.value.data;
       
@@ -396,6 +403,17 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
       } else {
         roomsSuccess = true;
         console.log('Rooms API success');
+        
+        // Extract price provider from rooms response if not provided in query
+        if (!extractedPriceProvider && roomsData && roomsData.recommendations && roomsData.recommendations.length > 0) {
+          console.log('Rooms data structure:', JSON.stringify(roomsData, null, 2));
+          const firstRecommendation = roomsData.recommendations[0];
+          console.log('First recommendation:', JSON.stringify(firstRecommendation, null, 2));
+          if (firstRecommendation.roomGroup && firstRecommendation.roomGroup.length > 0) {
+            extractedPriceProvider = firstRecommendation.roomGroup[0].providerName;
+            console.log('Extracted price provider from rooms response:', extractedPriceProvider);
+          }
+        }
       }
     } else {
       console.error('Rooms API failed:', roomsResponse.reason?.message);
@@ -409,6 +427,23 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
         response: roomsResponse,
         reason: roomsResponse.reason?.response?.data || roomsResponse.reason?.message
       };
+    }
+
+    // If we extracted a price provider and didn't have one in query, make another content call
+    if (extractedPriceProvider && !priceProvider && roomsSuccess) {
+      console.log('Making additional content API call with extracted price provider:', extractedPriceProvider);
+      try {
+        const contentUrlWithProvider = `${HOTEL_SEARCH_URL}/api/hotels/${searchId}/${hotelId}/content?priceProvider=${extractedPriceProvider}`;
+        console.log('Additional content API URL:', contentUrlWithProvider);
+        const additionalContentResponse = await axios.get(contentUrlWithProvider, { headers });
+        contentData = additionalContentResponse.data;
+        contentSuccess = true;
+        console.log('Additional content API call successful with price provider');
+        console.log('Additional content data structure:', JSON.stringify(contentData, null, 2));
+      } catch (error) {
+        console.error('Additional content API call failed:', error.message);
+        console.error('Additional content API error details:', error.response?.data);
+      }
     }
 
     // Check if both APIs failed
@@ -430,7 +465,7 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
       searchId: searchId,
       hotelId: hotelId,
       searchTracingKey: searchTracingKey,
-      priceProvider: priceProvider,
+      priceProvider: extractedPriceProvider,
       timestamp: new Date().toISOString(),
       apiStatus: {
         content: contentSuccess ? 'success' : 'failed',
@@ -444,8 +479,13 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
     console.log('Rooms data status:', roomsData?.status);
     console.log('Rooms data code:', roomsData?.code);
     console.log('Rooms data message:', roomsData?.message);
+    console.log('Final price provider:', extractedPriceProvider);
+    console.log('Content data exists:', !!contentData);
+    console.log('Content data hotel exists:', !!contentData?.hotel);
+    console.log('Content data hotel name:', contentData?.hotel?.name);
 
     console.log('Combined hotel details response prepared');
+    console.log('Final combined response structure:', JSON.stringify(combinedResponse, null, 2));
     res.status(200).json(combinedResponse);
 
   } catch (error) {
@@ -1057,41 +1097,61 @@ export const createItineraryForHotelRoom = async (req, res) => {
         },
         {
           Code: "CUSTOMER DETAILS",
-          parameters: [
-            { Type: "Nationality", Value: "IN" },
-            { Type: "Country of Residence", Value: "IN" }
+          Parameters: [
+            { Type: "Code", Value: "" },
+            { Type: "ID", Value: "" },
+            { Type: "Amount", Value: "" }
           ]
         }
       ],
-      Rooms: itineraryData.Rooms?.map(room => ({
-        RoomId: room.RoomId || "",
-        GuestCode: room.GuestCode || "|1|1:A:25|",
-        SupplierName: room.SupplierName || "",
-        RoomGroupId: room.RoomGroupId || "",
-        Guests: room.Guests?.map(guest => ({
-          GuestID: "0",
-          Operation: "",
-          Title: guest.Title || "Mr",
-          FirstName: guest.FirstName || "",
-          MiddleName: guest.MiddleName || "",
-          LastName: guest.LastName || "",
-          MobileNo: guest.MobileNo || "",
-          PaxType: guest.PaxType || "A",
-          Age: guest.Age || "",
-          Email: guest.Email || "",
-          Pan: guest.Pan || "",
-          ProfileType: guest.ProfileType || "T",
-          EmployeeId: guest.EmployeeId || "",
-          corporateCompanyID: guest.corporateCompanyID || ""
-        })) || []
-      })) || [],
+      Rooms: itineraryData.Rooms?.map(room => {
+        // Generate proper GuestCode based on actual guests
+        let guestCode = room.GuestCode;
+        if (!guestCode && room.Guests && room.Guests.length > 0) {
+          const guestCount = room.Guests.length;
+          const guestTypes = room.Guests.map(guest => guest.PaxType || 'A').join(':');
+          const ages = room.Guests.map(guest => '25').join(':'); // Always use 25 for adults
+          guestCode = `|1|${guestCount}:${guestTypes}:${ages}|`;
+        } else if (!guestCode) {
+          guestCode = "|1|1:A:25|";
+        }
+
+        // Generate GuestID using base64 encoding of guest name
+        const generateGuestID = (firstName, lastName) => {
+          const fullName = `${firstName}${lastName}`.toUpperCase();
+          return Buffer.from(fullName).toString('base64').substring(0, 4);
+        };
+
+        return {
+          RoomId: room.RoomId || "",
+          GuestCode: guestCode,
+          SupplierName: room.SupplierName || "",
+          RoomGroupId: room.RoomGroupId || "",
+          Guests: room.Guests?.map(guest => ({
+            GuestID: guest.GuestID || generateGuestID(guest.FirstName || '', guest.LastName || ''),
+            Operation: guest.Operation || "U",
+            Title: guest.Title || "Mr",
+            FirstName: guest.FirstName || "",
+            MiddleName: guest.MiddleName || "",
+            LastName: guest.LastName || "",
+            MobileNo: guest.MobileNo || "",
+            PaxType: guest.PaxType || "A",
+            Age: guest.Age || "25", // Always use 25 for adults
+            Email: guest.Email || "",
+            Pan: guest.Pan || "",
+            ProfileType: guest.ProfileType || "T",
+            EmployeeId: guest.EmployeeId || "",
+            corporateCompanyID: guest.corporateCompanyID || ""
+          })) || []
+        };
+      }) || [],
       NetAmount: itineraryData.NetAmount || "",
       ClientID: itineraryData.ClientID || "FVI6V120g22Ei5ztGK0FIQ==",
       DeviceID: itineraryData.DeviceID || "",
       AppVersion: itineraryData.AppVersion || "",
       SearchId: itineraryData.SearchId || "",
       RecommendationId: itineraryData.RecommendationId || "",
-      LocationName: null,
+      LocationName: itineraryData.LocationName || null,
       HotelCode: itineraryData.HotelCode || "",
       CheckInDate: formatDateToString(itineraryData.CheckInDate),
       CheckOutDate: formatDateToString(itineraryData.CheckOutDate),

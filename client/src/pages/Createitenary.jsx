@@ -35,6 +35,10 @@ const Createitenary = () => {
   const hotelSearchData = hotelSearchDataString ? JSON.parse(hotelSearchDataString) : null;
   const isHotelBooking = !!hotelSearchData && localStorage.getItem("bookingType") === "hotel";
   const hotelSearchTracingKey = localStorage.getItem("searchTracingKey");
+  
+  // Get selected room data for hotel bookings
+  const selectedRoomDataString = localStorage.getItem("selectedRoomData");
+  const selectedRoomData = selectedRoomDataString ? JSON.parse(selectedRoomDataString) : null;
   const [itenarySuccess, setItenarySuccess] = useState(false);
   const [travelCheckListData, setTravelCheckListData] = useState(null);
   const navigate = useNavigate();
@@ -452,34 +456,48 @@ const Createitenary = () => {
             ]
           }
         ],
-        Rooms: travelers.map((traveler, index) => ({
-          RoomId: `room_${index}`,
-          GuestCode: `|1|1:A:25|`,
-          SupplierName: "Travex",
-          RoomGroupId: `roomgroup_${index}`,
-          Guests: [{
-            GuestID: `guest_${index}`,
-            Operation: "U",
-            Title: traveler.Title || "Mr",
-            FirstName: traveler.FName || "",
-            MiddleName: "",
-            LastName: traveler.LName || "",
-            MobileNo: contactInfo?.Mobile || "",
-            PaxType: traveler.PTC === "ADT" ? "A" : "C",
-            Age: traveler.Age || "",
-            Email: contactInfo?.Email || "",
-            Pan: traveler.PassportNo || "",
-            ProfileType: "T",
-            EmployeeId: "",
-            corporateCompanyID: ""
-          }]
-        })),
-        NetAmount: netAmountNumber.toString(),
+        Rooms: travelers.map((traveler, index) => {
+          // Generate proper GuestCode based on actual guests
+          const guestCount = 1; // Each room has 1 guest in this mapping
+          const guestTypes = traveler.PTC === "ADT" ? "A" : "C";
+          const ages = "25"; // Always use 25 for adults
+          const guestCode = `|1|${guestCount}:${guestTypes}:${ages}|`;
+
+          // Generate GuestID using base64 encoding of guest name
+          const generateGuestID = (firstName, lastName) => {
+            const fullName = `${firstName}${lastName}`.toUpperCase();
+            return btoa(fullName).substring(0, 4);
+          };
+
+          return {
+            RoomId: selectedRoomData?.room?.id || selectedRoomData?.id || selectedRoomData?.roomId || `room_${index}`,
+            GuestCode: guestCode,
+            SupplierName: selectedRoomData?.providerName || "Travex",
+            RoomGroupId: selectedRoomData?.id || `roomgroup_${index}`,
+            Guests: [{
+              GuestID: generateGuestID(traveler.FName || '', traveler.LName || ''),
+              Operation: "U",
+              Title: traveler.Title || "Mr",
+              FirstName: traveler.FName || "",
+              MiddleName: "",
+              LastName: traveler.LName || "",
+              MobileNo: contactInfo?.Mobile || "",
+              PaxType: traveler.PTC === "ADT" ? "A" : "C",
+              Age: "25", // Always use 25 for adults
+              Email: contactInfo?.Email || "",
+              Pan: traveler.PassportNo || "",
+              ProfileType: "T",
+              EmployeeId: "",
+              corporateCompanyID: ""
+            }]
+          };
+        }),
+        NetAmount: selectedRoomData?.totalRate?.toString() || netAmountNumber.toString(),
         ClientID: localStorage.getItem("ClientID") || "",
         DeviceID: "",
         AppVersion: "",
         SearchId: hotelSearchData?.searchId || "",
-        RecommendationId: hotelSearchData?.searchId || "",
+        RecommendationId: selectedRoomData?.recommendationId || selectedRoomData?.roomId || hotelSearchData?.searchId || "",
         LocationName: hotelSearchData?.location?.name || null,
         HotelCode: hotelSearchData?.hotelCode || "",
         CheckInDate: hotelSearchData?.checkIn || "",
@@ -653,9 +671,9 @@ const Createitenary = () => {
         } catch (checkListError) {
           // console.error('Failed to fetch travel checklist', {
           //   message: checkListError.message,
-            response: checkListError.response?.data,
-            status: checkListError.response?.status
-          });
+          //   response: checkListError.response?.data,
+          //   status: checkListError.response?.status
+          // });
           // Continue with CreateItinerary even if travel checklist fails
         }
 

@@ -81,6 +81,63 @@ const HotelBookingConfirmation = () => {
   const [expandedSections, setExpandedSections] = useState({
     importantInfo: false
   });
+  const [headerHeight, setHeaderHeight] = useState(128);
+
+  useEffect(() => {
+    const calculateHeaderHeight = () => {
+      const headerDiv = document.querySelector('.header-wrapper-div') as HTMLElement;
+      if (headerDiv) {
+        const height = headerDiv.offsetHeight;
+        setHeaderHeight(height);
+      } else {
+        // Fallback heights based on screen size
+        const width = window.innerWidth;
+        if (width < 540) {
+          setHeaderHeight(80);
+        } else if (width < 768) {
+          setHeaderHeight(90);
+        } else {
+          setHeaderHeight(128);
+        }
+      }
+    };
+
+    // Calculate header height after a short delay to ensure DOM is ready
+    setTimeout(calculateHeaderHeight, 100);
+
+    window.addEventListener('resize', calculateHeaderHeight);
+    window.addEventListener('scroll', calculateHeaderHeight);
+
+    return () => {
+      window.removeEventListener('resize', calculateHeaderHeight);
+      window.removeEventListener('scroll', calculateHeaderHeight);
+    };
+  }, []);
+
+  // Recalculate header height when component mounts
+  useEffect(() => {
+    const calculateHeaderHeight = () => {
+      const headerDiv = document.querySelector('.header-wrapper-div') as HTMLElement;
+      if (headerDiv) {
+        const height = headerDiv.offsetHeight;
+        setHeaderHeight(height);
+      } else {
+        // Fallback heights based on screen size
+        const width = window.innerWidth;
+        if (width < 540) {
+          setHeaderHeight(80);
+        } else if (width < 768) {
+          setHeaderHeight(90);
+        } else {
+          setHeaderHeight(128);
+        }
+      }
+    };
+
+    // Calculate immediately and after a delay
+    calculateHeaderHeight();
+    setTimeout(calculateHeaderHeight, 200);
+  }, []);
 
   useEffect(() => {
     const fetchBookingDetails = async () => {
@@ -265,7 +322,7 @@ const HotelBookingConfirmation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" style={{ paddingTop: `${headerHeight}px` }}>
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Success Header */}
         <div className="text-center mb-8">

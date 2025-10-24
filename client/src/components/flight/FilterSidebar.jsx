@@ -307,7 +307,7 @@ const FilterSidebar = ({ onClose }) => {
       </div>
 
       {/* Internal Scoped Styling */}
-      <style jsx>{`
+      <style>{`
         .filter-input {
           width: 100%;
           padding: 0.6rem 0.75rem;

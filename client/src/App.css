@@ -1,65 +1,5 @@
-@font-face {
-  font-family: "Poppins";
-  src: url("../fonts/poppins/Poppins-Light.woff2") format("woff2"),
-    url("../fonts/poppins/Poppins-Light.woff") format("woff");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Poppins";
-  src: url("../fonts/poppins/Poppins-Italic.woff2") format("woff2"),
-    url("../fonts/poppins/Poppins-Italic.woff") format("woff");
-  font-weight: normal;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Poppins";
-  src: url("../fonts/poppins/Poppins-Bold.woff2") format("woff2"),
-    url("../fonts/poppins/Poppins-Bold.woff") format("woff");
-  font-weight: bold;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Poppins";
-  src: url("../fonts/poppins/Poppins-LightItalic.woff2") format("woff2"),
-    url("../fonts/poppins/Poppins-LightItalic.woff") format("woff");
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Poppins";
-  src: url("../fonts/poppins/Poppins-SemiBold.woff2") format("woff2"),
-    url("../fonts/poppins/Poppins-SemiBold.woff") format("woff");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Poppins";
-  src: url("../fonts/poppins/Poppins-Regular.woff2") format("woff2"),
-    url("../fonts/poppins/Poppins-Regular.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Poppins";
-  src: url("../fonts/poppins/Poppins-Medium.woff2") format("woff2"),
-    url("../fonts/poppins/Poppins-Medium.woff") format("woff");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
+/* Using Google Fonts instead of local font files to avoid font decoding errors */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
 
 body {
   --PrimaryColor: #16437c;
@@ -2337,6 +2277,273 @@ a:hover {
   .hotel-loading-spinner {
     width: 50px;
     height: 50px;
+  }
+}
+
+/* Beautiful Input Styling */
+.beautiful-input-container {
+  position: relative;
+  width: 100%;
+  background: var(--whitecolor);
+  border: 2px solid var(--borderColor);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.beautiful-input-container:focus-within {
+  border-color: var(--PrimaryColor);
+  box-shadow: 0 4px 16px rgba(22, 67, 124, 0.15);
+  transform: translateY(-1px);
+}
+
+.beautiful-input {
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--headingColor);
+  font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease;
+}
+
+.beautiful-input::placeholder {
+  color: var(--textcolor);
+  font-weight: 400;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.beautiful-input:focus::placeholder {
+  opacity: 0.5;
+  transform: translateY(-2px);
+}
+
+.beautiful-input-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--PrimaryColor), var(--YellowColor));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.beautiful-input-container:focus-within::before {
+  transform: scaleX(1);
+}
+
+/* Loading spinner positioning for beautiful input */
+.beautiful-input-container .position-absolute {
+  right: 20px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+/* Responsive styling for beautiful input */
+@media screen and (max-width: 768px) {
+  .beautiful-input {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+  
+  .beautiful-input-container {
+    border-radius: 10px;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .beautiful-input {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  
+  .beautiful-input-container {
+    border-radius: 8px;
+  }
+  
+  .beautiful-input-container .position-absolute {
+    right: 16px !important;
+  }
+}
+
+/* Selected Location Card */
+.selected-location-card {
+  background: linear-gradient(135deg, var(--whitecolor) 0%, #f8fafc 100%);
+  /* border: 2px solid var(--PrimaryColor); */
+  border-radius: 16px;
+  padding: 0;
+  margin: 0;
+  /* box-shadow: 0 8px 32px rgba(22, 67, 124, 0.12); */
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+}
+
+.selected-location-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--PrimaryColor), var(--YellowColor));
+}
+
+
+
+.selected-location-content {
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
+  /* margin:  10px; */
+  /* gap: 16px; */
+}
+
+.selected-location-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--PrimaryColor), var(--YellowColor));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--whitecolor);
+  font-size: 20px;
+  /* box-shadow: 0 4px 12px rgba(22, 67, 124, 0.3); */
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.selected-location-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.selected-location-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--headingColor);
+  margin: 0 0 4px 0;
+  font-family: "Poppins", sans-serif;
+  line-height: 1.3;
+}
+
+.selected-location-subtitle {
+  font-size: 14px;
+  color: var(--textcolor);
+  margin: 0 0 8px 0;
+  font-family: "Poppins", sans-serif;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+.selected-location-badge {
+  display: inline-block;
+  background: var(--LightBg);
+  color: var(--PrimaryColor);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: "Poppins", sans-serif;
+  /* border: 1px solid rgba(22, 67, 124, 0.1); */
+}
+
+.selected-location-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.selected-location-change-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--LightBg);
+  /* border: 1px solid var(--borderColor); */
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* color: var(--PrimaryColor); */
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.selected-location-change-btn:hover {
+  background: var(--PrimaryColor);
+  color: var(--whitecolor);
+  border-color: var(--PrimaryColor);
+  transform: scale(1.05);
+}
+
+.selected-location-footer {
+  background: rgba(22, 67, 124, 0.05);
+  /* border-top: 1px solid rgba(22, 67, 124, 0.1); */
+  padding: 12px 24px;
+}
+
+.selected-location-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--PrimaryColor);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: "Poppins", sans-serif;
+}
+
+.selected-location-status i {
+  font-size: 14px;
+  color: #10b981;
+}
+
+/* Responsive Design for Selected Location Card */
+@media screen and (max-width: 768px) {
+  .selected-location-content {
+    padding: 16px 20px;
+    gap: 12px;
+  }
+  
+  .selected-location-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .selected-location-title {
+    font-size: 16px;
+  }
+  
+  .selected-location-subtitle {
+    font-size: 13px;
+  }
+  
+  .selected-location-footer {
+    padding: 10px 20px;
+  }
+}
+
+@media screen and (max-width: 540px) {
+  .selected-location-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .selected-location-actions {
+    align-self: flex-end;
+  }
+  
+  .selected-location-details {
+    width: 100%;
   }
 }
 

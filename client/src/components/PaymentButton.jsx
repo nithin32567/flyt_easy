@@ -258,9 +258,9 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 // console.error('❌ Error polling booking status:', error);
                 // console.error('Error details:', {
                 //     message: error.message,
-                    response: error.response?.data,
-                    status: error.response?.status
-                });
+                //     response: error.response?.data,
+                //     status: error.response?.status
+                // });
                 
                 // If it's a network error, continue polling
                 if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {

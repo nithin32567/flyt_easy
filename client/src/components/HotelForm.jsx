@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 
 const HotelForm = ({
   searchterm,
@@ -18,141 +17,13 @@ const HotelForm = ({
   handleDateSelect,
   handleRoomsSelect,
   handlePriceSelect,
+  handleLocationSelect,
   setRooms,
   setPriceRange
 }) => {
-  const [showResults, setShowResults] = useState(false);
-  const [autosuggestResults, setAutosuggestResults] = useState([]);
-  const [isAutosuggestLoading, setIsAutosuggestLoading] = useState(false);
-  const searchRef = useRef(null);
-  const resultsRef = useRef(null);
-  const debounceTimeoutRef = useRef(null);
-
-  // Close results when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target) &&
-        resultsRef.current && !resultsRef.current.contains(event.target)) {
-        setShowResults(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Cleanup debounce timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const handleAutoSuggest = async () => {
-    if (searchterm.length < 3) {
-      setAutosuggestResults([]);
-      return;
-    }
-
-
-
-    // Clear previous timeout
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-
-    // Debounce the API call
-    debounceTimeoutRef.current = setTimeout(async () => {
-      setIsAutosuggestLoading(true);
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/hotel/autosuggest`, {
-          params: { term: searchterm },
-        });
-
-        // console.log('Autosuggest API response:', response.data);
-
-        // Handle different possible response structures
-        let results = [];
-        if (response.data) {
-          if (response.data.locations) {
-            results = response.data.locations;
-          } else if (response.data.data) {
-            results = response.data.data;
-          } else if (Array.isArray(response.data)) {
-            results = response.data;
-          } else if (response.data.results) {
-            results = response.data.results;
-          } else if (response.data.suggestions) {
-            results = response.data.suggestions;
-          } else if (response.data.items) {
-            results = response.data.items;
-          }
-        }
-
-        // console.log('Processed autosuggest results:', results);
-        // console.log('Number of results:', results.length);
-        setAutosuggestResults(results);
-      } catch (error) {
-        // console.error('Autosuggest error:', error);
-        setAutosuggestResults([]);
-      } finally {
-        setIsAutosuggestLoading(false);
-      }
-    }, 300); // 300ms debounce
-  };
-
-  const handleLocationSelect = (location) => {
-    handleHotelLocationSelect(location);
-    setSearchterm(location.fullName);
-    setShowResults(false);
-  };
-
-  const handleTrendingSearch = async (locationName) => {
-    setSearchterm(locationName);
-    setShowResults(true);
-    setIsAutosuggestLoading(true);
-    
-    try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/hotel/autosuggest`, {
-        params: { term: locationName },
-      });
-
-      // console.log('Trending search autosuggest API response:', response.data);
-
-      let results = [];
-      if (response.data) {
-        if (response.data.locations) {
-          results = response.data.locations;
-        } else if (response.data.data) {
-          results = response.data.data;
-        } else if (Array.isArray(response.data)) {
-          results = response.data;
-        } else if (response.data.results) {
-          results = response.data.results;
-        } else if (response.data.suggestions) {
-          results = response.data.suggestions;
-        } else if (response.data.items) {
-          results = response.data.items;
-        }
-      }
-
-      // console.log('Processed trending search results:', results);
-      setAutosuggestResults(results);
-    } catch (error) {
-      // console.error('Trending search autosuggest error:', error);
-      setAutosuggestResults([]);
-    } finally {
-      setIsAutosuggestLoading(false);
-    }
-  };
   return (
-    <div className=' relative '>
+    <div className=' relative  '>
       <div
-
         style={{ overflow: 'visible', position: '' }}
         className="tab-pane fade show active "
         id="profile"
@@ -179,86 +50,24 @@ const HotelForm = ({
             </li>
           </ul>
         </div>
-        <div className="row">
+        <div className="row py-4">
           <div className="col-lg-5">
             <div className="row">
-              <div className="col-lg-7 col-md-6 border py-2 px-4 rounded-lg position-relative" ref={searchRef}>
-                <div className="position-relative">
-                  <input
-                    className="select-items w-full"
-                    type="text"
-                    placeholder="City, Property name or Location"
-                    value={searchterm}
-                    onChange={(e) => {
-                      setSearchterm(e.target.value);
-                      setShowResults(e.target.value.length >= 3);
-                      if (e.target.value.length >= 3) {
-                        handleAutoSuggest();
-                      } else {
-                        setAutosuggestResults([]);
-                      }
-                    }}
-                    onFocus={() => setShowResults(searchterm.length >= 3 && (autosuggestResults.length > 0 || isAutosuggestLoading))}
-                  />
-                  {(isLoading || isAutosuggestLoading) && (
-                    <div className="position-absolute" style={{ right: '10px', top: '50%', transform: 'translateY(-50%)' }}>
-                      <div className="spinner-border spinner-border-sm text-primary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
-                    </div>
+              <div className="col-lg-7 col-md-6">
+                <button
+                  className="select-items w-100 text-start"
+                  onClick={handleLocationSelect}
+                >
+                  <h6>Where are you going?</h6>
+                  <h2>
+                    {selectedHotelLocation ? selectedHotelLocation.name : 'Select Location'}
+                  </h2>
+                  {selectedHotelLocation && (
+                    <p className="text-muted small mb-0">{selectedHotelLocation.fullName}</p>
                   )}
-                </div>
-                {showResults && (
-                  <div
-                    ref={resultsRef}
-                    className=" bg-white border rounded shadow-lg w-100 mt-1 z-3"
-                    style={{
-                      top: '100%',
-                      left: 0,
-                      maxHeight: '300px',
-                      overflowY: 'auto',
-                      zIndex: 1050
-                    }}
-                  >
-                    {/* console.log('Current autosuggestResults:', autosuggestResults) */}
-                    {isAutosuggestLoading ? (
-                      <div className="p-3 text-center">
-                        <div className="spinner-border spinner-border-sm text-primary me-2"></div>
-                        <span className="text-muted">Searching locations...</span>
-                      </div>
-                    ) : autosuggestResults.length > 0 ? (
-                      autosuggestResults.map((location, index) => (
-                        <div
-                          key={index}
-                          className="p-2 border-bottom cursor-pointer hover-bg-light"
-                          onClick={() => handleLocationSelect(location)}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          <div className="fw-bold">{location.name}</div>
-                          <div className="text-muted small">{location.fullName}</div>
-                          {location.type && (
-                            <span className="badge bg-secondary ms-2">{location.type}</span>
-                          )}
-                        </div>
-                      ))
-                    ) : searchterm.length >= 3 ? (
-                      <div className="p-3 text-muted text-center">
-                        No results found for "{searchterm}"
-                      </div>
-                    ) : null}
-                  </div>
-                )}
+                </button>
               </div>
-              {selectedHotelLocation && (
-                <div className="col-12 mt-2">
-                  <div className="alert alert-success d-flex align-items-center" role="alert">
-                    <i className="fas fa-check-circle me-2"></i>
-                    <div>
-                      <strong>Selected:</strong> {selectedHotelLocation.name} ({selectedHotelLocation.type})
-                    </div>
-                  </div>
-                </div>
-              )}
+              
               <div className="col-lg-5 col-md-6">
                 <button
                   className="select-items"
@@ -320,27 +129,50 @@ const HotelForm = ({
                     cursor: selectedHotelLocation ? 'pointer' : 'not-allowed'
                   }}
                 >
-                  {selectedHotelLocation ? 'Hotel Search' : 'Select Location First'}
+                  {selectedHotelLocation ? 'Search Hotels' : 'Select Location'}
                 </button>
               </div>
             </div>
           </div>
         </div>
-        <div className="trendingsearches">
-          <h5>Trending Searches:</h5>
-          <ul>
-            <li>
-              <button onClick={() => handleTrendingSearch('Dubai, United Arab Emirates')}>Dubai, United Arab Emirates</button>
-            </li>
-            <li>
-              <button onClick={() => handleTrendingSearch('Mumbai, India')}>Mumbai, India</button>
-            </li>
-            <li>
-              <button onClick={() => handleTrendingSearch('London, United Kingdom')}>London, United Kingdom</button>
-            </li>
-          </ul>
-        </div>
       </div>
+      {selectedHotelLocation && (
+                <div className="col-12 mt-3 ">
+                  <div className="selected-location-card">
+                    <div className="selected-location-content">
+                      <div className="selected-location-icon">
+                        <i className="fas fa-map-marker-alt"></i>
+                      </div>
+                      <div className="selected-location-details">
+                        <div className="selected-location-title">
+                          {selectedHotelLocation.name}
+                        </div>
+                        <div className="selected-location-subtitle">
+                          {selectedHotelLocation.fullName}
+                        </div>
+                        <div className="selected-location-badge">
+                          {selectedHotelLocation.type}
+                        </div>
+                      </div>
+                      <div className="selected-location-actions">
+                        <button 
+                          className="selected-location-change-btn"
+                          onClick={handleLocationSelect}
+                          title="Change Location"
+                        >
+                          <i className="fas fa-edit"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div className="selected-location-footer">
+                      <div className="selected-location-status">
+                        <i className="fas fa-check-circle"></i>
+                        <span>Location Selected</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
     </div>
   );
 };

@@ -5,6 +5,7 @@ import HotelForm from "./HotelForm";
 import { CalanderModal } from "./modals/CalanderModal";
 import HotelRoomsModal from "./modals/HotelRoomsModal";
 import HotelPriceModal from "./modals/HotelPriceModal";
+import HotelLocationModal from "./modals/HotelLocationModal";
 import HotelLoadingScreen from "./HotelLoadingScreen";
 
 const HotelSearch = ({
@@ -29,9 +30,11 @@ const HotelSearch = ({
   const [isCalanderModalOpen, setIsCalanderModalOpen] = useState(false);
   const [dateType, setDateType] = useState("checkIn");
   const [rooms, setRooms] = useState(1);
+  const [childAges, setChildAges] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 1500 });
   const [isRoomsModalOpen, setIsRoomsModalOpen] = useState(false);
   const [isPriceModalOpen, setIsPriceModalOpen] = useState(false);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
   async function hotelSearch(e) {
     e.preventDefault();
@@ -77,13 +80,50 @@ const HotelSearch = ({
           day: '2-digit', 
           year: 'numeric' 
         }),
-        rooms: [
-          {
-            adults: adults.toString(),
-            children: children.toString(),
-            childAges: []
+        rooms: (() => {
+          const roomDistribution = [];
+          let remainingAdults = adults;
+          let remainingChildren = children;
+          let remainingChildAges = [...childAges];
+          
+          for (let i = 0; i < rooms; i++) {
+            const isLastRoom = i === rooms - 1;
+            
+            if (isLastRoom) {
+              // Last room gets all remaining guests
+              roomDistribution.push({
+                adults: remainingAdults.toString(),
+                children: remainingChildren.toString(),
+                childAges: remainingChildAges
+              });
+            } else {
+              // Calculate how many guests to put in this room
+              const roomsLeft = rooms - i;
+              const adultsForThisRoom = Math.ceil(remainingAdults / roomsLeft);
+              const childrenForThisRoom = Math.ceil(remainingChildren / roomsLeft);
+              
+              // Ensure we don't exceed remaining guests
+              const actualAdults = Math.min(adultsForThisRoom, remainingAdults);
+              const actualChildren = Math.min(childrenForThisRoom, remainingChildren);
+              
+              // Get child ages for this room
+              const childAgesForThisRoom = remainingChildAges.slice(0, actualChildren);
+              
+              roomDistribution.push({
+                adults: actualAdults.toString(),
+                children: actualChildren.toString(),
+                childAges: childAgesForThisRoom
+              });
+              
+              // Update remaining counts
+              remainingAdults -= actualAdults;
+              remainingChildren -= actualChildren;
+              remainingChildAges = remainingChildAges.slice(actualChildren);
+            }
           }
-        ],
+          
+          return roomDistribution;
+        })(),
         agentCode: "14005",
         destinationCountryCode: "IN",
         nationality: "IN",
@@ -96,8 +136,8 @@ const HotelSearch = ({
         tdsPercentage: 0
       };
 
-      // console.log('=== FRONTEND: HOTEL SEARCH INITIATED ===');
-      // console.log('Payload:', JSON.stringify(payload, null, 2));
+      console.log('=== FRONTEND: HOTEL SEARCH INITIATED ===');
+      console.log('Payload:', JSON.stringify(payload, null, 2));
 
       // Step 1: Call init API
       // console.log('=== FRONTEND: CALLING INIT API ===');
@@ -255,6 +295,7 @@ const HotelSearch = ({
     setRooms(data.rooms);
     setAdults(data.adults);
     setChildren(data.children);
+    setChildAges(data.childAges || []);
     setIsRoomsModalOpen(false);
   };
 
@@ -265,6 +306,10 @@ const HotelSearch = ({
   const handlePriceApply = (data) => {
     setPriceRange(data.priceRange);
     setIsPriceModalOpen(false);
+  };
+
+  const handleLocationSelect = () => {
+    setIsLocationModalOpen(true);
   };
 
   return (
@@ -286,6 +331,7 @@ const HotelSearch = ({
         handleDateSelect={handleDateSelect}
         handleRoomsSelect={handleRoomsSelect}
         handlePriceSelect={handlePriceSelect}
+        handleLocationSelect={handleLocationSelect}
         setRooms={setRooms}
         setPriceRange={setPriceRange}
       />
@@ -307,7 +353,7 @@ const HotelSearch = ({
         isOpen={isRoomsModalOpen}
         setIsOpen={setIsRoomsModalOpen}
         onApply={handleRoomsApply}
-        initial={{ rooms, adults, children }}
+        initial={{ rooms, adults, children, childAges }}
       />
       
       {/* Price Modal */}
@@ -316,6 +362,15 @@ const HotelSearch = ({
         setIsOpen={setIsPriceModalOpen}
         onApply={handlePriceApply}
         initial={priceRange}
+      />
+      
+      {/* Location Modal */}
+      <HotelLocationModal
+        isOpen={isLocationModalOpen}
+        setIsOpen={setIsLocationModalOpen}
+        onLocationSelect={handleHotelLocationSelect}
+        searchTerm={searchterm}
+        setSearchTerm={setSearchterm}
       />
     </>
   );

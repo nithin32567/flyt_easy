@@ -23,9 +23,9 @@ export const generateToken = async (req, res) => {
 
     // console.log(response, "response");
     const data = await response.json();
-    // console.log(data, "data");
+    console.log(data, "data");
     const token = data?.Token;
-    // console.log(token, "token");
+    console.log(token, "token");
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
