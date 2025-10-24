@@ -1,91 +1,83 @@
-import React, { useEffect, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
-// import Login from "./pages/Login";
+import { useEffect } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import FlightSearch from "./pages/FlightSearch";
-// import FlightListing from "./pages/FlightListing";
 import OneWayReview from "./components/OneWayReview";
-// import PaxDetails from "./pages/Pax-details";
-// import Luggage from "./components/Luggage";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import PaymentError from "./pages/PaymentError";
 import PaymentSuccess from "./pages/PaymentSucccess";
-import HotelBooking from "./pages/HotelBooking";
-import HotelDetails from "./pages/HotelDetails";
+import HotelBooking from "./pages/hotel/HotelBooking";
+import HotelBookingConfirmation from "./pages/hotel/HotelBookingConfirmation";
+// import HotelDetails from "./pages/hotel/HotelDetails";
+import HotelDetailsNew from "./pages/hotel/HotelDetailsNew";
+import HotelResults from "./pages/hotel/HotelResults";
 import HotelPaymentSuccess from "./pages/HotelPaymentSuccess";
 import Home from "./pages/Home";
-import Demobanner from "./components/Demobanner";
-import HeaderSection from "./components/HeaderSection";
 import ListFlights from "./pages/ListFlights";
 import Createitenary from "./pages/Createitenary";
-import Footer1 from "./components/Footer1";
 import HeaderWrapper from "./components/HeaderWrapper";
 import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UserProfile from "./components/UserProfile";
+import FlightBookingDetails from "./pages/FlightBookingDetails";
+import UserBookings from "./pages/UserBookings";
+import BookingDetailsAccordion from "./pages/BookingDetailsAccordion";
 import { FlightProvider } from "./contexts/FlightContext";
 import { WebSettingsProvider, useWebSettings } from "./contexts/WebSettingsContext";
-import { AuthProvider } from "./contexts/AuthContext";
+import { useAuth } from "./contexts/AuthContext";
 
-// Component to handle app initialization
 const AppContent = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { fetchWebSettings, loading: webSettingsLoading } = useWebSettings();
+  const { loading: authLoading } = useAuth();
 
   useEffect(() => {
-   
+
     const initializeApp = async () => {
       try {
-        // Only clear authentication-related data if needed, not all localStorage
-        // localStorage.clear() // Removed this line as it was clearing trips data
-        // First fetch signature for authentication
         const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/api/signature`
         );
         const data = await response.json();
-        console.log(data, "signature data");
-        
+        // console.log(data, "signature data");
+
         localStorage.setItem("token", data.token);
         localStorage.setItem("ClientID", data.ClientID);
         if (data?.TUI) {
           localStorage.setItem("TUI", data.TUI);
         }
-        
-        // WebSettings will now be called after ExpressSearch completes
-        // No need to call it here during app initialization
       } catch (error) {
-        console.error("Error initializing app:", error);
+        // console.error("Error initializing app:", error);
       }
     };
 
     initializeApp();
-  }, []); // Empty dependency array - only run once on mount
+  }, []);
 
-  if (webSettingsLoading) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  if (webSettingsLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading application settings...</p>
+          <p className="text-gray-600">Loading application...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="">
+    <div className="min-h-screen">
       <HeaderWrapper />
-
-      <Routes>
-        {/* Public routes - accessible without authentication */}
+      
+      <main className="content-with-header">
+        <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
-        <Route path="/dmo" element={<Home />} />
-        <Route path="/demobanner" element={<Demobanner />} />
-        <Route path="/header-section" element={<HeaderSection />} />
-        <Route path="/footer1" element={<Footer1 />} />
-        <Route path="/footer" element={<Footer />} />
-        
-        {/* Protected routes - require authentication */}
         <Route path="/flight-search" element={
           <ProtectedRoute>
             <FlightSearch />
@@ -121,9 +113,19 @@ const AppContent = () => {
             <HotelBooking />
           </ProtectedRoute>
         } />
+        <Route path="/hotel-booking-confirmation" element={
+          <ProtectedRoute>
+            <HotelBookingConfirmation />
+          </ProtectedRoute>
+        } />
+        <Route path="/hotel-results" element={
+          <ProtectedRoute>
+            <HotelResults />
+          </ProtectedRoute>
+        } />
         <Route path="/hotel-details/:hotelId" element={
           <ProtectedRoute>
-            <HotelDetails />
+            <HotelDetailsNew />
           </ProtectedRoute>
         } />
         <Route path="/hotel-payment-success" element={
@@ -141,8 +143,28 @@ const AppContent = () => {
             <OneWayReview />
           </ProtectedRoute>
         } />
-        {/* <Route path="/flight-listing" element={<FlightListing />} /> */}
-      </Routes>
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <UserProfile />
+          </ProtectedRoute>
+        } />
+        <Route path="/booking-details/:bookingId" element={
+          <ProtectedRoute>
+            <FlightBookingDetails />
+          </ProtectedRoute>
+        } />
+        <Route path="/bookings" element={
+          <ProtectedRoute>
+            <UserBookings />
+          </ProtectedRoute>
+        } />
+        <Route path="/bookings-accordion" element={
+          <ProtectedRoute>
+            <BookingDetailsAccordion />
+          </ProtectedRoute>
+        } />
+        </Routes>
+      </main>
       <Footer />
     </div>
   );
@@ -150,13 +172,11 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <AuthProvider>
-      <WebSettingsProvider>
-        <FlightProvider>
-          <AppContent />
-        </FlightProvider>
-      </WebSettingsProvider>
-    </AuthProvider>
+    <WebSettingsProvider>
+      <FlightProvider>
+        <AppContent />
+      </FlightProvider>
+    </WebSettingsProvider>
   );
 };
 

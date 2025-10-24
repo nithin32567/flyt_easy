@@ -6,7 +6,7 @@ const HeaderSection = () => {
 
   function takeScrollPosition() {
     const scrollPosition = window.scrollY;
-    // console.log(scrollPosition);
+    // // console.log(scrollPosition);
     setScrollPosition(scrollPosition);
   }
 
@@ -20,7 +20,7 @@ const HeaderSection = () => {
   return (
     <div className="bg-white w-full  md:rounded-xl md:py-6 py-1 px-4 md:px-12 flex justify-between items-center">
       <div className="flex  justify-between items-center max-w-xs">
-        <a href="#">
+        <a href="/home">
           <img className="md:w-[60%] w-[100px]" src={logo} alt="Flyteasy" />
         </a>
       </div>

@@ -103,7 +103,7 @@ const MultiCitySearch = ({
       TUI: ""
     }));
 
-    console.log("Multi-city trips:", trips);
+    // console.log("Multi-city trips:", trips);
     onSearch(trips);
   };
 

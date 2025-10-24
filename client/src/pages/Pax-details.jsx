@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const PaxDetails = () => {
   // --- State Definitions (do not remove) ---
   const oneWayReviewData = JSON.parse(localStorage.getItem('oneWayReviewData'));
-  console.log(oneWayReviewData, '================================= oneWayReviewData');
+  // console.log(oneWayReviewData, '================================= oneWayReviewData');
 
   const navigate = useNavigate();
   const [ContactInfo, setContactInfo] = useState({
@@ -55,7 +55,7 @@ const PaxDetails = () => {
   
       launchRazorpay(data.order);
     } catch (err) {
-      console.error("Error initiating Razorpay:", err);
+      // console.error("Error initiating Razorpay:", err);
       alert("Payment initiation failed.");
     }
   };
@@ -147,17 +147,17 @@ const PaxDetails = () => {
       // })
       //   .then(res => res.json())
       //   .then(data => {
-      //     console.log("Itinerary background created:", data);
+      //     // console.log("Itinerary background created:", data);
       //     // Optionally store or notify here
       //   })
       //   .catch(err => {
-      //     console.error("Itinerary background creation failed:", err);
+      //     // console.error("Itinerary background creation failed:", err);
       //     // Optional: Retry logic or queueing
       //   });
   
 
     } catch (error) {
-      console.error('Payment flow error:', error);
+      // console.error('Payment flow error:', error);
       navigate('/payment-error', {
         state: {
           errorData: {
@@ -184,8 +184,8 @@ const PaxDetails = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(ContactInfo, '================================= contactData');
-    console.log(Travellers, '================================= travellerData');
+    // console.log(ContactInfo, '================================= contactData');
+    // console.log(Travellers, '================================= travellerData');
     localStorage.setItem('contactInfo', JSON.stringify(ContactInfo));
     localStorage.setItem('travellers', JSON.stringify(Travellers));
   };

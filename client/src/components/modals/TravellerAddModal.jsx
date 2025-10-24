@@ -110,7 +110,7 @@ export default function TravellerAddModal({
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mb-4">
-              {["Economy", "Premium Economy", "Business"].map((cls) => (
+              {["Economy", "Premium Economy", "Business", "First Class"].map((cls) => (
                 <button
                   key={cls}
                   type="button"

@@ -23,8 +23,10 @@ app.use(morgan("dev"));
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
   "http://localhost:3000",
   "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
   "http://127.0.0.1:3000",
   "http://147.93.18.244",
   "https://your-domain.com",
@@ -45,10 +47,28 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With', 
+    'search-tracing-key',
+    'Accept',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers'
+  ],
 };
 
 app.use(cors(corsOptions));
+
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Origin:', req.headers.origin);
+  console.log('CORS preflight:', req.method === 'OPTIONS');
+  next();
+});
 
 app.use(express.static(path.resolve(__dirname, "../client/dist")));
 
@@ -58,6 +78,7 @@ app.use("/api", indexRoutes);
 
 
 const PORT = 3000;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

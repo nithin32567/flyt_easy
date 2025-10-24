@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import flyteasyLogo from "../assets/img/flyteasy-logo.png";
 import LogoutButton from "./LogoutButton";
 
@@ -8,6 +8,7 @@ const HeaderWrapper = () => {
   const [isFixed, setIsFixed] = useState(false);
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const headerRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,17 +21,33 @@ const HeaderWrapper = () => {
       }
     };
 
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        const height = headerRef.current.offsetHeight;
+        // console.log('=== HEADER HEIGHT CALCULATION ===');
+        // console.log('Header height:', height);
+        document.documentElement.style.setProperty('--header-height', `${height}px`);
+        window.dispatchEvent(new CustomEvent('headerHeightChanged', { 
+          detail: { height } 
+        }));
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', updateHeaderHeight);
+    
+    // Initial height calculation
+    updateHeaderHeight();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', updateHeaderHeight);
       document.body.classList.remove('f-nav');
     };
-  }, []);
+  }, []); // Remove isFixed dependency to prevent infinite loop
 
   return (
-    <div>
-      {" "}
+    <div ref={headerRef}>
       <section className="header-wrapper-div">
         {!isFixed && (
           <div className="header-topsection">
@@ -76,22 +93,21 @@ const HeaderWrapper = () => {
           <div className="header-wrapper">
             <div className="row">
               <div className="col-lg-6 col-md-6">
-                <a href="#">
+                  <Link  to='/'>
                   <img src={flyteasyLogo} alt="Flyteasy" />
-                </a>
+                </Link>
               </div>
               <div className="col-lg-6 col-md-6">
                 {isAuthenticated ? (
                   <LogoutButton />
                 ) : (
                   <>
-                    <button className="register-btn">register</button>
-                    <button 
-                      className="signin-btn"
-                      onClick={() => navigate('/login')}
-                    >
-                      Sign in
-                    </button>
+                    <Link to='/login'>
+                      <button className="register-btn">Register</button>
+                    </Link>
+                    <Link to='/login'>
+                      <button className="signin-btn">Sign in</button>
+                    </Link>
                   </>
                 )}
               </div>

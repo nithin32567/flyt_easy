@@ -7,19 +7,21 @@ export const generateToken = async (req, res) => {
       MerchantID: process.env.MERCHANT_ID,
       ApiKey: process.env.API_KEY,
       ClientID: process.env.CLIENT_ID.trim(),
-      Password: process.env.PASSWORD.trim(),
+      Password:process.env.PASSWORD.trim(),
       AgentCode: "",
       BrowserKey: process.env.BROWSER_KEY,
       Key: process.env.KEY,
     };
 
 
-    console.log(payload, "payload signature");
+    // console.log(payload, "payload signature");
     const response = await fetch(process.env.SIGNATURE_API, {
       method: "POST",
       body: JSON.stringify(payload),
       headers: { "Content-Type": "application/json" },
     });
+
+    // console.log(response, "response");
     const data = await response.json();
     console.log(data, "data");
     const token = data?.Token;

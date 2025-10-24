@@ -1,14 +1,19 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import useHeaderHeight from '../hooks/useHeaderHeight'
 
 const OneWayReview = () => {
     const navigate = useNavigate()
+    const headerHeight = useHeaderHeight()
     const oneWayReviewData = JSON.parse(localStorage.getItem("oneWayReviewData"))
-    console.log(oneWayReviewData, "oneWayReviewData=========================")
+    // console.log(oneWayReviewData, "oneWayReviewData=========================")
 
     if (!oneWayReviewData) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div 
+                className="min-h-screen bg-gray-50 flex items-center justify-center"
+                style={{ paddingTop: `${headerHeight + 20}px` }}
+            >
                 <div className="bg-white p-8 rounded-lg shadow-md">
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">No Booking Data Found</h2>
                     <p className="text-gray-600">Please complete a flight search to view booking details.</p>
@@ -18,7 +23,10 @@ const OneWayReview = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-40">
+        <div 
+            className="min-h-screen bg-gray-50"
+            style={{ paddingTop: `${headerHeight + 20}px` }}
+        >
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">

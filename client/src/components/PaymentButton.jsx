@@ -144,14 +144,14 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             // Return the response data which contains the status information
             return response.data;
         } catch (error) {
-            console.error('=== GET ITINERARY STATUS ERROR ===');
-            console.error('Error message:', error.message);
-            console.error('Error code:', error.code);
-            console.error('Error response status:', error.response?.status);
-            console.error('Error response data:', JSON.stringify(error.response?.data, null, 2));
-            console.error('Error response headers:', error.response?.headers);
-            console.error('Full error object:', error);
-            console.error('==================================');
+            // console.error('=== GET ITINERARY STATUS ERROR ===');
+            // console.error('Error message:', error.message);
+            // console.error('Error code:', error.code);
+            // console.error('Error response status:', error.response?.status);
+            // console.error('Error response data:', JSON.stringify(error.response?.data, null, 2));
+            // console.error('Error response headers:', error.response?.headers);
+            // console.error('Full error object:', error);
+            // console.error('==================================');
             throw error;
         }
     }
@@ -166,13 +166,13 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             };
             
             // Enhanced logging for RetrieveBooking
-            console.log('=== RETRIEVE BOOKING REQUEST ===');
-            console.log('Endpoint:', `${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`);
-            console.log('Request Payload:', JSON.stringify(payload, null, 2));
-            console.log('Request Headers:', JSON.stringify({
-                "Authorization": `Bearer ${token}`
-            }, null, 2));
-            console.log('=================================');
+            // console.log('=== RETRIEVE BOOKING REQUEST ===');
+            // console.log('Endpoint:', `${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`);
+            // console.log('Request Payload:', JSON.stringify(payload, null, 2));
+            // console.log('Request Headers:', JSON.stringify({
+            //     "Authorization": `Bearer ${token}`
+            // }, null, 2));
+            // console.log('=================================');
             
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, payload, {
                 headers: {
@@ -181,23 +181,23 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             });
             
             // Enhanced logging for RetrieveBooking response
-            console.log('=== RETRIEVE BOOKING RESPONSE ===');
-            console.log('Response Status:', response.status);
-            console.log('Response Headers:', JSON.stringify(response.headers, null, 2));
-            console.log('Response Data:', JSON.stringify(response.data, null, 2));
-            console.log('=================================');
+            // console.log('=== RETRIEVE BOOKING RESPONSE ===');
+            // console.log('Response Status:', response.status);
+            // console.log('Response Headers:', JSON.stringify(response.headers, null, 2));
+            // console.log('Response Data:', JSON.stringify(response.data, null, 2));
+            // console.log('=================================');
             
             // Return the response data which contains the booking details
             return response.data;
         } catch (error) {
-            console.error('=== RETRIEVE BOOKING ERROR ===');
-            console.error('Error message:', error.message);
-            console.error('Error code:', error.code);
-            console.error('Error response status:', error.response?.status);
-            console.error('Error response data:', JSON.stringify(error.response?.data, null, 2));
-            console.error('Error response headers:', error.response?.headers);
-            console.error('Full error object:', error);
-            console.error('==============================');
+            // console.error('=== RETRIEVE BOOKING ERROR ===');
+            // console.error('Error message:', error.message);
+            // console.error('Error code:', error.code);
+            // console.error('Error response status:', error.response?.status);
+            // console.error('Error response data:', JSON.stringify(error.response?.data, null, 2));
+            // console.error('Error response headers:', error.response?.headers);
+            // console.error('Full error object:', error);
+            // console.error('==============================');
             throw error;
         }
     }
@@ -205,78 +205,78 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
     async function pollBookingStatus(TUI, TransactionID, maxAttempts = 30) {
         let attempts = 0;
         
-        console.log('=== STARTING BOOKING STATUS POLLING ===');
-        console.log('TUI:', TUI);
-        console.log('TransactionID:', TransactionID);
-        console.log('Max Attempts:', maxAttempts);
-        console.log('=======================================');
+        // console.log('=== STARTING BOOKING STATUS POLLING ===');
+        // console.log('TUI:', TUI);
+        // console.log('TransactionID:', TransactionID);
+        // console.log('Max Attempts:', maxAttempts);
+        // console.log('=======================================');
         
         while (attempts < maxAttempts) {
             try {
-                console.log(`\n--- Polling Attempt ${attempts + 1}/${maxAttempts} ---`);
+                // console.log(`\n--- Polling Attempt ${attempts + 1}/${maxAttempts} ---`);
                 const statusResponse = await getItineraryStatus(TUI, TransactionID);
                 
-                console.log('Status Response Analysis:');
-                console.log('- Status:', statusResponse.status);
-                console.log('- Success:', statusResponse.success);
-                console.log('- Should Poll:', statusResponse.shouldPoll);
-                console.log('- Message:', statusResponse.message);
-                console.log('- CurrentStatus from API:', statusResponse.data?.CurrentStatus);
-                console.log('- PaymentStatus from API:', statusResponse.data?.PaymentStatus);
-                console.log('- Code from API:', statusResponse.data?.Code);
-                console.log('- Waiting for CurrentStatus to be Success or Failed...');
+                // console.log('Status Response Analysis:');
+                // console.log('- Status:', statusResponse.status);
+                // console.log('- Success:', statusResponse.success);
+                // console.log('- Should Poll:', statusResponse.shouldPoll);
+                // console.log('- Message:', statusResponse.message);
+                // console.log('- CurrentStatus from API:', statusResponse.data?.CurrentStatus);
+                // console.log('- PaymentStatus from API:', statusResponse.data?.PaymentStatus);
+                // console.log('- Code from API:', statusResponse.data?.Code);
+                // console.log('- Waiting for CurrentStatus to be Success or Failed...');
                 
                 // Check if the status response indicates completion
                 if (statusResponse.status === "SUCCESS") {
-                    console.log('✅ Booking completed successfully! Calling RetrieveBooking...');
+                    // console.log('✅ Booking completed successfully! Calling RetrieveBooking...');
                     // Only call RetrieveBooking after GetItineraryStatus returns Success
                     const bookingResponse = await retrieveBooking(TUI, TransactionID);
                     if (bookingResponse.success) {
                         localStorage.setItem("bookingDetails", JSON.stringify(bookingResponse.data));
-                        console.log('✅ Booking details retrieved and stored successfully');
+                        // console.log('✅ Booking details retrieved and stored successfully');
                         return { success: true, bookingData: bookingResponse.data };
                     } else {
-                        console.error('❌ Failed to retrieve booking details:', bookingResponse);
+                        // console.error('❌ Failed to retrieve booking details:', bookingResponse);
                         return { success: false, message: "Failed to retrieve booking details" };
                     }
                 } else if (statusResponse.status === "FAILED") {
                     const errorMessage = statusResponse.message || statusResponse.errorDetails?.join(' ') || "Booking failed";
-                    console.log('❌ Booking failed:', errorMessage);
+                    // console.log('❌ Booking failed:', errorMessage);
                     return { success: false, message: errorMessage, errorCode: statusResponse.errorCode };
                 } else if (statusResponse.status === "IN_PROGRESS" || statusResponse.shouldPoll) {
                     // Still in progress, wait and try again
-                    console.log('⏳ Booking still in progress, waiting 2 seconds before next attempt...');
+                    // console.log('⏳ Booking still in progress, waiting 2 seconds before next attempt...');
                     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
                     attempts++;
                 } else {
                     // Handle unexpected status
-                    console.log('⚠️ Unexpected status received, continuing to poll...');
+                    // console.log('⚠️ Unexpected status received, continuing to poll...');
                     await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
                     attempts++;
                 }
             } catch (error) {
-                console.error('❌ Error polling booking status:', error);
-                console.error('Error details:', {
-                    message: error.message,
-                    response: error.response?.data,
-                    status: error.response?.status
-                });
+                // console.error('❌ Error polling booking status:', error);
+                // console.error('Error details:', {
+                //     message: error.message,
+                //     response: error.response?.data,
+                //     status: error.response?.status
+                // });
                 
                 // If it's a network error, continue polling
                 if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
-                    console.log('🔄 Network error detected, continuing to poll...');
+                    // console.log('🔄 Network error detected, continuing to poll...');
                     attempts++;
                     await new Promise(resolve => setTimeout(resolve, 2000));
                 } else {
                     // For other errors, increment attempts and continue
-                    console.log('🔄 Error occurred, continuing to poll...');
+                    // console.log('🔄 Error occurred, continuing to poll...');
                     attempts++;
                     await new Promise(resolve => setTimeout(resolve, 2000));
                 }
             }
         }
         
-        console.log('⏰ Polling timeout reached after', maxAttempts, 'attempts');
+        // console.log('⏰ Polling timeout reached after', maxAttempts, 'attempts');
         return { success: false, message: "Booking status polling timeout" };
     }
 
@@ -343,16 +343,16 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                                     navigate("/payment-error");
                                 }
                             } catch (startPayError) {
-                                console.error('StartPay error:', startPayError);
+                                // console.error('StartPay error:', startPayError);
                                 alert(`❌ Payment Processing Failed: ${startPayError.message}`);
                                 navigate("/payment-error");
                             }
                         } else {
-                            console.error('Payment verification failed:', verify.data);
+                            // console.error('Payment verification failed:', verify.data);
                             alert("❌ Payment Verification Failed!");
                         }
                     } catch (error) {
-                        console.error('Error in payment verification:', error);
+                        // console.error('Error in payment verification:', error);
                         alert("❌ Payment Verification Failed!");
                     }
                 },
@@ -370,12 +370,12 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             rzp.open();
 
             rzp.on("payment.failed", function (response) {
-                console.error('Payment failed:', response);
+                // console.error('Payment failed:', response);
                 alert(`❌ Payment Failed: ${response.error.description}`);
                 setLoading(false);
             });
         } catch (err) {
-            console.error('Error in handlePayment:', err);
+            // console.error('Error in handlePayment:', err);
             alert("Something went wrong");
             setLoading(false);
         }

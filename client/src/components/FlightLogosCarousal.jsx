@@ -19,7 +19,7 @@ import gulfAir from "../assets/img/gulf-air.jpg";
 
 const FlightLogosCarousal = () => {
   const settings = {
-    dots: true,
+    dots: false,
     infinite: true,
     speed: 500,
     slidesToShow: 6,
@@ -27,7 +27,6 @@ const FlightLogosCarousal = () => {
     autoplay: true,
     autoplaySpeed: 3000,
     arrows: false,
-    dots: false,
     responsive: [
       {
         breakpoint: 1024,

@@ -24,7 +24,7 @@ const PassengerAddModal = ({ setShowModal, travellerData, setTravellerData }) =>
     const handleSubmit = (e) => {
         e.preventDefault();
         setTravellerData([...travellerData, passengerData]);
-        console.log(travellerData, '================================= travellerData');
+        // console.log(travellerData, '================================= travellerData');
         setShowModal(false);
     }
     return (

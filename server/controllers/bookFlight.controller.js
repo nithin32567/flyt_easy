@@ -1,6 +1,7 @@
 import axios from "axios";
 import crypto from "crypto";
 import Razorpay from "razorpay";
+import BookingDetails from "../models/bookingDetails.model.js";
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -212,7 +213,7 @@ export const getItineraryStatus = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     
     try {
-        const { TUI, TransactionID, ClientID } = req.body;
+        const { TUI, TransactionID, ClientID, userId, bookingData } = req.body;
         
         if (!TUI || !TransactionID) {
             return res.status(400).json({
@@ -249,6 +250,25 @@ export const getItineraryStatus = async (req, res) => {
         
         
         if (isCurrentStatusSuccess) {
+            if (userId && bookingData) {
+                try {
+                    const bookingDetails = new BookingDetails({
+                        userId,
+                        bookingData,
+                        transactionId: TransactionID,
+                        tui: TUI,
+                        totalAmount: bookingData.NetAmount || bookingData.GrossAmount || 0,
+                        status: 'current',
+                        paymentStatus: 'success'
+                    });
+                    
+                    await bookingDetails.save();
+                    console.log('Booking details saved successfully');
+                } catch (saveError) {
+                    console.error('Error saving booking details:', saveError);
+                }
+            }
+            
             return res.status(200).json({
                 success: true,
                 data: responseData,

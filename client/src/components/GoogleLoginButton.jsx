@@ -10,10 +10,10 @@ export default function GoogleLoginButton() {
   
   const handleSuccess = async (credentialResponse) => {
     try {
-      console.log("Google login successful, sending token to server...");
+      // console.log("Google login successful, sending token to server...");
       
       const baseUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
-      console.log("Base URL:", baseUrl);
+      // console.log("Base URL:", baseUrl);
       
       const res = await axios.post(`${baseUrl}/api/login/google-login`, {
         token: credentialResponse.credential,
@@ -24,7 +24,7 @@ export default function GoogleLoginButton() {
         withCredentials: true,
       });
       
-      console.log("Server response:", res.data);
+      // console.log("Server response:", res.data);
       
       // Update auth context with user data
       login(res.data.user);
@@ -35,9 +35,9 @@ export default function GoogleLoginButton() {
       
       alert("Login Success ✅");
     } catch (err) {
-      console.error("Login error:", err);
-      console.error("Error response:", err.response?.data);
-      console.error("Error status:", err.response?.status);
+      // console.error("Login error:", err);
+      // console.error("Error response:", err.response?.data);
+      // console.error("Error status:", err.response?.status);
       
       let errorMessage = "Login failed. Please try again.";
       
@@ -54,7 +54,7 @@ export default function GoogleLoginButton() {
   };
 
   const handleError = (error) => {
-    console.error("Google OAuth error:", error);
+    // console.error("Google OAuth error:", error);
     alert("❌ Google login failed. Please try again.");
   };
 

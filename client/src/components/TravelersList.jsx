@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, User, Database, RefreshCw } from 'lucide-react';
+import { Plus, Edit, Trash2, User } from 'lucide-react';
 import TravelerDetailsModal from './modals/TravelerDetailsModal';
-import { generateDummyTravelers, generateRandomDummyTravelers } from '../utils/dummyTravelerData';
 
-const TravelersList = ({ travelers, onTravelersChange, searchPayload }) => {
+const TravelersList = ({ travelers, onTravelersChange, searchPayload, requiredTravelers }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedTraveler, setSelectedTraveler] = useState(null);
@@ -35,24 +34,26 @@ const TravelersList = ({ travelers, onTravelersChange, searchPayload }) => {
     setShowEditModal(true);
   };
 
-  // Load dummy data based on search payload
-  const handleLoadDummyData = () => {
-    if (searchPayload) {
-      const dummyTravelers = generateDummyTravelers(searchPayload);
-      onTravelersChange(dummyTravelers);
-    } else {
-      // If no search payload, load some default dummy data
-      const dummyTravelers = generateRandomDummyTravelers(2, 1, 0); // 2 adults, 1 child
-      onTravelersChange(dummyTravelers);
+  const validateTravelers = () => {
+    if (!requiredTravelers) return true;
+    
+    const { adults, children, infants } = requiredTravelers;
+    const totalRequired = adults + children + infants;
+    
+    if (travelers.length < totalRequired) {
+      alert(`Please add ${totalRequired} travelers. Required: ${adults} adults, ${children} children, ${infants} infants`);
+      return false;
     }
+    
+    const incompleteTravelers = travelers.filter(t => !t.FName || !t.LName || !t.DOB || !t.Gender || !t.Nationality);
+    if (incompleteTravelers.length > 0) {
+      alert('Please complete all traveler details. Click "Edit" on each traveler to fill in missing information.');
+      return false;
+    }
+    
+    return true;
   };
 
-  // Clear all travelers
-  const handleClearAllTravelers = () => {
-    if (window.confirm('Are you sure you want to clear all travelers?')) {
-      onTravelersChange([]);
-    }
-  };
 
   const getGenderDisplay = (gender) => {
     switch (gender) {
@@ -80,29 +81,11 @@ const TravelersList = ({ travelers, onTravelersChange, searchPayload }) => {
             <h2 className="text-2xl font-bold text-gray-800">Travelers</h2>
             {travelers.length > 0 && travelers.some(t => !t.FName || !t.LName) && (
               <p className="text-sm text-gray-600 mt-1">
-                Travelers have been pre-filled based on your search. Click "Edit" on each traveler to fill in their details.
+                Click "Add Traveler" to add travelers.
               </p>
             )}
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={handleLoadDummyData}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
-              title="Load dummy data for testing"
-            >
-              <Database className="w-4 h-4" />
-              Load Dummy Data
-            </button>
-            {travelers.length > 0 && (
-              <button
-                onClick={handleClearAllTravelers}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
-                title="Clear all travelers"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Clear All
-              </button>
-            )}
             <button
               onClick={() => setShowAddModal(true)}
               className="bg-[#f48f22] hover:bg-[#16437c] text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
@@ -117,16 +100,7 @@ const TravelersList = ({ travelers, onTravelersChange, searchPayload }) => {
           <div className="text-center py-8">
             <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-600 mb-2">No travelers added yet</h3>
-            <p className="text-gray-500 mb-4">Click "Add Traveler" to get started or use "Load Dummy Data" for testing</p>
-            <div className="flex justify-center gap-2">
-              <button
-                onClick={handleLoadDummyData}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-semibold flex items-center gap-2 transition-colors"
-              >
-                <Database className="w-4 h-4" />
-                Load Dummy Data
-              </button>
-            </div>
+            <p className="text-gray-500 mb-4">Click "Add Traveler" to get started</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -220,6 +194,23 @@ const TravelersList = ({ travelers, onTravelersChange, searchPayload }) => {
               <span>Children: {travelers.filter(t => t.PTC === 'CHD').length}</span>
               <span>Infants: {travelers.filter(t => t.PTC === 'INF').length}</span>
             </div>
+            {requiredTravelers && (
+              <div className="mt-2 text-sm">
+                {(() => {
+                  const { adults, children, infants } = requiredTravelers;
+                  const totalRequired = adults + children + infants;
+                  const isComplete = travelers.length >= totalRequired && 
+                    travelers.every(t => t.FName && t.LName && t.DOB && t.Gender && t.Nationality);
+                  
+                  return (
+                    <div className={`flex items-center gap-2 ${isComplete ? 'text-green-600' : 'text-orange-600'}`}>
+                      <span className={`w-2 h-2 rounded-full ${isComplete ? 'bg-green-500' : 'bg-orange-500'}`}></span>
+                      {isComplete ? 'All required travelers added with complete details' : 'Please add all required travelers with complete details'}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -244,4 +235,5 @@ const TravelersList = ({ travelers, onTravelersChange, searchPayload }) => {
   );
 };
 
-export default TravelersList; 
+export default TravelersList;
+export { TravelersList }; 

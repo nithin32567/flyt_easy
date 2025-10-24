@@ -48,6 +48,59 @@
   text-align: center;
 }
 
+/* Hotel Booking Styles */
+.booking-actions .btn {
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.booking-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.booking-actions .btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.booking-success .alert {
+  border-left: 4px solid #28a745;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1);
+}
+
+.booking-error .alert {
+  border-left: 4px solid #dc3545;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+}
+
+.room-option {
+  transition: all 0.3s ease;
+}
+
+.room-option:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.skeleton-loader {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* Swiper pagination styles */
 .airline-logos-swiper .swiper-pagination-bullet {
   width: 12px !important;
@@ -175,4 +228,606 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Header Height Management */
+:root {
+  --header-height: 194px; /* Default fallback height */
+}
+
+/* Content positioning with header offset */
+.content-with-header {
+  padding-top: var(--header-height);
+  transition: padding-top 0.3s ease;
+}
+
+/* Fixed header styles */
+.f-nav .content-with-header {
+  padding-top: calc(var(--header-height) - 50px); /* Adjust when header becomes fixed */
+}
+
+/* Header wrapper styles */
+.header-wrapper-div {
+  position: relative;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.header-wrapper-div.fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Hotel Details Page Styles */
+.hotel-details-page {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+.hotel-header {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hotel-name {
+  color: var(--foreground);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.hotel-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hotel-address {
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+/* Image Gallery Styles */
+.hotel-image-gallery {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.main-image-container {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+}
+
+.main-hotel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.main-image-container:hover .main-hotel-image {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.main-image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-thumbnails {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--muted);
+  overflow-x: auto;
+}
+
+.thumbnail {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.thumbnail:hover {
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.hotel-image-placeholder {
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--muted);
+  border-radius: var(--radius-lg);
+  color: var(--muted-foreground);
+}
+
+/* Hotel Information Card */
+.hotel-info-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 2rem;
+}
+
+.hotel-info-card .card-title {
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Facility Groups */
+.hotel-facilities {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.facility-group {
+  background: var(--muted);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.facility-group-title {
+  color: var(--foreground);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.facility-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+
+.facility-item i {
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+/* Nearby Attractions */
+.nearby-attractions {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.attraction-item {
+  background: var(--muted);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.attraction-item:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Reviews */
+.hotel-reviews {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.review-card {
+  background: var(--muted);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.review-rating {
+  color: #ffc107;
+}
+
+.review-text {
+  color: var(--foreground);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.review-author {
+  color: var(--muted-foreground);
+}
+
+/* Descriptions */
+.hotel-descriptions {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.description-item {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.description-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.description-type {
+  color: var(--primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.description-text {
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+/* Contact and Policy Information */
+.contact-info,
+.checkin-checkout-info,
+.policies-info {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.contact-info:last-child,
+.checkin-checkout-info:last-child,
+.policies-info:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.phone-item {
+  color: var(--foreground);
+  margin-bottom: 0.5rem;
+}
+
+.policy-item {
+  margin-bottom: 1rem;
+}
+
+.policy-text {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-top: 0.5rem;
+}
+
+/* Loading and Error States */
+.hotel-details-loading,
+.hotel-details-error,
+.hotel-details-empty {
+  background: var(--background);
+  min-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hotel-name {
+    font-size: 2rem;
+  }
+
+  .main-image-container {
+    height: 250px;
+  }
+
+  .hotel-header {
+    padding: 1rem;
+  }
+
+  .hotel-info-card {
+    position: static;
+    margin-top: 2rem;
+  }
+
+  .image-thumbnails {
+    padding: 0.5rem;
+  }
+
+  .thumbnail {
+    width: 60px;
+    height: 45px;
+  }
+}
+
+/* Dark mode adjustments */
+.dark .hotel-details-page {
+  background: var(--background);
+}
+
+.dark .hotel-header,
+.dark .hotel-image-gallery,
+.dark .hotel-facilities,
+.dark .nearby-attractions,
+.dark .hotel-reviews,
+.dark .hotel-descriptions,
+.dark .hotel-info-card {
+  background: var(--card);
+  border-color: var(--border);
+}
+
+.dark .facility-group,
+.dark .attraction-item,
+.dark .review-card {
+  background: var(--muted);
+}
+
+.dark .image-thumbnails {
+  background: var(--muted);
+}
+
+/* Skeleton Loader Styles */
+.skeleton-loader {
+  background: linear-gradient(90deg, var(--muted) 25%, var(--accent) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Enhanced Loading States */
+.hotel-details-loading {
+  background: var(--background);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hotel-details-loading .spinner-border {
+  border-width: 4px;
+}
+
+.hotel-details-loading .progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--muted);
+}
+
+.hotel-details-loading .progress-bar {
+  background: linear-gradient(45deg, var(--primary), var(--accent));
+  border-radius: 4px;
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.hotel-details-loading .skeleton-loader {
+  animation: skeleton-loading 1.5s infinite, pulse 2s infinite;
+}
+
+/* Hotel List Page Styles */
+.hotel-list-main {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.hotel-list-header {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.hotel-list-content {
+  padding-bottom: 120px; /* Space for bottom action bar */
+}
+
+/* Hotel Sidebar Styles */
+.hotel-sidebar {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  height: 66.666667%;
+  width: 320px;
+  background: white;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #e5e7eb;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .hotel-sidebar {
+    width: 280px;
+  }
+}
+
+/* Hotel Filter Toggle Button */
+.hotel-filter-toggle {
+  position: fixed;
+  left: 1rem;
+  z-index: 1050;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: fit-content;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.hotel-filter-toggle:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hotel-filter-toggle.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.hotel-filter-toggle.active:hover {
+  background: #2563eb;
+}
+
+/* Hotel Mobile Overlay */
+.hotel-mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+/* Hotel List Responsive Styles */
+@media (max-width: 768px) {
+  .hotel-filter-toggle {
+    top: 4rem !important;
+    left: 0.5rem !important;
+    right: auto !important;
+  }
+  
+  .hotel-sidebar {
+    width: 280px !important;
+  }
+  
+  .hotel-list-content {
+    margin-left: 0 !important;
+  }
+}
+
+/* Desktop specific adjustments */
+@media (min-width: 769px) {
+  .hotel-list-content {
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+  }
+  
+  .hotel-list-content.sidebar-open {
+    margin-left: 384px; /* 24rem = 384px */
+  }
+}
+
+/* Ensure proper spacing for content */
+.hotel-list-main {
+  padding-bottom: 0;
+}
+
+.hotel-list-content {
+  padding-bottom: 120px; /* Space for bottom action bar */
+}
+
+/* Fix any remaining z-index issues */
+.hotel-list-main * {
+  box-sizing: border-box;
+}
+
+/* Ensure proper stacking context */
+.hotel-list-main {
+  position: relative;
+  z-index: 1;
+}
+
+.hotel-filter-toggle {
+  position: fixed !important;
+  z-index: 1050 !important;
+}
+
+.hotel-sidebar {
+  position: fixed !important;
+  z-index: 1050 !important;
+  top: 50% !important;
+  left: 0 !important;
+  transform: translateY(-50%) !important;
+  height: 66.666667% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.hotel-mobile-overlay {
+  position: fixed !important;
+  z-index: 1040 !important;
 }

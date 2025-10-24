@@ -1,0 +1,55 @@
+import express from "express";
+import { 
+  autosuggest, 
+  initHotelSearch, 
+  fetchHotelContentAndRates, 
+  fetchHotelPage, 
+  fetchHotelDetailsWithContentAndRooms, 
+  fetchHotelPricing,
+  filterHotels,
+  getFilterData,
+  createItineraryForHotelRoom,
+  fetchHotelSearchWorkflow
+} from "../controllers/hotel/hotel_controller_updated.js";
+import { 
+  createHotelRazorpayOrder, 
+  verifyHotelPayment, 
+  startHotelPay, 
+  getHotelItineraryStatus, 
+  retrieveHotelBooking,
+  getUserHotelBookings,
+  getHotelBookingById
+} from "../controllers/hotelBooking.controller.js";
+
+const router = express.Router();
+
+router.get("/autosuggest", autosuggest);
+
+router.post("/init", initHotelSearch);
+
+router.get("/content-rates/:searchId", fetchHotelContentAndRates);
+
+router.get("/page", fetchHotelPage);
+
+router.get("/details/:searchId/:hotelId", fetchHotelDetailsWithContentAndRooms);
+
+router.get("/pricing/:searchId/:hotelId/:priceProvider/:roomRecommendationId", fetchHotelPricing);
+
+router.post("/filter/:searchId", filterHotels);
+
+router.get("/filterdata/:searchId", getFilterData);
+
+router.get("/workflow/:searchId", fetchHotelSearchWorkflow);
+
+router.post("/create-itinerary", createItineraryForHotelRoom);
+
+// Hotel Payment Routes
+router.post("/create-razorpay-order", createHotelRazorpayOrder);
+router.post("/verify-payment", verifyHotelPayment);
+router.post("/start-pay", startHotelPay);
+router.post("/get-itinerary-status", getHotelItineraryStatus);
+router.post("/retrieve-booking", retrieveHotelBooking);
+router.get("/bookings", getUserHotelBookings);
+router.get("/bookings/:bookingId", getHotelBookingById);
+
+export default router;

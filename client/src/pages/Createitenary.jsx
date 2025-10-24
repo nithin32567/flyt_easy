@@ -11,8 +11,10 @@ import PaymentButton from '../components/PaymentButton';
 import TravelCheckListDisplay from '../components/TravelCheckListDisplay';
 import { useWebSettingsData } from '../hooks/useWebSettingsData';
 import { clearBookingData } from '../utils/clearBookingData';
+import useHeaderHeight from '../hooks/useHeaderHeight';
 
 const Createitenary = () => {
+  const headerHeight = useHeaderHeight();
   const [currentStep, setCurrentStep] = useState(1);
   const [contactInfo, setContactInfo] = useState(null);
   const [travelers, setTravelers] = useState([]);
@@ -27,6 +29,16 @@ const Createitenary = () => {
   const pricerData = pricerDataString ? JSON.parse(pricerDataString) : null;
   // const reviewData = JSON.parse(localStorage.getItem("oneWayReviewData"));
   const netAmount = localStorage.getItem("netamount") // Use the exact value without parsing
+  
+  // Hotel booking detection - only true if we're specifically in hotel booking flow
+  const hotelSearchDataString = localStorage.getItem("hotelSearchData");
+  const hotelSearchData = hotelSearchDataString ? JSON.parse(hotelSearchDataString) : null;
+  const isHotelBooking = !!hotelSearchData && localStorage.getItem("bookingType") === "hotel";
+  const hotelSearchTracingKey = localStorage.getItem("searchTracingKey");
+  
+  // Get selected room data for hotel bookings
+  const selectedRoomDataString = localStorage.getItem("selectedRoomData");
+  const selectedRoomData = selectedRoomDataString ? JSON.parse(selectedRoomDataString) : null;
   const [itenarySuccess, setItenarySuccess] = useState(false);
   const [travelCheckListData, setTravelCheckListData] = useState(null);
   const navigate = useNavigate();
@@ -105,12 +117,69 @@ const Createitenary = () => {
     return generatedTravelers;
   };
 
+  // Function to generate travelers based on hotel search data
+  const generateTravelersFromHotelData = () => {
+    if (!hotelSearchData) return [];
+    
+    const generatedTravelers = [];
+    let travelerId = 1;
+    
+    // For hotel bookings, we generate travelers based on total adults and children
+    // Each room can have multiple adults/children
+    const totalAdults = hotelSearchData.adults || 1;
+    const totalChildren = hotelSearchData.children || 0;
+    
+    // Add adults
+    for (let i = 0; i < totalAdults; i++) {
+      generatedTravelers.push({
+        ID: travelerId++,
+        Title: '',
+        FName: '',
+        LName: '',
+        PTC: 'ADT',
+        Age: '',
+        Gender: '',
+        Nationality: '',
+        DOB: '',
+        PassportNo: '',
+        PLI: '',
+        PDOE: '',
+        VisaType: ''
+      });
+    }
+    
+    // Add children
+    for (let i = 0; i < totalChildren; i++) {
+      generatedTravelers.push({
+        ID: travelerId++,
+        Title: '',
+        FName: '',
+        LName: '',
+        PTC: 'CHD',
+        Age: '',
+        Gender: '',
+        Nationality: '',
+        DOB: '',
+        PassportNo: '',
+        PLI: '',
+        PDOE: '',
+        VisaType: ''
+      });
+    }
+    
+    return generatedTravelers;
+  };
+
 
   // Use the TUI from pricerData (GetPricer response) instead of the old pricerTUI
-  const currentTUI = pricerData?.TUI || pricerTUI;
+  // For hotel bookings, use the searchTracingKey as TUI
+  const currentTUI = isHotelBooking ? hotelSearchTracingKey : (pricerData?.TUI || pricerTUI);
   
   // Use NetAmount directly from pricerData to avoid any conversion issues
-  const netAmountNumber = pricerData?.NetAmount || (netAmount ? Number(netAmount) : 0);
+  // For hotel bookings, get NetAmount from hotel booking data or use a default
+  const netAmountNumber = isHotelBooking ? 
+    (hotelSearchData?.netAmount || 0) : 
+    (pricerData?.NetAmount || (netAmount ? Number(netAmount) : 0));
   
   // Calculate total amount including SSR services
   const calculateTotalAmount = () => {
@@ -130,16 +199,38 @@ const Createitenary = () => {
   // Validate data and generate travelers in useEffect to avoid setState during render
   useEffect(() => {
     
-    if (!pricerData) {
-      alert('Missing pricing data. Please try searching for flights again.');
-      navigate('/');
-      return;
-    }
-    
-    if (!pricerData.TUI && !pricerTUI) {
-      alert('Missing pricing TUI. Please try searching for flights again.');
-      navigate('/');
-      return;
+    // For hotel bookings, validate hotel data
+    if (isHotelBooking) {
+      if (!hotelSearchData) {
+        alert('Missing hotel search data. Please try searching for hotels again.');
+        navigate('/');
+        return;
+      }
+      
+      if (!hotelSearchTracingKey) {
+        alert('Missing hotel search tracing key. Please try searching for hotels again.');
+        navigate('/');
+        return;
+      }
+      
+      // For hotel bookings, we need to ensure NetAmount is available
+      if (!hotelSearchData.netAmount && netAmountNumber === 0) {
+        // console.warn('Hotel booking NetAmount not found, using default value');
+        // You might want to prompt the user or redirect to hotel selection
+      }
+    } else {
+      // For flight bookings, validate flight data
+      if (!pricerData) {
+        alert('Missing pricing data. Please try searching for flights again.');
+        navigate('/');
+        return;
+      }
+      
+      if (!pricerData.TUI && !pricerTUI) {
+        alert('Missing pricing TUI. Please try searching for flights again.');
+        navigate('/');
+        return;
+      }
     }
     
     // Clear any existing booking data to avoid conflicts
@@ -147,13 +238,20 @@ const Createitenary = () => {
     localStorage.removeItem("itineraryTUI");
     
     // Generate travelers based on search payload if travelers array is empty
-    if (travelers.length === 0 && searchPayload) {
-      const generatedTravelers = generateTravelersFromSearchPayload();
-      setTravelers(generatedTravelers);
+    if (travelers.length === 0) {
+      if (isHotelBooking && hotelSearchData) {
+        // Generate travelers for hotel booking based on rooms, adults, children
+        const generatedTravelers = generateTravelersFromHotelData();
+        setTravelers(generatedTravelers);
+      } else if (searchPayload) {
+        // Generate travelers for flight booking
+        const generatedTravelers = generateTravelersFromSearchPayload();
+        setTravelers(generatedTravelers);
+      }
     }
     
     setIsDataValid(true);
-  }, [pricerData, pricerTUI, navigate, searchPayload, travelers.length]);
+  }, [pricerData, pricerTUI, navigate, searchPayload, travelers.length, isHotelBooking, hotelSearchData, hotelSearchTracingKey]);
 
   // proper date validation with current date should be added 
 
@@ -204,8 +302,8 @@ const Createitenary = () => {
         Amount: netAmountNumber // Pass the NetAmount from GetSPricer
       };
       
-      console.log("=== SSR API CALL (fetchSSRServices) ===");
-      console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
+      // console.log("=== SSR API CALL (fetchSSRServices) ===");
+      // console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
       
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
@@ -218,8 +316,8 @@ const Createitenary = () => {
         }
       );
       
-      console.log("SSR Response Data:", JSON.stringify(response.data, null, 2));
-      console.log("=====================================");
+      // console.log("SSR Response Data:", JSON.stringify(response.data, null, 2));
+      // console.log("=====================================");
 
       if (response.data.success) {
         const services = response.data.data.services || [];
@@ -284,11 +382,165 @@ const Createitenary = () => {
   };
 
   const handleNextToSSR = () => {
+    // Validate travelers before proceeding
+    if (searchPayload) {
+      const { ADT, CHD, INF } = searchPayload;
+      const totalRequired = ADT + CHD + INF;
+      
+      if (travelers.length < totalRequired) {
+        alert(`Please add ${totalRequired} travelers. Required: ${ADT} adults, ${CHD} children, ${INF} infants`);
+        return;
+      }
+      
+      const incompleteTravelers = travelers.filter(t => !t.FName || !t.LName || !t.DOB || !t.Gender || !t.Nationality);
+      if (incompleteTravelers.length > 0) {
+        alert('Please complete all traveler details. Click "Edit" on each traveler to fill in missing information.');
+        return;
+      }
+    }
+    
     setCurrentStep(3);
   };
 
   const handleNextToReview = () => {
     setCurrentStep(4);
+  };
+
+  // Handle hotel booking submission
+  const handleHotelBookingSubmit = async () => {
+    try {
+      // console.log("=== HOTEL BOOKING SUBMISSION ===");
+      // console.log("Using searchTracingKey as TUI:", hotelSearchTracingKey);
+      // console.log("Hotel search data:", hotelSearchData);
+      
+      // Prepare hotel itinerary payload
+      const hotelItineraryPayload = {
+        TUI: hotelSearchTracingKey,
+        ServiceEnquiry: "",
+        ContactInfo: {
+          Title: contactInfo?.Title || "Mr",
+          FName: contactInfo?.FName || "",
+          LName: contactInfo?.LName || "",
+          Mobile: contactInfo?.Mobile || "",
+          Email: contactInfo?.Email || "",
+          Address: contactInfo?.Address || "",
+          State: contactInfo?.State || "",
+          City: contactInfo?.City || "",
+          PIN: contactInfo?.PIN || "",
+          GSTCompanyName: contactInfo?.GSTCompanyName || "",
+          GSTTIN: contactInfo?.GSTTIN || "",
+          GSTMobile: contactInfo?.GSTMobile || "",
+          GSTEmail: contactInfo?.GSTEmail || "",
+          UpdateProfile: false,
+          IsGuest: contactInfo?.IsGuest || false,
+          CountryCode: contactInfo?.CountryCode || "IN",
+          MobileCountryCode: contactInfo?.MobileCountryCode || "+91",
+          NetAmount: netAmountNumber,
+          DestMobCountryCode: "",
+          DestMob: ""
+        },
+        Auxiliaries: [
+          {
+            Code: "PROMO",
+            Parameters: [
+              { Type: "Code", Value: "" },
+              { Type: "ID", Value: "" },
+              { Type: "Amount", Value: "" }
+            ]
+          },
+          {
+            Code: "CUSTOMER DETAILS",
+            parameters: [
+              { Type: "Nationality", Value: "IN" },
+              { Type: "Country of Residence", Value: "IN" }
+            ]
+          }
+        ],
+        Rooms: travelers.map((traveler, index) => {
+          // Generate proper GuestCode based on actual guests
+          const guestCount = 1; // Each room has 1 guest in this mapping
+          const guestTypes = traveler.PTC === "ADT" ? "A" : "C";
+          const ages = "25"; // Always use 25 for adults
+          const guestCode = `|1|${guestCount}:${guestTypes}:${ages}|`;
+
+          // Generate GuestID using base64 encoding of guest name
+          const generateGuestID = (firstName, lastName) => {
+            const fullName = `${firstName}${lastName}`.toUpperCase();
+            return btoa(fullName).substring(0, 4);
+          };
+
+          return {
+            RoomId: selectedRoomData?.room?.id || selectedRoomData?.id || selectedRoomData?.roomId || `room_${index}`,
+            GuestCode: guestCode,
+            SupplierName: selectedRoomData?.providerName || "Travex",
+            RoomGroupId: selectedRoomData?.id || `roomgroup_${index}`,
+            Guests: [{
+              GuestID: generateGuestID(traveler.FName || '', traveler.LName || ''),
+              Operation: "U",
+              Title: traveler.Title || "Mr",
+              FirstName: traveler.FName || "",
+              MiddleName: "",
+              LastName: traveler.LName || "",
+              MobileNo: contactInfo?.Mobile || "",
+              PaxType: traveler.PTC === "ADT" ? "A" : "C",
+              Age: "25", // Always use 25 for adults
+              Email: contactInfo?.Email || "",
+              Pan: traveler.PassportNo || "",
+              ProfileType: "T",
+              EmployeeId: "",
+              corporateCompanyID: ""
+            }]
+          };
+        }),
+        NetAmount: selectedRoomData?.totalRate?.toString() || netAmountNumber.toString(),
+        ClientID: localStorage.getItem("ClientID") || "",
+        DeviceID: "",
+        AppVersion: "",
+        SearchId: hotelSearchData?.searchId || "",
+        RecommendationId: selectedRoomData?.recommendationId || selectedRoomData?.roomId || hotelSearchData?.searchId || "",
+        LocationName: hotelSearchData?.location?.name || null,
+        HotelCode: hotelSearchData?.hotelCode || "",
+        CheckInDate: hotelSearchData?.checkIn || "",
+        CheckOutDate: hotelSearchData?.checkOut || "",
+        TravelingFor: "NTF"
+      };
+
+      // console.log("=== HOTEL CREATE ITINERARY PAYLOAD ===");
+      // console.log("Payload being sent:", JSON.stringify(hotelItineraryPayload, null, 2));
+      // console.log("=== END PAYLOAD ===");
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/hotel/create-itinerary`,
+        hotelItineraryPayload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "search-tracing-key": hotelSearchTracingKey
+          }
+        }
+      );
+
+      // console.log("=== HOTEL CREATE ITINERARY RESPONSE ===");
+      // console.log("Response Status:", response.status);
+      // console.log("Response Data:", JSON.stringify(response.data, null, 2));
+      // console.log("=== END RESPONSE ===");
+
+      if (response.data.success) {
+        localStorage.setItem("TransactionID", response.data.data.TransactionID);
+        if (response.data.data.TUI) {
+          localStorage.setItem("itineraryTUI", response.data.data.TUI);
+        }
+        setItenarySuccess(true);
+      } else {
+        alert(`Failed to create hotel itinerary: ${response.data.message || 'Unknown error'}`);
+      }
+
+    } catch (error) {
+      // console.error("Hotel booking submission error:", error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to create hotel itinerary';
+      alert(`Error: ${errorMessage}`);
+    }
   };
 
   const handleSubmit = async () => {
@@ -297,6 +549,11 @@ const Createitenary = () => {
     setValidationErrors(validation.errors);
 
     if (validation.isValid) {
+      // Handle hotel bookings differently
+      if (isHotelBooking) {
+        await handleHotelBookingSubmit();
+        return;
+      }
       // Check if session is too old (more than 30 minutes)
       const sessionStartTime = localStorage.getItem('sessionStartTime');
       if (sessionStartTime) {
@@ -348,9 +605,9 @@ const Createitenary = () => {
             ClientID: localStorage.getItem("ClientID")
           };
           
-          console.log("=== GET PRICER API CALL (CreateItinerary) ===");
-          console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
-          console.log("=============================================");
+          // console.log("=== GET PRICER API CALL (CreateItinerary) ===");
+          // console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
+          // console.log("=============================================");
           
           const pricingResponse = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`,
@@ -363,12 +620,12 @@ const Createitenary = () => {
             }
           );
 
-          console.log("=== GET PRICER API RESPONSE (CreateItinerary) ===");
-          console.log("Response Status:", pricingResponse.status);
-          console.log("Response Headers:", pricingResponse.headers);
-          console.log("Response Data:", JSON.stringify(pricingResponse.data, null, 2));
-          console.log("Full Response Object:", pricingResponse);
-          console.log("===============================================");
+          // console.log("=== GET PRICER API RESPONSE (CreateItinerary) ===");
+          // console.log("Response Status:", pricingResponse.status);
+          // console.log("Response Headers:", pricingResponse.headers);
+          // console.log("Response Data:", JSON.stringify(pricingResponse.data, null, 2));
+          // console.log("Full Response Object:", pricingResponse);
+          // console.log("===============================================");
           
           if (pricingResponse.data.Code === "200" && pricingResponse.data.data) {
             finalNetAmount = Number(pricingResponse.data.data.NetAmount) || netAmountNumber;
@@ -380,10 +637,10 @@ const Createitenary = () => {
             localStorage.setItem("pricerTUI", freshTUI);
           }
         } catch (pricingError) {
-          console.log("=== GET PRICER API ERROR (CreateItinerary) ===");
-          console.error("Error calling get-pricer API:", pricingError);
-          console.log("Error object:", JSON.stringify(pricingError, null, 2));
-          console.log("=============================================");
+          // console.log("=== GET PRICER API ERROR (CreateItinerary) ===");
+          // console.error("Error calling get-pricer API:", pricingError);
+          // console.log("Error object:", JSON.stringify(pricingError, null, 2));
+          // console.log("=============================================");
           // Error getting fresh pricing, using stored amount
         }
 
@@ -412,11 +669,11 @@ const Createitenary = () => {
           } else {
           }
         } catch (checkListError) {
-          console.error('Failed to fetch travel checklist', {
-            message: checkListError.message,
-            response: checkListError.response?.data,
-            status: checkListError.response?.status
-          });
+          // console.error('Failed to fetch travel checklist', {
+          //   message: checkListError.message,
+          //   response: checkListError.response?.data,
+          //   status: checkListError.response?.status
+          // });
           // Continue with CreateItinerary even if travel checklist fails
         }
 
@@ -434,8 +691,8 @@ const Createitenary = () => {
               Amount: finalNetAmount
             };
             
-            console.log("=== SSR API CALL (handleSubmit - refresh SSR) ===");
-            console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
+            // console.log("=== SSR API CALL (handleSubmit - refresh SSR) ===");
+            // console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
             
             const ssrResponse = await axios.post(
               `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
@@ -448,8 +705,8 @@ const Createitenary = () => {
               }
             );
             
-            console.log("SSR Response Data:", JSON.stringify(ssrResponse.data, null, 2));
-            console.log("==================================================");
+            // console.log("SSR Response Data:", JSON.stringify(ssrResponse.data, null, 2));
+            // console.log("==================================================");
 
             if (ssrResponse.data.success) {
               const freshServices = ssrResponse.data.data.services || [];
@@ -551,21 +808,21 @@ const Createitenary = () => {
           CrossSellAmount: 0
         };
 
-        console.log("=== CREATE ITINERARY FINAL PAYLOAD (FRONTEND) ===");
-        console.log("Using Fresh TUI:", freshTUI);
-        console.log("Using Fresh NetAmount:", finalNetAmount);
-        console.log("Cleared Transaction ID to avoid duplicates");
-        console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
-        console.log("=============================================");
+        // console.log("=== CREATE ITINERARY FINAL PAYLOAD (FRONTEND) ===");
+        // console.log("Using Fresh TUI:", freshTUI);
+        // console.log("Using Fresh NetAmount:", finalNetAmount);
+        // console.log("Cleared Transaction ID to avoid duplicates");
+        // console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
+        // console.log("=============================================");
         
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/create-itinerary`, payload, { headers });
         
-        console.log("=== CREATE ITINERARY RESPONSE (FRONTEND) ===");
-        console.log("Response Status:", response.status);
-        console.log("Response Headers:", response.headers);
-        console.log("Response Data:", JSON.stringify(response.data, null, 2));
-        console.log("Full Response Object:", response);
-        console.log("==========================================");
+        // console.log("=== CREATE ITINERARY RESPONSE (FRONTEND) ===");
+        // console.log("Response Status:", response.status);
+        // console.log("Response Headers:", response.headers);
+        // console.log("Response Data:", JSON.stringify(response.data, null, 2));
+        // console.log("Full Response Object:", response);
+        // console.log("==========================================");
         
         
         if (response.data.success) {
@@ -666,6 +923,7 @@ const Createitenary = () => {
               travelers={travelers}
               onTravelersChange={handleTravelersChange}
               searchPayload={searchPayload}
+              requiredTravelers={searchPayload ? { adults: searchPayload.ADT, children: searchPayload.CHD, infants: searchPayload.INF } : null}
             />
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex flex-col sm:flex-row gap-4 justify-end">
@@ -689,39 +947,65 @@ const Createitenary = () => {
       case 3:
         return (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="space-y-6">
-              <SSRToggle
-                isEnabled={ssrEnabled}
-                onToggle={handleSSRToggle}
-                availableServices={availableSSRServices}
-              />
-              
-              {ssrEnabled && (
-                <SSRServicesSelection
-                  availableServices={availableSSRServices}
-                  selectedServices={selectedSSRServices}
-                  onServiceSelectionChange={handleSSRServiceSelection}
-                  travelers={travelers}
-                />
-              )}
-            </div>
-            
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-              <div className="flex flex-col sm:flex-row gap-4 justify-end">
-                <button
-                  onClick={() => setCurrentStep(2)}
-                  className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-6 rounded-md font-semibold transition-colors"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={handleNextToReview}
-                  className="w-full sm:w-auto bg-[#f48f22] hover:bg-[#16437c] text-white py-2 px-6 rounded-md font-semibold transition-colors"
-                >
-                  Next
-                </button>
+            {isHotelBooking ? (
+              // For hotel bookings, skip SSR and go directly to review
+              <div className="text-center py-8">
+                <div className="text-lg text-gray-600 mb-4">
+                  Additional services are not available for hotel bookings.
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={() => setCurrentStep(2)}
+                    className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-6 rounded-md font-semibold transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNextToReview}
+                    className="w-full sm:w-auto bg-[#f48f22] hover:bg-[#16437c] text-white py-2 px-6 rounded-md font-semibold transition-colors"
+                  >
+                    Continue to Review
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              // For flight bookings, show SSR services
+              <>
+                <div className="space-y-6">
+                  <SSRToggle
+                    isEnabled={ssrEnabled}
+                    onToggle={handleSSRToggle}
+                    availableServices={availableSSRServices}
+                  />
+                  
+                  {ssrEnabled && (
+                    <SSRServicesSelection
+                      availableServices={availableSSRServices}
+                      selectedServices={selectedSSRServices}
+                      onServiceSelectionChange={handleSSRServiceSelection}
+                      travelers={travelers}
+                    />
+                  )}
+                </div>
+                
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+                  <div className="flex flex-col sm:flex-row gap-4 justify-end">
+                    <button
+                      onClick={() => setCurrentStep(2)}
+                      className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-6 rounded-md font-semibold transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      onClick={handleNextToReview}
+                      className="w-full sm:w-auto bg-[#f48f22] hover:bg-[#16437c] text-white py-2 px-6 rounded-md font-semibold transition-colors"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         );
       case 4:
@@ -805,8 +1089,8 @@ const Createitenary = () => {
                 </div>
               </div>
 
-              {/* SSR Services Review */}
-              {ssrEnabled && selectedSSRServices.length > 0 && (
+              {/* SSR Services Review - Only for flight bookings */}
+              {!isHotelBooking && ssrEnabled && selectedSSRServices.length > 0 && (
                 <div className="border-b border-gray-200 pb-4 sm:pb-6 mb-4 sm:mb-6">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">
                     Additional Services ({selectedSSRServices.length})
@@ -853,7 +1137,7 @@ const Createitenary = () => {
                     <span className="text-blue-700">Base Fare:</span>
                     <span className="font-medium text-blue-800">₹{netAmountNumber.toLocaleString()}</span>
                   </div>
-                  {selectedSSRServices.length > 0 && (
+                  {!isHotelBooking && selectedSSRServices.length > 0 && (
                     <div className="flex justify-between">
                       <span className="text-blue-700">Additional Services:</span>
                       <span className="font-medium text-blue-800">
@@ -865,7 +1149,7 @@ const Createitenary = () => {
                     <div className="flex justify-between font-bold">
                       <span className="text-blue-800">Total Amount:</span>
                       <span className="text-blue-800">
-                        ₹{(netAmountNumber + selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge), 0)).toLocaleString()}
+                        ₹{(isHotelBooking ? netAmountNumber : (netAmountNumber + selectedSSRServices.reduce((total, service) => total + (service.SSRNetAmount || service.Charge), 0))).toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -910,7 +1194,10 @@ const Createitenary = () => {
   // Show loading state while validating data
   if (!isDataValid) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-40 flex justify-center items-center">
+      <div 
+        className="min-h-screen bg-gray-50 flex justify-center items-center"
+        style={{ paddingTop: `${headerHeight + 20}px` }}
+      >
         <div className="text-center">
           <div className="text-xl text-gray-600">Loading itinerary data...</div>
           <div className="text-sm text-gray-500 mt-2">Please wait while we validate your booking information</div>
@@ -920,13 +1207,25 @@ const Createitenary = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-40">
+    <div 
+      className="min-h-screen bg-gray-50"
+      style={{ paddingTop: `${headerHeight + 20}px` }}
+    >
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Create Itinerary</h1>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">Enter contact information and add travelers for your trip</p>
-          {searchPayload && (
+          {isHotelBooking && hotelSearchData && (
+            <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-800">
+                <strong>Hotel Booking!</strong> We've automatically created {hotelSearchData.adults + hotelSearchData.children} traveler form{hotelSearchData.adults + hotelSearchData.children > 1 ? 's' : ''} based on your hotel search 
+                ({hotelSearchData.adults} Adult{hotelSearchData.adults > 1 ? 's' : ''}{hotelSearchData.children > 0 ? `, ${hotelSearchData.children} Child${hotelSearchData.children > 1 ? 'ren' : ''}` : ''}). 
+                Just click "Edit" on each traveler to fill in their details, or use "Load Dummy Data" for quick testing.
+              </p>
+            </div>
+          )}
+          {!isHotelBooking && searchPayload && (
             <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-sm text-blue-800">
                 <strong>Good news!</strong> We've automatically created {searchPayload.ADT + searchPayload.CHD + searchPayload.INF} traveler form{searchPayload.ADT + searchPayload.CHD + searchPayload.INF > 1 ? 's' : ''} based on your search selection 

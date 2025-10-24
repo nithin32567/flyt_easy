@@ -19,14 +19,15 @@ export const clearBookingData = () => {
     'contactInfo',
     'travellers',
     'netamount',
-    'sessionStartTime'
+    'sessionStartTime',
+    'bookingType'
   ];
 
   itemsToRemove.forEach(item => {
     localStorage.removeItem(item);
   });
 
-  console.log('✅ All booking-related localStorage items cleared');
+  // console.log('✅ All booking-related localStorage items cleared');
 };
 
 /**
@@ -48,14 +49,15 @@ export const clearSearchData = () => {
     'travelCheckList',
     'contactInfo',
     'travellers',
-    'sessionStartTime'
+    'sessionStartTime',
+    'bookingType'
   ];
 
   itemsToRemove.forEach(item => {
     localStorage.removeItem(item);
   });
 
-  console.log('✅ Search-related localStorage items cleared');
+  // console.log('✅ Search-related localStorage items cleared');
 };
 
 /**
@@ -73,15 +75,15 @@ export const clearAllBookingData = () => {
     }
   });
 
-  console.log('✅ All booking-related localStorage items cleared (except essential)');
+  // console.log('✅ All booking-related localStorage items cleared (except essential)');
 };
 
 /**
  * Debug function to show current localStorage state
  */
 export const debugLocalStorage = () => {
-  console.log('🔍 Current localStorage state:');
-  Object.keys(localStorage).forEach(key => {
-    console.log(`- ${key}:`, localStorage.getItem(key));
-  });
+  // console.log('🔍 Current localStorage state:');
+  // Object.keys(localStorage).forEach(key => {
+  //   console.log(`- ${key}:`, localStorage.getItem(key));
+  // });
 };

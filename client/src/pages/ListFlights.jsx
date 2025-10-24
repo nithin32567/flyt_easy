@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import FlightCard from "../components/FlightCard";
-import FlightFilter from "../components/FlightFilter";
+import FlightDetailsPopup from "../components/FlightDetailsPopup";
+import FilterSidebar from "../components/flight/FilterSidebar";
 import { useFlight } from "../contexts/FlightContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Filter, X, Menu } from "lucide-react";
 
 const ListFlights = () => {
   const {
@@ -25,13 +27,96 @@ const ListFlights = () => {
       return null;
     }
   });
-  
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(128);
+  const [showDetailsPopup, setShowDetailsPopup] = useState(false);
+  const [selectedFlightForDetails, setSelectedFlightForDetails] = useState(null);
+
   const navigate = useNavigate();
+
+  const handleShowFlightDetails = (flight) => {
+    setSelectedFlightForDetails(flight);
+    setShowDetailsPopup(true);
+  };
+
+  const handleCloseFlightDetails = () => {
+    setShowDetailsPopup(false);
+    setSelectedFlightForDetails(null);
+  };
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      if (width < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    const calculateHeaderHeight = () => {
+      const headerDiv = document.querySelector('.header-wrapper-div');
+      if (headerDiv) {
+        const height = headerDiv.offsetHeight;
+        setHeaderHeight(height);
+      } else {
+        // Fallback heights based on screen size
+        const width = window.innerWidth;
+        if (width < 540) {
+          setHeaderHeight(80);
+        } else if (width < 768) {
+          setHeaderHeight(90);
+        } else {
+          setHeaderHeight(128);
+        }
+      }
+    };
+
+    checkMobile();
+
+    // Calculate header height after a short delay to ensure DOM is ready
+    setTimeout(calculateHeaderHeight, 100);
+
+    window.addEventListener('resize', checkMobile);
+    window.addEventListener('scroll', calculateHeaderHeight);
+
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('scroll', calculateHeaderHeight);
+    };
+  }, []);
+
+  // Recalculate header height when component mounts
+  useEffect(() => {
+    const calculateHeaderHeight = () => {
+      const headerDiv = document.querySelector('.header-wrapper-div');
+      if (headerDiv) {
+        const height = headerDiv.offsetHeight;
+        setHeaderHeight(height);
+      } else {
+        // Fallback heights based on screen size
+        const width = window.innerWidth;
+        if (width < 540) {
+          setHeaderHeight(80);
+        } else if (width < 768) {
+          setHeaderHeight(90);
+        } else {
+          setHeaderHeight(128);
+        }
+      }
+    };
+
+    // Calculate immediately and after a delay
+    calculateHeaderHeight();
+    setTimeout(calculateHeaderHeight, 200);
+  }, []);
+
   useEffect(() => {
     if (!trips) {
       navigate("/", { replace: true });
     } else {
-      // Update context with flight data
       setFlights(trips[0]?.Journey || []);
       if (trips.length > 1) {
         setReturnFlights(trips[1]?.Journey || []);
@@ -44,31 +129,27 @@ const ListFlights = () => {
 
   useEffect(() => {
     if (trips == null) {
-      // Try to reload trips from localStorage one more time
       const storedTrips = localStorage.getItem("trips");
       if (storedTrips) {
         try {
           const parsedTrips = JSON.parse(storedTrips);
           setTrips(parsedTrips);
-          return; // Don't navigate away if we found trips
+          return;
         } catch (error) {
-          console.error("Error parsing trips from localStorage:", error);
         }
       }
-      
-      // If still no trips, navigate away
+
       navigate("/");
       alert("No Flights Found, Please try again!!!");
     }
   }, [trips, navigate]);
   const handleBookFlight = async () => {
-    if(!tripType){
+    if (!tripType) {
       alert("No Trip Type Found, Please try again!!!")
       navigate("/")
       return
     }
 
-    // Validate flight selection based on trip type
     if (tripType === "RT") {
       if (!selectedFlight || !selectedReturnFlight) {
         alert("Please select both onward and return flights for round trip")
@@ -79,19 +160,15 @@ const ListFlights = () => {
       return
     }
 
-    // Prepare trips array based on trip type
     let tripsToSend = [];
-    
+
     if (tripType === "RT") {
-      // For round trip, send both onward and return flights
       tripsToSend = [selectedFlight, selectedReturnFlight];
     } else {
-      // For one way or multi city, send selected flights
       tripsToSend = [selectedFlight];
     }
 
-    console.log("Sending trips:", tripsToSend, "TripType:", tripType)
-    
+
     try {
       const clientID = localStorage.getItem("ClientID");
       const payload = {
@@ -103,59 +180,26 @@ const ListFlights = () => {
         TUI: TUI,
         TripType: tripType
       };
-      
-      console.log("=== SMART PRICE API CALL ===");
-      console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
-      console.log("=============================");
-      
+
+
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, payload)
-      
-      console.log("=== SMART PRICE API RESPONSE ===");
-      console.log("Response Status:", response.status);
-      console.log("Response Headers:", response.headers);
-      console.log("Response Data:", JSON.stringify(response.data, null, 2));
-      console.log("Full Response Object:", response);
-      console.log("================================");
-      
+
+
       if (response.status === 200) {
-        console.log("inside the if condition")
         const pricerTUI = response.data.TUI
         localStorage.setItem("pricerTUI", pricerTUI)
-        //if success getPricer Api Call
-        console.log(response.data, '================================= response smart price');
 
         await getPricer()
       } else {
-        console.error("Smart price API returned non-200 status:", response.status)
         alert("Failed to process flight pricing. Please try again.")
       }
     } catch (error) {
-      console.log("=== SMART PRICE API ERROR ===");
-      console.error("Error calling smart-price API:", error);
-      console.log("Error object:", JSON.stringify(error, null, 2));
-      console.log("=============================");
-      
+
       if (error.response) {
-        // Server responded with error status
-        console.log("=== ERROR RESPONSE DETAILS ===");
-        console.error("Error Status:", error.response.status);
-        console.error("Error Headers:", error.response.headers);
-        console.error("Error Data:", JSON.stringify(error.response.data, null, 2));
-        console.log("==============================");
         alert(`Error: ${error.response.data?.Msg || "Failed to process flight pricing. Please try again."}`)
       } else if (error.request) {
-        // Request was made but no response received
-        console.log("=== NO RESPONSE ERROR ===");
-        console.error("No response received:", error.request);
-        console.log("Request details:", JSON.stringify(error.request, null, 2));
-        console.log("==========================");
         alert("Network error. Please check your connection and try again.")
       } else {
-        // Something else happened
-        console.log("=== UNKNOWN ERROR ===");
-        console.error("Error:", error.message);
-        console.error("Full error:", JSON.stringify(error, null, 2));
-        console.log("=====================");
         alert("An unexpected error occurred. Please try again.")
       }
     }
@@ -169,57 +213,29 @@ const ListFlights = () => {
         token: localStorage.getItem("token"),
         ClientID: localStorage.getItem("ClientID")
       };
-      
-      console.log("=== GET PRICER API CALL ===");
-      console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
-      console.log("===========================");
-      
+
+
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`, payload)
-      
-      console.log("=== GET PRICER API RESPONSE ===");
-      console.log("Response Status:", response.status);
-      console.log("Response Headers:", response.headers);
-      console.log("Response Data:", JSON.stringify(response.data, null, 2));
-      console.log("Full Response Object:", response);
-      console.log("===============================");
-      
+
+
       if (response.status === 200) {
         const data = response.data
-        console.log(data, "data=========================")
         localStorage.setItem("pricerData", JSON.stringify(data.data))
-        localStorage.setItem("netamount", data.data.NetAmount.toString()) 
+        localStorage.setItem("netamount", data.data.NetAmount.toString())
         localStorage.setItem("oneWayReviewData", JSON.stringify(data.data))
         localStorage.setItem("pricerTUI", data.data.TUI)
         navigate("/one-way-review")
       } else {
-        console.log("inside the else condition")
         alert("Something went wrong, Please try again!!!")
         navigate("/")
       }
     } catch (error) {
-      console.log("=== GET PRICER API ERROR ===");
-      console.error("Error calling get-pricer API:", error);
-      console.log("Error object:", JSON.stringify(error, null, 2));
-      console.log("=============================");
-      
+
       if (error.response) {
-        console.log("=== ERROR RESPONSE DETAILS ===");
-        console.error("Error Status:", error.response.status);
-        console.error("Error Headers:", error.response.headers);
-        console.error("Error Data:", JSON.stringify(error.response.data, null, 2));
-        console.log("==============================");
         alert(`Error: ${error.response.data?.Msg || "Failed to get pricing details. Please try again."}`)
       } else if (error.request) {
-        console.log("=== NO RESPONSE ERROR ===");
-        console.error("No response received:", error.request);
-        console.log("Request details:", JSON.stringify(error.request, null, 2));
-        console.log("==========================");
         alert("Network error. Please check your connection and try again.")
       } else {
-        console.log("=== UNKNOWN ERROR ===");
-        console.error("Error:", error.message);
-        console.error("Full error:", JSON.stringify(error, null, 2));
-        console.log("=====================");
         alert("An unexpected error occurred. Please try again.")
       }
       navigate("/")
@@ -228,7 +244,7 @@ const ListFlights = () => {
 
   if (loading) {
     return (
-      <div className="pt-40 flex justify-center items-center">
+      <div className="flex justify-center items-center min-h-[50vh]">
         <div className="text-xl">Loading flights...</div>
       </div>
     );
@@ -236,70 +252,181 @@ const ListFlights = () => {
 
   if (error) {
     return (
-      <div className="pt-40 flex justify-center items-center">
+      <div className="flex justify-center items-center min-h-[50vh]">
         <div className="text-xl text-red-600">Error: {error}</div>
       </div>
     );
   }
 
   return (
-    <div className="pt-40">
-      <h1 className="text-center text-2xl font-bold mb-4">
-        {tripType === "RT" ? "Select Onward and Return Flights" : "Flight List"}
-      </h1>
-      
-      {/* Flight Filter */}
-      <div className="max-w-7xl mx-auto mb-6">
-        <FlightFilter />
-      </div>
-      
-      {/* Onward Flights Section */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-center">
-          {tripType === "RT" ? "Onward Flights" : "Available Flights"}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredFlights.length > 0 ? filteredFlights.map((flight, index) => (
-            <FlightCard 
-              key={`onward-${index}`} 
-              flight={flight} 
-              setSelectedFlight={setSelectedFlight}
-              isSelected={selectedFlight?.Index === flight.Index}
-              tripType="onward"
-            />
-          )) : <div className="text-center text-2xl font-bold col-span-full">No onward flights found</div>}
-        </div>
-      </div>
+    <div className="flight-list-main">
+      {/* Filter Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={`flight-filter-toggle ${sidebarOpen ? 'active' : ''}`}
+        style={{ top: `${headerHeight + 20}px` }}
+        aria-label="Toggle filters"
+      >
+        {isMobile ? <Menu className="w-5 h-5" /> : <Filter className="w-5 h-5" />}
+        <span className="text-sm font-medium">
+          {isMobile
+            ? (sidebarOpen ? 'Hide' : 'Filters')
+            : (sidebarOpen ? 'Hide Filters' : 'Show Filters')
+          }
+        </span>
+      </button>
 
-      {/* Return Flights Section (only for Round Trip) */}
-      {tripType === "RT" && (
-        <div className="max-w-7xl mx-auto mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-center">Return Flights</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredReturnFlights.length > 0 ? filteredReturnFlights.map((flight, index) => (
-              <FlightCard 
-                key={`return-${index}`} 
-                flight={flight} 
-                setSelectedFlight={setSelectedReturnFlight}
-                isSelected={selectedReturnFlight?.Index === flight.Index}
-                tripType="return"
-              />
-            )) : <div className="text-center text-2xl font-bold col-span-full">No return flights found</div>}
-          </div>
-        </div>
+      {/* Mobile Overlay */}
+      {sidebarOpen && isMobile && (
+        <div
+          className="flight-mobile-overlay"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
       )}
 
-    {/* Book Flight Button */}
-    <div className="max-w-7xl mx-auto text-center sticky bottom-0 w-full bg-white rounded-lg py-4 mt-4">
-      <button 
-        onClick={handleBookFlight}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg"
-        disabled={!selectedFlight || (tripType === "RT" && !selectedReturnFlight)}
+      {/* Sidebar */}
+      <div className={`flight-sidebar transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+        <FilterSidebar onClose={() => setSidebarOpen(false)} />
+      </div>
+
+      {/* Main Content */}
+      <div
+        className={`flight-list-content transition-all duration-300 ${sidebarOpen && !isMobile ? 'sidebar-open' : ''}`}
+        style={{ paddingTop: `${headerHeight}px` }}
       >
-        {tripType === "RT" ? "Book Round Trip" : "Book Flight"}
-      </button>
+        {/* Header */}
+        <div className="flight-list-header py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 text-center">
+              {tripType === "RT" ? "Select Onward and Return Flights" : "Available Flights"}
+            </h1>
+          </div>
+        </div>
+
+        {/* Content Container */}
+        <div className=" mx-auto px-4  py-6">
+          {/* Onward Flights */}
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-6 text-gray-800">
+              {tripType === "RT" ? "Onward Flights" : ""}
+            </h2>
+            <div className="flight-card-grid">
+              {filteredFlights.length > 0 ? filteredFlights.map((flight, index) => (
+                <div key={`onward-${index}`} className="flight-card-container">
+                  <FlightCard
+                    flight={flight}
+                    setSelectedFlight={setSelectedFlight}
+                    isSelected={selectedFlight?.Index === flight.Index}
+                    tripType="onward"
+                    onShowDetails={handleShowFlightDetails}
+                  />
+                </div>
+              )) : (
+                <div className="col-span-full text-center py-12">
+                  <div className="text-2xl font-bold text-gray-500">No onward flights found</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Return Flights */}
+          {tripType === "RT" && (
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-6 text-gray-800">Return Flights</h2>
+              <div className="flight-card-grid">
+                {filteredReturnFlights.length > 0 ? filteredReturnFlights.map((flight, index) => (
+                  <div key={`return-${index}`} className="flight-card-container">
+                    <FlightCard
+                      flight={flight}
+                      setSelectedFlight={setSelectedReturnFlight}
+                      isSelected={selectedReturnFlight?.Index === flight.Index}
+                      tripType="return"
+                      onShowDetails={handleShowFlightDetails}
+                    />
+                  </div>
+                )) : (
+                  <div className="col-span-full text-center py-12">
+                    <div className="text-2xl font-bold text-gray-500">No return flights found</div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Action Bar */}
+        <div className="flight-bottom-bar">
+          <div className="flight-bottom-content">
+            <div className="flight-selection-info">
+              <div className="flight-selection-title">
+                {tripType === "RT" ? "Round Trip Selection" : "Flight Selection"}
+              </div>
+              <div className="flight-selection-status">
+                {selectedFlight ? (
+                  <span className="text-green-600">✓ {selectedFlight.AirlineName} Selected</span>
+                ) : (
+                  <span className="text-gray-500">No flight selected</span>
+                )}
+                {tripType === "RT" && (
+                  <span className="ml-2 sm:ml-4">
+                    {selectedReturnFlight ? (
+                      <span className="text-green-600">✓ Return Selected</span>
+                    ) : (
+                      <span className="text-gray-500">No return flight selected</span>
+                    )}
+                  </span>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={handleBookFlight}
+              className={`flight-book-button ${!selectedFlight || (tripType === "RT" && !selectedReturnFlight) ? 'disabled' : ''
+                }`}
+              disabled={!selectedFlight || (tripType === "RT" && !selectedReturnFlight)}
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
+              </svg>
+              <span>
+                {tripType === "RT" ? "Book Round Trip" : "Book Flight"}
+              </span>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Flight Details Popup */}
+      <FlightDetailsPopup
+        isVisible={showDetailsPopup}
+        flight={selectedFlightForDetails}
+        onClose={handleCloseFlightDetails}
+      />
     </div>
-  </div>
   )
 };
 

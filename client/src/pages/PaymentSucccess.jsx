@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { clearBookingData } from '../utils/clearBookingData';
+import { useAuth } from '../contexts/AuthContext';
 
 const PaymentSucccess = () => {
     const token = localStorage.getItem("token");
     const transactionID = JSON.parse(localStorage.getItem("TransactionID"));
     const clientID = localStorage.getItem("ClientID");
     const TUI = localStorage.getItem("TUI");
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [bookingData, setBookingData] = useState(null);
+    const [savedBookingId, setSavedBookingId] = useState(null);
     const [expandedSections, setExpandedSections] = useState({
         passengers: false,
         contact: false
@@ -19,12 +23,46 @@ const PaymentSucccess = () => {
         // First try to get booking data from localStorage (from payment process)
         const storedBookingData = localStorage.getItem("bookingDetails");
         if (storedBookingData) {
-            setBookingData(JSON.parse(storedBookingData));
+            const parsedData = JSON.parse(storedBookingData);
+            setBookingData(parsedData);
+            // Save booking details to database
+            saveBookingDetails(parsedData);
         } else {
             // If not in localStorage, fetch from API
             fetchBookingDetails();
         }
     }, []);
+
+    const saveBookingDetails = async (bookingData) => {
+        if (!user || !bookingData) return;
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/bookings/save`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include', // Include cookies for authentication
+                body: JSON.stringify({
+                    bookingData: bookingData,
+                    transactionId: bookingData.TransactionID,
+                    tui: bookingData.TUI,
+                    totalAmount: bookingData.NetAmount || bookingData.GrossAmount || 0
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setSavedBookingId(result.data._id);
+                // console.log('Booking details saved successfully');
+            } else {
+                const errorData = await response.json();
+                // console.error('Failed to save booking details:', errorData);
+            }
+        } catch (error) {
+            // console.error('Error saving booking details:', error);
+        }
+    };
 
     const fetchBookingDetails = async () => {
         try {
@@ -40,11 +78,14 @@ const PaymentSucccess = () => {
             });
             
             if (response.data.success) {
-                setBookingData(response.data.data);
-                localStorage.setItem("bookingDetails", JSON.stringify(response.data.data));
+                const bookingData = response.data.data;
+                setBookingData(bookingData);
+                localStorage.setItem("bookingDetails", JSON.stringify(bookingData));
+                // Save booking details to database
+                saveBookingDetails(bookingData);
             }
         } catch (error) {
-            console.error('Error fetching booking details:', error);
+            // console.error('Error fetching booking details:', error);
         }
     }
 
@@ -99,7 +140,7 @@ const PaymentSucccess = () => {
                 alert('Failed to retrieve booking: ' + response.data.message);
             }
         } catch (error) {
-            console.error('Error retrieving booking:', error);
+            // console.error('Error retrieving booking:', error);
             alert('Error retrieving booking. Please try again.');
         }
     };
@@ -148,7 +189,7 @@ const PaymentSucccess = () => {
     };
 
     return (  
-        <div className='min-h-screen bg-gray-50 pt-40'>
+        <div className='min-h-screen bg-gray-50'>
             <div className='max-w-6xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8'>
                 <h1 className='text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-4 sm:mb-6 md:mb-8 text-gray-800 px-2'>Review Your Booking</h1>
                 
@@ -576,6 +617,20 @@ const PaymentSucccess = () => {
               
             </div>
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center mt-8'>
+                {savedBookingId && (
+                    <button 
+                        onClick={() => navigate(`/booking-details/${savedBookingId}`)}
+                        className='text-center flex justify-center items-center bg-green-600 text-white p-2 rounded-xl px-8 py-2 hover:bg-green-700 transition-colors'
+                    >
+                        View Booking Details
+                    </button>
+                )}
+                <button 
+                    onClick={() => navigate('/bookings-accordion')}
+                    className='text-center flex justify-center items-center bg-blue-600 text-white p-2 rounded-xl px-8 py-2 hover:bg-blue-700 transition-colors'
+                >
+                    View All Bookings
+                </button>
                 <Link to="/">
                     <button 
                     onClick={() => {
@@ -584,11 +639,10 @@ const PaymentSucccess = () => {
                         // Navigate to home
                         window.location.href = '/';
                     }}
-                    className='text-center flex justify-center items-center bg-blue-600 text-white p-2 rounded-xl px-8 py-2 hover:bg-blue-700 transition-colors'>
+                    className='text-center flex justify-center items-center bg-gray-600 text-white p-2 rounded-xl px-8 py-2 hover:bg-gray-700 transition-colors'>
                 Go To Home
                 </button>
                 </Link>
-                
             </div>
         </div>
 
