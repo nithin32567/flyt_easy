@@ -1,7 +1,7 @@
 // controllers/flightController.js
-// import dotenv from "dotenv";
+import dotenv from "dotenv";
 
-// dotenv.config();
+dotenv.config();
 import fs from 'fs';
 import path from 'path';
 
@@ -89,13 +89,13 @@ export const expressSearchFlights = async (req, res) => {
     );
 
     const response = await fetch(
-      "https://b2bapiflights.benzyinfotech.com/flights/ExpressSearch",
+      `${process.env.FLIGHT_URL}/flights/ExpressSearch`,
       {
         body: JSON.stringify(payload),
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
-          "content-type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       }
     );
