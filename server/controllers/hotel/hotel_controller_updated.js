@@ -9,28 +9,28 @@ const HOTEL_ITINERARY_URL = 'https://b2bapihotels.benzyinfotech.com';
 const HOTEL_BOOKING_URL = 'https://b2bapiflights.benzyinfotech.com';
 
 export const autosuggest = async (req, res) => {
-    try {
-        const { term } = req.query;
+  try {
+    const { term } = req.query;
 
-        // Using HOTEL_SEARCH_URL constant
+    // Using HOTEL_SEARCH_URL constant
 
-        const response = await axios.get(`${HOTEL_SEARCH_URL}/api/content/autosuggest`, {
-            params: { term },
-        });
+    const response = await axios.get(`${HOTEL_SEARCH_URL}/api/content/autosuggest`, {
+      params: { term },
+    });
 
-        // console.log(response.data);
-        const data = response.data;
+    // console.log(response.data);
+    const data = response.data;
 
-        res.status(200).json(data);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 export const initHotelSearch = async (req, res) => {
   try {
     const payload = req.body;
     const authHeader = req.headers.authorization;
-    console.log(payload,"payload ============================================> init payload")
+    console.log(payload, "payload ============================================> init payload")
 
     if (!authHeader) {
       return res.status(401).json({
@@ -39,13 +39,85 @@ export const initHotelSearch = async (req, res) => {
       });
     }
 
+    // Validate and fix payload structure for rooms with children
+    if (payload.rooms && Array.isArray(payload.rooms)) {
+      console.log('=== ROOM VALIDATION ===');
+      console.log('Original rooms:', JSON.stringify(payload.rooms, null, 2));
+
+      payload.rooms = payload.rooms.map((room, index) => {
+        console.log(`Processing room ${index + 1}:`, JSON.stringify(room, null, 2));
+
+        // Ensure adults and children are strings
+        const adults = parseInt(room.adults) || 1;
+        const children = parseInt(room.children) || 0;
+
+        // Validate adults count (minimum 1, maximum 4)
+        if (adults < 1 || adults > 4) {
+          console.warn(`Invalid adults count: ${adults} for room ${index + 1}, defaulting to "1"`);
+          room.adults = "1";
+        } else {
+          room.adults = String(adults);
+        }
+
+        // Validate children count (maximum 3)
+        if (children < 0 || children > 3) {
+          console.warn(`Invalid children count: ${children} for room ${index + 1}, defaulting to "0"`);
+          room.children = "0";
+        } else {
+          room.children = String(children);
+        }
+
+        // Handle childAges array
+        if (parseInt(room.children) > 0) {
+          if (!room.childAges || !Array.isArray(room.childAges)) {
+            console.warn(`No childAges array for room ${index + 1} with ${room.children} children, creating default ages`);
+            room.childAges = Array(parseInt(room.children)).fill("5");
+          } else {
+            // Ensure childAges are strings, not numbers
+            room.childAges = room.childAges.map((age, ageIndex) => {
+              const strAge = String(age);
+              const numAge = parseInt(age);
+              if (isNaN(numAge) || numAge < 0 || numAge > 17) {
+                console.warn(`Invalid child age: ${age} for room ${index + 1}, child ${ageIndex + 1}, defaulting to "5"`);
+                return "5";
+              }
+              return strAge;
+            });
+
+            // Validate that childAges array length matches children count
+            if (room.childAges.length !== parseInt(room.children)) {
+              console.warn(`Child ages count (${room.childAges.length}) doesn't match children count (${room.children}) for room ${index + 1}`);
+              // Pad with default age "5" if needed, or truncate if too many
+              if (room.childAges.length < parseInt(room.children)) {
+                while (room.childAges.length < parseInt(room.children)) {
+                  room.childAges.push("5");
+                }
+              } else {
+                room.childAges = room.childAges.slice(0, parseInt(room.children));
+              }
+            }
+          }
+        } else {
+          // No children, ensure childAges is empty or undefined
+          room.childAges = [];
+        }
+
+        console.log(`Processed room ${index + 1}:`, JSON.stringify(room, null, 2));
+        return room;
+      });
+
+      console.log('=== ROOM VALIDATION COMPLETE ===');
+      console.log('Validated rooms:', JSON.stringify(payload.rooms, null, 2));
+    }
+
     console.log('=== HOTEL INIT API CALL ===');
-    console.log('Payload:', JSON.stringify(payload, null, 2));
+    console.log('Original Payload:', JSON.stringify(req.body, null, 2));
+    console.log('Validated Payload:', JSON.stringify(payload, null, 2));
 
     // Using HOTEL_SEARCH_URL constant
     const initResponse = await axios.post(`${HOTEL_SEARCH_URL}/api/hotels/search/init`, payload, {
       headers: {
-        'Content-Type': 'application/json', 
+        'Content-Type': 'application/json',
         'Authorization': authHeader
       }
     });
@@ -53,13 +125,17 @@ export const initHotelSearch = async (req, res) => {
     console.log('=== INIT API RESPONSE ===');
     console.log('Status:', initResponse.status);
     console.log('Data: initResponse.data', JSON.stringify(initResponse.data, null, 2));
-    
+
     const initData = initResponse.data;
 
     if (!initData.searchId) {
+      console.error('=== INIT API FAILED - NO SEARCH ID ===');
+      console.error('Response data:', JSON.stringify(initData, null, 2));
       return res.status(400).json({
         message: "Search ID not received from init API",
-        status: 400
+        status: 400,
+        details: initData,
+        validatedPayload: payload
       });
     }
 
@@ -79,23 +155,54 @@ export const initHotelSearch = async (req, res) => {
   } catch (error) {
     console.error('=== INIT API ERROR ===');
     console.error('Error:', error.message);
+    console.error('Error Code:', error.code);
+    console.error('Error Stack:', error.stack);
+
     if (error.response) {
       console.error('Response Status:', error.response.status);
-      console.error('Response Data:', error.response.data);
-      return res.status(error.response.status).json({
-        message: error.response.data?.message || error.message,
-        status: error.response.status,
-        data: error.response.data
+      console.error('Response Data:', JSON.stringify(error.response.data, null, 2));
+      console.error('Response Headers:', JSON.stringify(error.response.headers, null, 2));
+
+      // Check for specific room configuration errors
+      const errorData = error.response.data;
+      let errorMessage = errorData?.message || error.message;
+      let statusCode = error.response.status;
+
+      if (errorData && typeof errorData === 'object') {
+        // Check for room-related errors
+        if (errorData.message && errorData.message.toLowerCase().includes('room')) {
+          errorMessage = 'Room configuration error: ' + errorData.message;
+          statusCode = 422; // Unprocessable Entity
+        } else if (errorData.message && errorData.message.toLowerCase().includes('child')) {
+          errorMessage = 'Child age configuration error: ' + errorData.message;
+          statusCode = 422;
+        } else if (errorData.message && errorData.message.toLowerCase().includes('adult')) {
+          errorMessage = 'Adult count configuration error: ' + errorData.message;
+          statusCode = 422;
+        }
+      }
+
+      return res.status(statusCode).json({
+        message: errorMessage,
+        status: statusCode,
+        data: errorData,
+        originalPayload: req.body,
+        validatedPayload: payload
       });
     } else if (error.request) {
+      console.error('Request Error - No response received');
+      console.error('Request Details:', error.request);
       return res.status(503).json({
         message: "External hotel API is not available",
-        status: 503
+        status: 503,
+        originalPayload: req.body
       });
     } else {
+      console.error('Unknown Error:', error);
       return res.status(500).json({
         message: error.message,
-        status: 500
+        status: 500,
+        originalPayload: req.body
       });
     }
   }
@@ -104,10 +211,10 @@ export const fetchHotelContentAndRates = async (req, res) => {
   try {
     const { searchId } = req.params;
     const authHeader = req.headers.authorization;
-    console.log(searchId,"searchId ============================================> fetchHotelContentAndRates searchId")
+    console.log(searchId, "searchId ============================================> fetchHotelContentAndRates searchId")
     const { page = 1, limit = 50 } = req.query;
     const searchTracingKey = req.headers['search-tracing-key'];
-    console.log(searchTracingKey,"searchTracingKey ============================================> fetchHotelContentAndRates searchTracingKey")
+    console.log(searchTracingKey, "searchTracingKey ============================================> fetchHotelContentAndRates searchTracingKey")
 
     if (!authHeader) {
       return res.status(401).json({
@@ -127,7 +234,7 @@ export const fetchHotelContentAndRates = async (req, res) => {
       'Authorization': authHeader,
       'Content-Type': 'application/json'
     };
-    console.log(headers,"headers ============================================> fetchHotelContentAndRates headers")
+    console.log(headers, "headers ============================================> fetchHotelContentAndRates headers")
     if (searchTracingKey) {
       headers['search-tracing-key'] = searchTracingKey;
     }
@@ -150,9 +257,9 @@ export const fetchHotelContentAndRates = async (req, res) => {
     let ratesData = null;
     if (ratesResponse.status === 'fulfilled') {
       ratesData = ratesResponse.value.data;
-      console.log('=== RATES API RESPONSE ===');
-      console.log('Status:', ratesResponse.value.status);
-      console.log('Data: ratesData', JSON.stringify(ratesData, null, 2));
+      // console.log('=== RATES API RESPONSE ===');
+      // console.log('Status:', ratesResponse.value.status);
+      // console.log('Data: ratesData', JSON.stringify(ratesData, null, 2));
     } else {
       console.error('=== RATES API ERROR ===');
       console.error('Error:', ratesResponse.reason?.message);
@@ -161,9 +268,9 @@ export const fetchHotelContentAndRates = async (req, res) => {
     let contentData = null;
     if (contentResponse.status === 'fulfilled') {
       contentData = contentResponse.value.data;
-      console.log('=== CONTENT API RESPONSE ===');
-      console.log('Status:', contentResponse.value.status);
-      console.log('Data: contentData', JSON.stringify(contentData, null, 2));
+      // console.log('=== CONTENT API RESPONSE ===');
+      // console.log('Status:', contentResponse.value.status);
+      // console.log('Data: contentData', JSON.stringify(contentData, null, 2));
     } else {
       // console.error('=== CONTENT API ERROR ===');
       console.error('Error:', contentResponse.reason?.message);
@@ -176,8 +283,8 @@ export const fetchHotelContentAndRates = async (req, res) => {
           headers: headers
         });
         filterData = filterResponse.data;
-        console.log('=== FILTER DATA RESPONSE ===');
-        console.log(JSON.stringify(filterData, null, 2));
+        // console.log('=== FILTER DATA RESPONSE ===');
+        // console.log(JSON.stringify(filterData, null, 2));
       } catch (filterError) {
         console.error('Filter data error:', filterError.message);
       }
@@ -200,13 +307,13 @@ export const fetchHotelContentAndRates = async (req, res) => {
     };
 
     // console.log('=== CONTENT & RATES FINAL RESPONSE ===');
-    console.log(JSON.stringify(combinedResponse, null, 2));
+    // console.log(JSON.stringify(combinedResponse, null, 2));
 
     res.status(200).json(combinedResponse);
 
   } catch (error) {
     console.error('=== CONTENT & RATES API ERROR ===');
-      console.error('Error:', error.message);
+    console.error('Error:', error.message);
     if (error.response) {
       console.error('Response Status:', error.response.status);
       console.error('Response Data:', error.response.data);
@@ -271,7 +378,7 @@ export const fetchHotelPage = async (req, res) => {
     console.log('=== HOTEL PAGE API RESPONSE ===');
     console.log('Status:', contentResponse.status);
     console.log('Data:', JSON.stringify(contentResponse.data, null, 2));
-    
+
     const contentData = contentResponse.data;
 
     const response = {
@@ -319,7 +426,7 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
   try {
     const { searchId, hotelId } = req.params;
     const { priceProvider } = req.query;
-    console.log(searchId, hotelId,"searchId and hotelId {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
+    console.log(searchId, hotelId, "searchId and hotelId {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -342,7 +449,7 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
     };
 
     const searchTracingKey = req.headers['search-tracing-key'];
-    console.log(searchTracingKey,"searchTracingKey ============================================>")
+    console.log(searchTracingKey, "searchTracingKey ============================================>")
     if (searchTracingKey) {
       headers['search-tracing-key'] = searchTracingKey;
     }
@@ -371,8 +478,8 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
       })
     ]);
 
-    console.log(roomsResponse,"response of the room api")
-    console.log(contentResponse,"response of the content api")
+    console.log(roomsResponse, "response of the room api")
+    console.log(contentResponse, "response of the content api")
 
     // Process content response
     let contentData = null;
@@ -391,10 +498,10 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
     let roomsData = null;
     let roomsSuccess = false;
     let extractedPriceProvider = priceProvider; // Default to query param if provided
-    
+
     if (roomsResponse.status === 'fulfilled') {
       roomsData = roomsResponse.value.data;
-      
+
       // Check if the rooms data indicates an error (like code 1211)
       if (roomsData && (roomsData.code === '1211' || roomsData.status === 'failure' || roomsData.message === 'No rooms found')) {
         console.error('Rooms API returned error in response:', roomsData);
@@ -403,7 +510,7 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
       } else {
         roomsSuccess = true;
         console.log('Rooms API success');
-        
+
         // Extract price provider from rooms response if not provided in query
         if (!extractedPriceProvider && roomsData && roomsData.recommendations && roomsData.recommendations.length > 0) {
           console.log('Rooms data structure:', JSON.stringify(roomsData, null, 2));
@@ -418,7 +525,7 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
     } else {
       console.error('Rooms API failed:', roomsResponse.reason?.message);
       console.error('Rooms API error details:', roomsResponse.reason?.response?.data);
-      
+
       // Set a proper failure response for rooms
       roomsData = {
         status: 'failure',
@@ -561,10 +668,10 @@ export const fetchHotelPricing = async (req, res) => {
     const pricingResponse = await axios.get(pricingUrl, { headers });
 
     console.log('=== PRICING API RESPONSE ===');
-    console.log('Status:', pricingResponse.status);
-    console.log('Headers:', JSON.stringify(pricingResponse.headers, null, 2));
-    console.log('Complete Response Data:', JSON.stringify(pricingResponse.data, null, 2));
-    
+    // console.log('Status:', pricingResponse.status);
+    // console.log('Headers:', JSON.stringify(pricingResponse.headers, null, 2));
+    // console.log('Complete Response Data:', JSON.stringify(pricingResponse.data, null, 2));
+
     const pricingData = pricingResponse.data;
 
     const response = {
@@ -579,7 +686,7 @@ export const fetchHotelPricing = async (req, res) => {
     };
 
     console.log('=== PRICING API FINAL RESPONSE ===');
-    console.log(JSON.stringify(response, null, 2));
+    // console.log(JSON.stringify(response, null, 2));
 
     res.status(200).json(response);
 
@@ -588,7 +695,7 @@ export const fetchHotelPricing = async (req, res) => {
     console.error('Error Message:', error.message);
     console.error('Error Code:', error.code);
     console.error('Error Stack:', error.stack);
-    
+
     if (error.response) {
       console.error('Response Status:', error.response.status);
       console.error('Response Headers:', JSON.stringify(error.response.headers, null, 2));
@@ -646,26 +753,26 @@ export const filterHotels = async (req, res) => {
     }
 
     console.log('=== FILTER HOTELS API CALL ===');
-    console.log('Search ID:', searchId);
-    console.log('Original Filters:', JSON.stringify(filters, null, 2));
-    console.log('Limit:', limit, 'Offset:', offset);
+    // console.log('Search ID:', searchId);
+    // console.log('Original Filters:', JSON.stringify(filters, null, 2));
+    // console.log('Limit:', limit, 'Offset:', offset);
 
     // Transform filters to match external API format (based on Postman collection)
     const transformedFilters = {
       filters: {}
     };
-    
+
     console.log('=== FILTER TRANSFORMATION DEBUG ===');
-    console.log('Original filters received:', JSON.stringify(filters, null, 2));
-    
+    // console.log('Original filters received:', JSON.stringify(filters, null, 2));
+
     Object.entries(filters).forEach(([key, value]) => {
-      console.log(`Processing filter: ${key} = ${JSON.stringify(value)}`);
-      
+      // console.log(`Processing filter: ${key} = ${JSON.stringify(value)}`);
+
       if (value === null || value === undefined) {
-        console.log(`Skipping null/undefined filter: ${key}`);
+        // console.log(`Skipping null/undefined filter: ${key}`);
         return;
       }
-      
+
       // Handle PriceGroup filter specifically (matches Postman format)
       if (key === 'PriceGroup' && value && typeof value === 'object') {
         if (value.min !== undefined && value.max !== undefined) {
@@ -673,33 +780,33 @@ export const filterHotels = async (req, res) => {
             minPrice: value.min,
             maxPrice: value.max
           }];
-          console.log(`PriceGroup transformed: minPrice=${value.min}, maxPrice=${value.max}`);
+          // console.log(`PriceGroup transformed: minPrice=${value.min}, maxPrice=${value.max}`);
         }
       }
       // Handle StarRating filter
       else if (key === 'StarRating' && Array.isArray(value)) {
         transformedFilters.filters.starRating = value;
-        console.log(`StarRating transformed: ${JSON.stringify(value)}`);
+        // console.log(`StarRating transformed: ${JSON.stringify(value)}`);
       }
       // Handle HotelName filter
       else if (key === 'HotelName' && typeof value === 'string') {
         transformedFilters.filters.hotelName = value;
-        console.log(`HotelName transformed: ${value}`);
+        // console.log(`HotelName transformed: ${value}`);
       }
       // Handle Locations filter
       else if (key === 'Locations' && Array.isArray(value)) {
         transformedFilters.filters.locations = value;
-        console.log(`Locations transformed: ${JSON.stringify(value)}`);
+        // console.log(`Locations transformed: ${JSON.stringify(value)}`);
       }
       // Handle Attraction filter
       else if (key === 'Attraction' && Array.isArray(value)) {
         transformedFilters.filters.attractions = value;
-        console.log(`Attraction transformed: ${JSON.stringify(value)}`);
+        // console.log(`Attraction transformed: ${JSON.stringify(value)}`);
       }
       // Handle Facilities filter
       else if (key === 'Facilities' && Array.isArray(value)) {
         transformedFilters.filters.facilities = value;
-        console.log(`Facilities transformed: ${JSON.stringify(value)}`);
+        // console.log(`Facilities transformed: ${JSON.stringify(value)}`);
       }
       // Handle Distance filter
       else if (key === 'Distance' && value && typeof value === 'object' && value.min !== undefined && value.max !== undefined) {
@@ -707,7 +814,7 @@ export const filterHotels = async (req, res) => {
           min: value.min,
           max: value.max
         };
-        console.log(`Distance transformed: min=${value.min}, max=${value.max}`);
+        // console.log(`Distance transformed: min=${value.min}, max=${value.max}`);
       }
       // Handle other range filters
       else if (value && typeof value === 'object' && value.min !== undefined && value.max !== undefined) {
@@ -715,25 +822,25 @@ export const filterHotels = async (req, res) => {
           min: value.min,
           max: value.max
         };
-        console.log(`${key} range transformed: min=${value.min}, max=${value.max}`);
+        // console.log(`${key} range transformed: min=${value.min}, max=${value.max}`);
       }
       // Handle array values
       else if (Array.isArray(value)) {
         transformedFilters.filters[key] = value;
-        console.log(`${key} array transformed: ${JSON.stringify(value)}`);
+        // console.log(`${key} array transformed: ${JSON.stringify(value)}`);
       }
       // Handle primitive values
       else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
         transformedFilters.filters[key] = value;
-        console.log(`${key} primitive transformed: ${value}`);
+        // console.log(`${key} primitive transformed: ${value}`);
       }
       else {
-        console.log(`Unknown filter type for ${key}: ${typeof value}`);
+        // console.log(`Unknown filter type for ${key}: ${typeof value}`);
       }
     });
 
     console.log('=== FILTER TRANSFORMATION COMPLETE ===');
-    console.log('Transformed filters:', JSON.stringify(transformedFilters, null, 2));
+    // console.log('Transformed filters:', JSON.stringify(transformedFilters, null, 2));
 
     // Using HOTEL_SEARCH_URL constant (matches Postman collection format)
     const filterResponse = await axios.post(
@@ -743,9 +850,9 @@ export const filterHotels = async (req, res) => {
     );
 
     console.log('=== FILTER HOTELS API RESPONSE ===');
-    console.log('Status:', filterResponse.status);
-    console.log('Data:', JSON.stringify(filterResponse.data, null, 2));
-    
+    // console.log('Status:', filterResponse.status);
+    // console.log('Data:', JSON.stringify(filterResponse.data, null, 2));
+
     const filterData = filterResponse.data;
 
     res.status(200).json({
@@ -825,7 +932,7 @@ export const getFilterData = async (req, res) => {
     console.log('=== GET FILTER DATA API RESPONSE ===');
     console.log('Status:', filterDataResponse.status);
     console.log('Data:', JSON.stringify(filterDataResponse.data, null, 2));
-    
+
     const filterData = filterDataResponse.data;
 
     res.status(200).json({
@@ -1004,11 +1111,18 @@ export const createItineraryForHotelRoom = async (req, res) => {
       headers['search-tracing-key'] = searchTracingKey;
     }
 
-    // Log headers for debugging
-    console.log('=== REQUEST HEADERS ===');
+    // Enhanced logging for debugging
+    console.log('=== HOTEL CREATE ITINERARY REQUEST ===');
     console.log('Authorization:', authHeader ? 'Present' : 'Missing');
     console.log('Search Tracing Key:', searchTracingKey || 'Not provided');
     console.log('Content-Type:', headers['Content-Type']);
+    console.log('Request Body Keys:', Object.keys(itineraryData));
+    console.log('TUI from request:', itineraryData.TUI);
+    console.log('SearchId from request:', itineraryData.SearchId);
+    console.log('RecommendationId from request:', itineraryData.RecommendationId);
+    console.log('HotelCode from request:', itineraryData.HotelCode);
+    console.log('NetAmount from request:', itineraryData.NetAmount);
+    console.log('Rooms count:', itineraryData.Rooms?.length || 0);
 
     // Convert dates to the required format (YYYY-MM-DD string format)
     const formatDateToString = (dateString) => {
@@ -1020,7 +1134,7 @@ export const createItineraryForHotelRoom = async (req, res) => {
     // Validate required fields
     const requiredFields = ['SearchId', 'RecommendationId', 'HotelCode', 'CheckInDate', 'CheckOutDate'];
     const missingFields = requiredFields.filter(field => !itineraryData[field]);
-    
+
     if (missingFields.length > 0) {
       return res.status(400).json({
         message: `Missing required fields: ${missingFields.join(', ')}`,
@@ -1069,6 +1183,7 @@ export const createItineraryForHotelRoom = async (req, res) => {
         FName: itineraryData.ContactInfo?.FName || "",
         LName: itineraryData.ContactInfo?.LName || "",
         Mobile: itineraryData.ContactInfo?.Mobile || "",
+        Phone: null, // Add Phone field as null
         Email: itineraryData.ContactInfo?.Email || "",
         Address: itineraryData.ContactInfo?.Address || "",
         State: itineraryData.ContactInfo?.State || "",
@@ -1078,11 +1193,11 @@ export const createItineraryForHotelRoom = async (req, res) => {
         GSTTIN: itineraryData.ContactInfo?.GSTTIN || "",
         GSTMobile: itineraryData.ContactInfo?.GSTMobile || "",
         GSTEmail: itineraryData.ContactInfo?.GSTEmail || "",
-        UpdateProfile: true,
-        IsGuest: itineraryData.ContactInfo?.IsGuest !== undefined ? itineraryData.ContactInfo.IsGuest : false,
+        UpdateProfile: false, // Changed to false to match working payload
+        IsGuest: itineraryData.ContactInfo?.IsGuest !== undefined ? itineraryData.ContactInfo.IsGuest : true, // Changed to true to match working payload
         CountryCode: itineraryData.ContactInfo?.CountryCode || "IN",
         MobileCountryCode: itineraryData.ContactInfo?.MobileCountryCode || "+91",
-        NetAmount: itineraryData.NetAmount || "",
+        NetAmount: "", // Fixed: Empty string instead of itineraryData.NetAmount
         DestMobCountryCode: itineraryData.ContactInfo?.DestMobCountryCode || "",
         DestMob: itineraryData.ContactInfo?.DestMob || ""
       },
@@ -1094,26 +1209,35 @@ export const createItineraryForHotelRoom = async (req, res) => {
             { Type: "ID", Value: "" },
             { Type: "Amount", Value: "" }
           ]
-        },
-        {
-          Code: "CUSTOMER DETAILS",
-          Parameters: [
-            { Type: "Code", Value: "" },
-            { Type: "ID", Value: "" },
-            { Type: "Amount", Value: "" }
-          ]
         }
       ],
-      Rooms: itineraryData.Rooms?.map(room => {
-        // Generate proper GuestCode based on actual guests
+      Rooms: itineraryData.Rooms?.map((room, index) => {
+        // Use the GuestCode from client if available, otherwise generate one
         let guestCode = room.GuestCode;
         if (!guestCode && room.Guests && room.Guests.length > 0) {
-          const guestCount = room.Guests.length;
-          const guestTypes = room.Guests.map(guest => guest.PaxType || 'A').join(':');
-          const ages = room.Guests.map(guest => '25').join(':'); // Always use 25 for adults
-          guestCode = `|1|${guestCount}:${guestTypes}:${ages}|`;
+          // Group guests by PaxType (A for Adult, C for Child)
+          const adults = room.Guests.filter(guest => guest.PaxType === 'A');
+          const children = room.Guests.filter(guest => guest.PaxType === 'C');
+
+          let occupancyParts = [];
+          const roomIndex = index + 1; // Room index starts from 1
+
+          // Add adults occupancy
+          if (adults.length > 0) {
+            const adultAges = adults.map(guest => guest.Age || '25').join(':');
+            occupancyParts.push(`|${roomIndex}|${adults.length}:A:${adultAges}`);
+          }
+
+          // Add children occupancy
+          if (children.length > 0) {
+            const childAges = children.map(guest => guest.Age || '5').join(':');
+            occupancyParts.push(`|${children.length}:C:${childAges}`);
+          }
+
+          guestCode = occupancyParts.join('') + '|';
         } else if (!guestCode) {
-          guestCode = "|1|1:A:25|";
+          // Default fallback for single adult
+          guestCode = `|${index + 1}|1:A:25|`;
         }
 
         // Generate GuestID using base64 encoding of guest name
@@ -1123,87 +1247,94 @@ export const createItineraryForHotelRoom = async (req, res) => {
         };
 
         return {
-          RoomId: room.RoomId || "",
+          RoomId: room.RoomId || "", // Use RoomId from client (Pricing Response → RoomGroup → Room → Id)
           GuestCode: guestCode,
-          SupplierName: room.SupplierName || "",
+          SupplierName: room.SupplierName || "", // Use SupplierName from client (Pricing Response → RoomGroup → providerName)
           RoomGroupId: room.RoomGroupId || "",
           Guests: room.Guests?.map(guest => ({
-            GuestID: guest.GuestID || generateGuestID(guest.FirstName || '', guest.LastName || ''),
-            Operation: guest.Operation || "U",
-            Title: guest.Title || "Mr",
+            GuestID: "0",
+            Operation: "I",
+            Title: guest.PaxType === "C" ? "Mstr" : (guest.Title || "Mr"), // Child title should be "Mstr"
             FirstName: guest.FirstName || "",
             MiddleName: guest.MiddleName || "",
             LastName: guest.LastName || "",
             MobileNo: guest.MobileNo || "",
             PaxType: guest.PaxType || "A",
-            Age: guest.Age || "25", // Always use 25 for adults
+            Age: guest.PaxType === "A" ? "" : (guest.Age ? parseInt(guest.Age) : 5), // Empty for adults, actual age for children as number
             Email: guest.Email || "",
             Pan: guest.Pan || "",
-            ProfileType: guest.ProfileType || "T",
             EmployeeId: guest.EmployeeId || "",
             corporateCompanyID: guest.corporateCompanyID || ""
           })) || []
         };
       }) || [],
+      IsAllowDuplicate: false, // Add missing IsAllowDuplicate field
       NetAmount: itineraryData.NetAmount || "",
       ClientID: itineraryData.ClientID || "FVI6V120g22Ei5ztGK0FIQ==",
       DeviceID: itineraryData.DeviceID || "",
       AppVersion: itineraryData.AppVersion || "",
       SearchId: itineraryData.SearchId || "",
       RecommendationId: itineraryData.RecommendationId || "",
-      LocationName: itineraryData.LocationName || null,
+      LocationName: null, // Fixed: Set to null to match working payload
       HotelCode: itineraryData.HotelCode || "",
       CheckInDate: formatDateToString(itineraryData.CheckInDate),
       CheckOutDate: formatDateToString(itineraryData.CheckOutDate),
       TravelingFor: itineraryData.TravelingFor || "NTF"
     };
 
-    // Using HOTEL_ITINERARY_URL constant
-    console.log('=== CREATE ITINERARY API CALL ===');
-    console.log('Headers being sent:', JSON.stringify(headers, null, 2));
-    console.log('Itinerary Data:', JSON.stringify(transformedPayload, null, 2));
-    console.log('API URL:', `${HOTEL_ITINERARY_URL}/Hotel/CreateItinerary`);
-    
-    // Debug: Check critical fields
-    console.log('=== PAYLOAD VALIDATION ===');
-    console.log('TUI:', transformedPayload.TUI);
-    console.log('SearchId:', transformedPayload.SearchId);
-    console.log('RecommendationId:', transformedPayload.RecommendationId);
-    console.log('HotelCode:', transformedPayload.HotelCode);
-    console.log('CheckInDate:', transformedPayload.CheckInDate);
-    console.log('CheckOutDate:', transformedPayload.CheckOutDate);
-    console.log('NetAmount:', transformedPayload.NetAmount);
-    console.log('LocationName:', transformedPayload.LocationName);
-    console.log('ContactInfo NetAmount:', transformedPayload.ContactInfo?.NetAmount);
-    console.log('Rooms count:', transformedPayload.Rooms?.length);
-    console.log('First room GuestID:', transformedPayload.Rooms?.[0]?.Guests?.[0]?.GuestID);
-    console.log('First room Operation:', transformedPayload.Rooms?.[0]?.Guests?.[0]?.Operation);
-    console.log('First room SupplierName:', transformedPayload.Rooms?.[0]?.SupplierName);
-    console.log('UpdateProfile:', transformedPayload.ContactInfo?.UpdateProfile);
-    
-    // Detailed comparison with API provider sample
-    console.log('=== DETAILED COMPARISON WITH API PROVIDER SAMPLE ===');
-    console.log('=== EXPECTED vs ACTUAL ===');
-    console.log('TUI: Expected=81ebfeb2-1790-4b78-9c0e-1183619e6fad, Actual=' + transformedPayload.TUI);
-    console.log('ServiceEnquiry: Expected="", Actual=' + transformedPayload.ServiceEnquiry);
-    console.log('ContactInfo.Title: Expected=Mr, Actual=' + transformedPayload.ContactInfo?.Title);
-    console.log('ContactInfo.UpdateProfile: Expected=true, Actual=' + transformedPayload.ContactInfo?.UpdateProfile);
-    console.log('ContactInfo.IsGuest: Expected=false, Actual=' + transformedPayload.ContactInfo?.IsGuest);
-    console.log('ContactInfo.CountryCode: Expected=IN, Actual=' + transformedPayload.ContactInfo?.CountryCode);
-    console.log('ContactInfo.MobileCountryCode: Expected=+91, Actual=' + transformedPayload.ContactInfo?.MobileCountryCode);
-    console.log('ContactInfo.NetAmount: Expected="", Actual=' + transformedPayload.ContactInfo?.NetAmount);
-    console.log('Auxiliaries[0].Code: Expected=PROMO, Actual=' + transformedPayload.Auxiliaries?.[0]?.Code);
-    console.log('Auxiliaries[1].Code: Expected=CUSTOMER DETAILS, Actual=' + transformedPayload.Auxiliaries?.[1]?.Code);
-    console.log('Rooms[0].GuestID: Expected=0, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.GuestID);
-    console.log('Rooms[0].Operation: Expected="", Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.Operation);
-    console.log('Rooms[0].PaxType: Expected=A, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.PaxType);
-    console.log('Rooms[0].ProfileType: Expected=T, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.ProfileType);
-    console.log('NetAmount: Expected=2330, Actual=' + transformedPayload.NetAmount);
-    console.log('ClientID: Expected=FVI6V120g22Ei5ztGK0FIQ==, Actual=' + transformedPayload.ClientID);
-    console.log('LocationName: Expected=null, Actual=' + transformedPayload.LocationName);
-    console.log('CheckInDate: Expected=2023-07-19, Actual=' + transformedPayload.CheckInDate);
-    console.log('CheckOutDate: Expected=2023-07-20, Actual=' + transformedPayload.CheckOutDate);
-    console.log('TravelingFor: Expected=NTF, Actual=' + transformedPayload.TravelingFor);
+    // Enhanced payload logging
+    // console.log('=== TRANSFORMED PAYLOAD ===');
+    // console.log('1. TUI (Init Response → searchtracingkey):', transformedPayload.TUI);
+    // console.log('2. SearchId:', transformedPayload.SearchId);
+    // console.log('3. RecommendationId (MoreRooms Response → recommendations → id):', transformedPayload.RecommendationId);
+    // console.log('4. HotelCode:', transformedPayload.HotelCode);
+    // console.log('5. NetAmount:', transformedPayload.NetAmount);
+    // console.log('6. Rooms count:', transformedPayload.Rooms?.length);
+    // console.log('7. First room RoomId (Pricing Response → RoomGroup → Room → Id):', transformedPayload.Rooms?.[0]?.RoomId);
+    // console.log('8. First room SupplierName (Pricing Response → RoomGroup → providerName):', transformedPayload.Rooms?.[0]?.SupplierName);
+    // console.log('9. First room GuestCode:', transformedPayload.Rooms?.[0]?.GuestCode);
+    console.log('Complete payload:', JSON.stringify(transformedPayload, null, 2));
+
+    // // Debug: Check critical fields
+    // console.log('=== PAYLOAD VALIDATION ===');
+    // console.log('TUI:', transformedPayload.TUI);
+    // console.log('SearchId:', transformedPayload.SearchId);
+    // console.log('RecommendationId:', transformedPayload.RecommendationId);
+    // console.log('HotelCode:', transformedPayload.HotelCode);
+    // console.log('CheckInDate:', transformedPayload.CheckInDate);
+    // console.log('CheckOutDate:', transformedPayload.CheckOutDate);
+    // console.log('NetAmount:', transformedPayload.NetAmount);
+    // console.log('LocationName:', transformedPayload.LocationName);
+    // console.log('ContactInfo NetAmount:', transformedPayload.ContactInfo?.NetAmount);
+    // console.log('Rooms count:', transformedPayload.Rooms?.length);
+    // console.log('First room GuestID:', transformedPayload.Rooms?.[0]?.Guests?.[0]?.GuestID);
+    // console.log('First room Operation:', transformedPayload.Rooms?.[0]?.Guests?.[0]?.Operation);
+    // console.log('First room SupplierName:', transformedPayload.Rooms?.[0]?.SupplierName);
+    // console.log('UpdateProfile:', transformedPayload.ContactInfo?.UpdateProfile);
+
+    // // Detailed comparison with API provider sample
+    // console.log('=== DETAILED COMPARISON WITH API PROVIDER SAMPLE ===');
+    // console.log('=== EXPECTED vs ACTUAL ===');
+    // console.log('TUI: Expected=81ebfeb2-1790-4b78-9c0e-1183619e6fad, Actual=' + transformedPayload.TUI);
+    // console.log('ServiceEnquiry: Expected="", Actual=' + transformedPayload.ServiceEnquiry);
+    // console.log('ContactInfo.Title: Expected=Mr, Actual=' + transformedPayload.ContactInfo?.Title);
+    // console.log('ContactInfo.UpdateProfile: Expected=true, Actual=' + transformedPayload.ContactInfo?.UpdateProfile);
+    // console.log('ContactInfo.IsGuest: Expected=false, Actual=' + transformedPayload.ContactInfo?.IsGuest);
+    // console.log('ContactInfo.CountryCode: Expected=IN, Actual=' + transformedPayload.ContactInfo?.CountryCode);
+    // console.log('ContactInfo.MobileCountryCode: Expected=+91, Actual=' + transformedPayload.ContactInfo?.MobileCountryCode);
+    // console.log('ContactInfo.NetAmount: Expected="", Actual=' + transformedPayload.ContactInfo?.NetAmount);
+    // console.log('Auxiliaries[0].Code: Expected=PROMO, Actual=' + transformedPayload.Auxiliaries?.[0]?.Code);
+    // console.log('Auxiliaries[1].Code: Expected=CUSTOMER DETAILS, Actual=' + transformedPayload.Auxiliaries?.[1]?.Code);
+    // console.log('Rooms[0].GuestID: Expected=0, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.GuestID);
+    // console.log('Rooms[0].Operation: Expected="", Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.Operation);
+    // console.log('Rooms[0].PaxType: Expected=A, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.PaxType);
+    // console.log('Rooms[0].ProfileType: Expected=T, Actual=' + transformedPayload.Rooms?.[0]?.Guests?.[0]?.ProfileType);
+    // console.log('NetAmount: Expected=2330, Actual=' + transformedPayload.NetAmount);
+    // console.log('ClientID: Expected=FVI6V120g22Ei5ztGK0FIQ==, Actual=' + transformedPayload.ClientID);
+    // console.log('LocationName: Expected=null, Actual=' + transformedPayload.LocationName);
+    // console.log('CheckInDate: Expected=2023-07-19, Actual=' + transformedPayload.CheckInDate);
+    // console.log('CheckOutDate: Expected=2023-07-20, Actual=' + transformedPayload.CheckOutDate);
+    // console.log('TravelingFor: Expected=NTF, Actual=' + transformedPayload.TravelingFor);
 
     // Add retry mechanism for pricing failures
     let itineraryResponse;
@@ -1214,25 +1345,25 @@ export const createItineraryForHotelRoom = async (req, res) => {
       try {
         console.log(`=== ATTEMPT ${retryCount + 1} ===`);
         console.log('Making Create Itinerary API call...');
-        
+
         itineraryResponse = await axios.post(
           `https://b2bapihotels.benzyinfotech.com/Hotel/CreateItinerary`,
           transformedPayload,
           { headers }
         );
-        
+
         // If we get here, the request was successful
         break;
-        
+
       } catch (error) {
         retryCount++;
         console.error(`=== ATTEMPT ${retryCount} FAILED ===`);
         console.error('Error:', error.message);
-        
+
         if (retryCount > maxRetries) {
           throw error; // Re-throw if we've exhausted retries
         }
-        
+
         // Wait before retrying (exponential backoff)
         const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
         console.log(`Waiting ${delay}ms before retry...`);
@@ -1245,23 +1376,23 @@ export const createItineraryForHotelRoom = async (req, res) => {
     console.log('Status Text:', itineraryResponse.statusText);
     console.log('Response Headers:', JSON.stringify(itineraryResponse.headers, null, 2));
     console.log('Data:', JSON.stringify(itineraryResponse.data, null, 2));
-    
+
     const itineraryResult = itineraryResponse.data;
 
     // Check if the API response indicates an error
     const isApiError = itineraryResult.Code && itineraryResult.Code !== '200' && itineraryResult.Code !== '0';
-    const hasErrorMessage = itineraryResult.Msg && itineraryResult.Msg.length > 0 && 
-                           itineraryResult.Msg.some(msg => msg.toLowerCase().includes('error'));
+    const hasErrorMessage = itineraryResult.Msg && itineraryResult.Msg.length > 0 &&
+      itineraryResult.Msg.some(msg => msg.toLowerCase().includes('error'));
 
     if (isApiError || hasErrorMessage) {
       console.error('=== API RETURNED ERROR ===');
       console.error('Error Code:', itineraryResult.Code);
       console.error('Error Messages:', itineraryResult.Msg);
-      
+
       // Handle specific error codes
       let errorMessage = 'Hotel API returned an error';
       let statusCode = 400;
-      
+
       if (itineraryResult.Code === '5102') {
         errorMessage = 'Pricing response failure - The pricing information is invalid or expired. Please try searching again.';
         statusCode = 422; // Unprocessable Entity
@@ -1272,7 +1403,7 @@ export const createItineraryForHotelRoom = async (req, res) => {
         errorMessage = 'Hotel booking validation failed - Please check your booking details.';
         statusCode = 400;
       }
-      
+
       return res.status(statusCode).json({
         status: 'error',
         message: errorMessage,
@@ -1302,7 +1433,7 @@ export const createItineraryForHotelRoom = async (req, res) => {
     console.error('Error Response Data:', error.response?.data);
     console.error('Error Status:', error.response?.status);
     console.error('Error Headers:', JSON.stringify(error.response?.headers, null, 2));
-    
+
     if (error.response) {
       return res.status(error.response.status).json({
         message: error.response.data?.message || error.message,

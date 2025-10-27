@@ -60,7 +60,8 @@ const HotelRooms: React.FC<HotelRoomsProps> = ({ rooms, onNavigateBack, onRetry 
     const selectedRoomData = {
       ...room,
       recommendationId: recommendation.id,
-      hotelCode: hotelCode
+      hotelCode: hotelCode,
+      recommendationTotal: recommendation.total
     };
     
     // console.log('=== STORING SELECTED ROOM DATA ===');
@@ -251,8 +252,12 @@ const HotelRooms: React.FC<HotelRoomsProps> = ({ rooms, onNavigateBack, onRetry 
                           )}
                           <hr className="my-2" />
                           <div className="flex justify-between font-semibold text-lg">
-                            <span>Total Rate:</span>
+                            <span>Room Rate:</span>
                             <span className="text-green-600">{formatPrice(room.totalRate)}</span>
+                          </div>
+                          <div className="flex justify-between font-bold text-xl border-t pt-2 mt-2">
+                            <span>Total for All Rooms:</span>
+                            <span className="text-blue-600">{formatPrice(rec.total)}</span>
                           </div>
                         </div>
 
@@ -276,7 +281,7 @@ const HotelRooms: React.FC<HotelRoomsProps> = ({ rooms, onNavigateBack, onRetry 
                           onClick={() => handleRoomSelection(room, rec)}
                           className="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
                         >
-                          Book Now - {formatPrice(room.totalRate)}
+                          Book Now - {formatPrice(rec.total)}
                         </button>
                       </div>
                     </div>
