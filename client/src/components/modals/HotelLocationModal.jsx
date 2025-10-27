@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import axios from "axios";
 
@@ -117,9 +118,9 @@ export default function HotelLocationModal({
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div 
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] p-4"
+      className="fixed hotel_suggesestion_modal inset-0 bg-black/40 flex items-center justify-center  p-4"
       onClick={handleBackdropClick}
     >
       <div className="relative bg-white rounded-lg border max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col">
@@ -220,4 +221,6 @@ export default function HotelLocationModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

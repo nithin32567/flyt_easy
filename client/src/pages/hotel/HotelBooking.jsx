@@ -10,55 +10,41 @@ const HotelBooking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get hotel data from location state or localStorage
   const [hotelData, setHotelData] = useState(null);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [searchData, setSearchData] = useState(null);
   
-  // Modal states
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isGuestModalOpen, setIsGuestModalOpen] = useState(false);
   
-  // Form data
   const [contactInfo, setContactInfo] = useState(null);
   const [guestDetails, setGuestDetails] = useState([]);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Payment loading states
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState('');
   
-  // Error handling states
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   
-  // Header height state
   const [headerHeight, setHeaderHeight] = useState(128);
   
-  // Get data from localStorage or location state
   useEffect(() => {
     const hotelSearchData = JSON.parse(localStorage.getItem('hotelSearchData') || '{}');
     const hotelDetailsData = JSON.parse(localStorage.getItem('hotelDetailsData') || '{}');
     const selectedRoomData = JSON.parse(localStorage.getItem('selectedRoomData') || '{}');
     
-    // console.log('=== LOCALSTORAGE DATA DEBUG ===');
-    // console.log('hotelSearchData:', hotelSearchData);
-    // console.log('hotelDetailsData:', hotelDetailsData);
-    // console.log('selectedRoomData:', selectedRoomData);
-    // console.log('=== END LOCALSTORAGE DEBUG ===');
     
     setSearchData(hotelSearchData);
     setHotelData(hotelDetailsData);
     setSelectedRoom(selectedRoomData);
     
-    // If no data, redirect back to search
     if (!hotelSearchData.searchId || (!selectedRoomData.id && !selectedRoomData.roomId)) {
       navigate('/hotel-search');
     }
   }, [navigate]);
 
-  // Header height calculation
   useEffect(() => {
     const calculateHeaderHeight = () => {
       const headerDiv = document.querySelector('.header-wrapper-div');
@@ -66,7 +52,6 @@ const HotelBooking = () => {
         const height = headerDiv.offsetHeight;
         setHeaderHeight(height);
       } else {
-        // Fallback heights based on screen size
         const width = window.innerWidth;
         if (width < 540) {
           setHeaderHeight(80);
@@ -78,7 +63,6 @@ const HotelBooking = () => {
       }
     };
 
-    // Calculate immediately and after a delay
     calculateHeaderHeight();
     setTimeout(calculateHeaderHeight, 100);
     setTimeout(calculateHeaderHeight, 200);
@@ -114,7 +98,33 @@ const HotelBooking = () => {
       const token = localStorage.getItem('token');
       const searchTracingKey = localStorage.getItem('searchTracingKey');
       
-      // Prepare hotel itinerary payload according to Postman collection
+      if (!token) {
+        alert('Session expired. Please login again.');
+        navigate('/');
+        return;
+      }
+      
+      if (!searchTracingKey) {
+        alert('Search session expired. Please search again.');
+        navigate('/hotel-search');
+        return;
+      }
+      
+      const checkInDate = new Date(searchData?.checkIn);
+      const checkOutDate = new Date(searchData?.checkOut);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (checkInDate < today) {
+        alert('Check-in date must be today or in the future.');
+        return;
+      }
+      
+      if (checkOutDate <= checkInDate) {
+        alert('Check-out date must be after check-in date.');
+        return;
+      }
+      
       const hotelItineraryPayload = {
         TUI: searchTracingKey,
         ServiceEnquiry: "",
@@ -136,7 +146,7 @@ const HotelBooking = () => {
           IsGuest: contactInfo.isGuest || false,
           CountryCode: contactInfo.countryCode || "IN",
           MobileCountryCode: contactInfo.mobileCountryCode || "+91",
-          NetAmount: selectedRoom.totalRate?.toString() || "0",
+          NetAmount: selectedRoom.recommendationTotal?.toString() || selectedRoom.totalRate?.toString() || "0",
           DestMobCountryCode: "",
           DestMob: ""
         },
@@ -159,67 +169,85 @@ const HotelBooking = () => {
         ],
 
         Rooms: guestDetails.map((room, index) => {
-          // Get occupancy ID from selectedRoom data
-          const occupancyId = selectedRoom.occupancies?.[0]?.occupancyId || 1;
-          
-          // Group guests by type (Adults vs Children)
           const adults = room.guests.filter(g => g.paxType === 'A');
           const children = room.guests.filter(g => g.paxType === 'C');
           
-          // Build guest code according to specification
-          // Format: |<OccupancyID>|<NumberOfPax><A or C>:<Age1>:<Age2>:<Age3>|
-          let guestCode = `|${occupancyId}|`;
+          if (adults.length === 0) {
+            throw new Error(`Room ${index + 1} must have at least 1 adult.`);
+          }
           
-          // Add adults: NumberOfAdults:A:Age1:Age2:Age3
+          // Get stored room data with child ages from HotelRoomsModal
+          const storedRoomData = JSON.parse(localStorage.getItem('hotelRoomData') || '{}');
+          const roomData = storedRoomData.roomData || [];
+          const currentRoomData = roomData[index];
+          
+          const pricingData = JSON.parse(localStorage.getItem('hotelPricingData') || '{}');
+          const roomGroups = pricingData.pricing?.roomGroup || [];
+          
+          const roomGroup = roomGroups[index] || roomGroups[0];
+          const occupancy = roomGroup?.occupancies?.[0];
+          // Use room index (1-based) for occupancyId, not the occupancy ID from pricing data
+          const occupancyId = index + 1;
+          
+          
+          let guestCode = '';
+          
           if (adults.length > 0) {
-            const adultAges = adults.map(g => g.age || 25);
-            guestCode += `${adults.length}:A:${adultAges.join(':')}`;
-            // Add pipe separator if children exist
-            if (children.length > 0) {
-              guestCode += '|';
-            }
+            const adultAges = adults.map(() => 25);
+            guestCode += `|${occupancyId}|${adults.length}:A:${adultAges.join(':')}`;
           }
           
-          // Add children: NumberOfChildren:C:Age1:Age2:Age3
           if (children.length > 0) {
-            const childAges = children.map(g => g.age || 25);
-            guestCode += `${children.length}:C:${childAges.join(':')}`;
+            // Use child ages from stored room data instead of guest details
+            const childAges = currentRoomData?.childAges || children.map(() => 5);
+            guestCode += `|${children.length}:C:${childAges.join(':')}`;
           }
           
-          // Add final pipe to complete the format
           guestCode += '|';
           
-          // console.log('=== GUEST CODE GENERATION DEBUG ===');
-          // console.log('occupancyId:', occupancyId);
-          // console.log('adults:', adults);
-          // console.log('children:', children);
-          // console.log('Generated guestCode:', guestCode);
-          // console.log('=== END GUEST CODE GENERATION DEBUG ===');
+          
+          const roomId = roomGroup?.room?.id;
+          
           
           return {
-            RoomId: selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId,
+            RoomId: roomId,
             GuestCode: guestCode,
-            SupplierName: selectedRoom.providerName,
-            RoomGroupId: selectedRoom.id,
-            Guests: room.guests.map(guest => ({
-            GuestID: "0",
-            Operation: guest.operation || "",
-            Title: guest.title,
-            FirstName: guest.firstName,
-            MiddleName: guest.middleName || "",
-            LastName: guest.lastName,
-            MobileNo: "",
-            PaxType: guest.paxType,
-            Age: guest.age || "",
-            Email: "",
-            Pan: guest.pan || "",
-            ProfileType: guest.profileType || "T",
-            EmployeeId: guest.employeeId || "",
-            corporateCompanyID: guest.corporateCompanyId || ""
-          }))
+            SupplierName: roomGroup?.providerName,
+            RoomGroupId: roomGroup?.id,
+            Guests: room.guests.map((guest, guestIndex) => {
+              let age;
+              if (guest.paxType === 'A') {
+                age = "";
+              } else if (guest.paxType === 'C') {
+                // Use child age from stored room data, maintaining proper chronology
+                // Find the correct child index within this room's children
+                const childrenInThisRoom = room.guests.filter(g => g.paxType === 'C');
+                const childIndexInRoom = childrenInThisRoom.findIndex(g => g === guest);
+                const childAge = currentRoomData?.childAges?.[childIndexInRoom] || 5;
+                age = childAge;
+              }
+              
+              
+              
+              return {
+                GuestID: "0",
+                Operation: "I", // Changed from "U" to "I" for new bookings
+                Title: guest.paxType === 'C' ? 'Mstr' : guest.title,
+                FirstName: guest.firstName,
+                MiddleName: guest.middleName || "",
+                LastName: guest.lastName,
+                MobileNo: guest.mobileNo || "",
+                PaxType: guest.paxType,
+                Age: age,
+                Email: guest.email || "",
+                Pan: guest.pan || "",
+                EmployeeId: guest.employeeId || "",
+                corporateCompanyID: guest.corporateCompanyId || ""
+              };
+            })
           };
         }),
-        NetAmount: selectedRoom.totalRate?.toString() || "0",
+        NetAmount: selectedRoom.recommendationTotal?.toString() || selectedRoom.totalRate?.toString() || "0",
         ClientID: localStorage.getItem("ClientID") || "FVI6V120g22Ei5ztGK0FIQ==",
         DeviceID: "",
         AppVersion: "",
@@ -228,61 +256,16 @@ const HotelBooking = () => {
         LocationName: searchData?.location || null,
         HotelCode: selectedRoom?.hotelCode || hotelData?.content?.hotel?.id || hotelData?.id || "",
         CheckInDate: searchData?.checkIn ? (() => {
-          // Convert MM/DD/YYYY to YYYY-MM-DD
           const [month, day, year] = searchData.checkIn.split('/');
           return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
         })() : "",
         CheckOutDate: searchData?.checkOut ? (() => {
-          // Convert MM/DD/YYYY to YYYY-MM-DD
           const [month, day, year] = searchData.checkOut.split('/');
           return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
         })() : "",
         TravelingFor: "NTF"
       };
       
-      // console.log('=== HOTEL BOOKING PAYLOAD ===');
-      // console.log('Available Data:');
-      // console.log('hotelData:', hotelData);
-      // console.log('selectedRoom:', selectedRoom);
-      // console.log('searchData:', searchData);
-      // console.log('=== ROOM ID DEBUG ===');
-      // console.log('selectedRoom.room?.id:', selectedRoom.room?.id);
-      // console.log('selectedRoom.id:', selectedRoom.id);
-      // console.log('selectedRoom.roomId:', selectedRoom.roomId);
-      // console.log('Final RoomId being sent:', selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId);
-      // console.log('=== END ROOM ID DEBUG ===');
-      // console.log('=== GUEST CODE DEBUG ===');
-      // console.log('selectedRoom.occupancies:', selectedRoom.occupancies);
-      // console.log('guestDetails:', guestDetails);
-      // console.log('=== END GUEST CODE DEBUG ===');
-      // console.log('=== SUPPLIER & ROOM GROUP DEBUG ===');
-      // console.log('selectedRoom.providerName:', selectedRoom.providerName);
-      // console.log('selectedRoom.id (RoomGroupId):', selectedRoom.id);
-      // console.log('selectedRoom.room?.id (RoomId):', selectedRoom.room?.id);
-      // console.log('=== END SUPPLIER & ROOM GROUP DEBUG ===');
-      // console.log('=== PAYLOAD STRUCTURE DEBUG ===');
-      // console.log('Final RoomId being sent:', selectedRoom.room?.id || selectedRoom.id || selectedRoom.roomId);
-      // console.log('Final RoomGroupId being sent:', selectedRoom.id);
-      // console.log('Final SupplierName being sent:', selectedRoom.providerName);
-      // console.log('=== END PAYLOAD STRUCTURE DEBUG ===');
-      // console.log('=== PRICING DATA DEBUG ===');
-      // console.log('selectedRoom from localStorage:', selectedRoom);
-      // console.log('selectedRoom.providerName:', selectedRoom.providerName);
-      // console.log('selectedRoom.room?.id:', selectedRoom.room?.id);
-      // console.log('selectedRoom.id:', selectedRoom.id);
-      // console.log('=== END PRICING DATA DEBUG ===');
-      // console.log('=== FINAL PAYLOAD VERIFICATION ===');
-      // console.log('GuestID being sent:', "0");
-      // console.log('MobileNo being sent:', "");
-      // console.log('Email being sent:', "");
-      // console.log('Auxiliaries structure:', hotelItineraryPayload.Auxiliaries);
-      // console.log('=== NET AMOUNT DEBUG ===');
-      // console.log('selectedRoom.totalRate:', selectedRoom.totalRate);
-      // console.log('selectedRoom.baseRate:', selectedRoom.baseRate);
-      // console.log('NetAmount being sent:', hotelItineraryPayload.NetAmount);
-      // console.log('=== END NET AMOUNT DEBUG ===');
-      // console.log('=== END FINAL PAYLOAD VERIFICATION ===');
-      // console.log('Payload:', JSON.stringify(hotelItineraryPayload, null, 2));
       
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/create-itinerary`,
@@ -296,31 +279,17 @@ const HotelBooking = () => {
         }
       );
       
-      // console.log('=== HOTEL BOOKING RESPONSE ===');
-      // console.log(response.data);
       
       if (response.data.status === 'success') {
-        // Check if we have TransactionID and Code 200 in the itinerary response
         const itineraryData = response.data.itinerary;
         
-        // console.log('=== ITINERARY RESPONSE VALIDATION ===');
-        // console.log('TransactionID:', itineraryData?.TransactionID);
-        // console.log('Code:', itineraryData?.Code);
-        // console.log('Success:', isHotelItineraryValid(itineraryData));
-        // console.log('=== END ITINERARY RESPONSE VALIDATION ===');
         
         if (isHotelItineraryValid(itineraryData)) {
-          // console.log('✅ Itinerary created successfully with TransactionID:', itineraryData.TransactionID);
-          
-          // Store the complete itinerary response using utility function
           const stored = storeHotelItineraryResponse(itineraryData);
           if (stored) {
-            // console.log('✅ Itinerary response stored in localStorage');
           } else {
-            // console.warn('⚠️ Failed to store itinerary response');
           }
           
-          // Proceed to payment after successful itinerary creation
           await initiateHotelPayment(itineraryData);
         } else {
           throw new Error('Invalid itinerary response');
@@ -332,11 +301,9 @@ const HotelBooking = () => {
     } catch (error) {
       console.error('Hotel booking error:', error);
       
-      // Show error popup with session timeout message
       setErrorMessage('Session timed out. Please search again.');
       setShowErrorPopup(true);
       
-      // Redirect to home page after 3 seconds
       setTimeout(() => {
         navigate('/');
       }, 3000);
@@ -357,20 +324,17 @@ const HotelBooking = () => {
 
   const initiateHotelPayment = async (itineraryData) => {
     try {
-      // console.log('=== INITIATING HOTEL PAYMENT ===');
       
-      // 1. Load Razorpay SDK
       const res = await loadRazorpay("https://checkout.razorpay.com/v1/checkout.js");
       if (!res) {
         alert("Failed to load Razorpay SDK. Please check your connection.");
         return;
       }
       
-      // 2. Create Razorpay order
       const orderResponse = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/create-razorpay-order`,
         {
-          amount: selectedRoom.totalRate,
+          amount: selectedRoom.recommendationTotal || selectedRoom.totalRate,
           currency: 'INR',
           receipt: `hotel_${Date.now()}`,
           notes: {
@@ -386,11 +350,9 @@ const HotelBooking = () => {
         throw new Error('Failed to create payment order');
       }
 
-      // console.log('✅ Razorpay order created:', orderResponse.data.order);
 
-      // 3. Initialize Razorpay payment
       const options = {
-        key: "rzp_test_9Hi6wVlmuLeJ77", // Using the same key as PaymentButton
+        key: "rzp_test_9Hi6wVlmuLeJ77",
         amount: orderResponse.data.order.amount,
         currency: orderResponse.data.order.currency,
         name: 'FlytEasy',
@@ -398,11 +360,7 @@ const HotelBooking = () => {
         order_id: orderResponse.data.order.id,
         handler: async function (response) {
           try {
-            // console.log('=== RAZORPAY PAYMENT RESPONSE ===');
-            // console.log(response);
-            // console.log('=== END RAZORPAY PAYMENT RESPONSE ===');
 
-            // 4. Verify payment signature
             const verifyResponse = await axios.post(
               `${import.meta.env.VITE_BASE_URL}/api/hotel/verify-payment`,
               {
@@ -413,15 +371,12 @@ const HotelBooking = () => {
             );
 
             if (verifyResponse.data.success) {
-              // console.log('✅ Payment verified successfully');
               
-              // 5. Call StartPay API
               await callHotelStartPay(itineraryData);
             } else {
               throw new Error('Payment verification failed');
             }
           } catch (error) {
-            // console.error('Payment verification error:', error);
             alert(`Payment verification failed: ${error.message}`);
           }
         },
@@ -441,11 +396,9 @@ const HotelBooking = () => {
     } catch (error) {
       console.error('Payment initiation error:', error);
       
-      // Show error popup with session timeout message
       setErrorMessage('Session timed out. Please search again.');
       setShowErrorPopup(true);
       
-      // Redirect to home page after 3 seconds
       setTimeout(() => {
         navigate('/');
       }, 3000);
@@ -454,9 +407,7 @@ const HotelBooking = () => {
 
   const callHotelStartPay = async (itineraryData) => {
     try {
-      // console.log('=== CALLING HOTEL STARTPAY API ===');
       
-      // Show loading popup
       setIsPaymentProcessing(true);
       setPaymentStatus('Processing payment and confirming booking...');
       
@@ -512,9 +463,6 @@ const HotelBooking = () => {
         AgentInfo: "333-1234-asdf-551234-1-306"
       };
 
-      // console.log('=== HOTEL STARTPAY PAYLOAD ===');
-      // console.log(JSON.stringify(startPayPayload, null, 2));
-      // console.log('=== END HOTEL STARTPAY PAYLOAD ===');
 
       const startPayResponse = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/start-pay`,
@@ -527,25 +475,17 @@ const HotelBooking = () => {
         }
       );
 
-      // console.log('=== HOTEL STARTPAY RESPONSE ===');
-      // console.log(JSON.stringify(startPayResponse.data, null, 2));
-      // console.log('=== END HOTEL STARTPAY RESPONSE ===');
 
       if (startPayResponse.data.success) {
         if (startPayResponse.data.shouldPoll) {
           setPaymentStatus('Booking in progress, please wait...');
-          // Poll for booking status
           await pollHotelBookingStatus(itineraryData);
         } else if (startPayResponse.data.status === "SUCCESS") {
-          // console.log('✅ Hotel booking completed successfully');
           setPaymentStatus('Booking confirmed successfully!');
-          
-          // Store transaction ID for confirmation page
           localStorage.setItem('hotelTransactionID', itineraryData.TransactionID);
           
           setTimeout(() => {
             setIsPaymentProcessing(false);
-            // Redirect to confirmation page
             navigate('/hotel-booking-confirmation');
           }, 2000);
         }
@@ -557,11 +497,9 @@ const HotelBooking = () => {
       console.error('Hotel StartPay error:', error);
       setIsPaymentProcessing(false);
       
-      // Show error popup with session timeout message
       setErrorMessage('Session timed out. Please search again.');
       setShowErrorPopup(true);
       
-      // Redirect to home page after 3 seconds
       setTimeout(() => {
         navigate('/');
       }, 3000);
@@ -570,7 +508,6 @@ const HotelBooking = () => {
 
   const pollHotelBookingStatus = async (itineraryData) => {
     try {
-      // console.log('=== POLLING HOTEL BOOKING STATUS ===');
       
       const token = localStorage.getItem('token');
       const maxAttempts = 10;
@@ -594,20 +531,14 @@ const HotelBooking = () => {
           }
         );
 
-        // console.log(`=== HOTEL BOOKING STATUS ATTEMPT ${attempts} ===`);
-        // console.log(JSON.stringify(statusResponse.data, null, 2));
-        // console.log('=== END HOTEL BOOKING STATUS ATTEMPT ===');
 
         if (statusResponse.data.success && statusResponse.data.status === "SUCCESS") {
-          // console.log('✅ Hotel booking completed successfully');
           setPaymentStatus('Booking confirmed successfully!');
           
-          // Store transaction ID for confirmation page
           localStorage.setItem('hotelTransactionID', itineraryData.TransactionID);
           
           setTimeout(() => {
             setIsPaymentProcessing(false);
-            // Redirect to confirmation page
             navigate('/hotel-booking-confirmation');
           }, 2000);
         } else if (statusResponse.data.status === "FAILED") {
@@ -615,8 +546,7 @@ const HotelBooking = () => {
           throw new Error(statusResponse.data.message || 'Hotel booking failed');
         } else if (attempts < maxAttempts && statusResponse.data.shouldPoll) {
           setPaymentStatus(`Booking in progress... (${attempts}/${maxAttempts})`);
-          // Continue polling
-          setTimeout(pollStatus, 3000); // Poll every 3 seconds
+          setTimeout(pollStatus, 3000);
         } else {
           setIsPaymentProcessing(false);
           throw new Error('Hotel booking timeout - please contact support');
@@ -629,11 +559,9 @@ const HotelBooking = () => {
       console.error('Hotel booking status polling error:', error);
       setIsPaymentProcessing(false);
       
-      // Show error popup with session timeout message
       setErrorMessage('Session timed out. Please search again.');
       setShowErrorPopup(true);
       
-      // Redirect to home page after 3 seconds
       setTimeout(() => {
         navigate('/');
       }, 3000);
@@ -684,7 +612,6 @@ const HotelBooking = () => {
           </div>
         </div>
         
-        {/* Progress Steps */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
           <div className="flex items-center justify-between">
             <div className={`flex items-center ${currentStep >= 1 ? 'text-[var(--PrimaryColor)]' : 'text-gray-400'}`}>
@@ -723,9 +650,7 @@ const HotelBooking = () => {
           </div>
         </div>
         
-        {/* Step Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2">
             {currentStep === 1 && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
@@ -862,10 +787,8 @@ const HotelBooking = () => {
             )}
           </div>
           
-          {/* Sidebar - Room Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 sticky top-6">
-              {/* Header */}
               <div className="flex items-center mb-6">
                 <div className="w-10 h-10 bg-gradient-to-br from-[var(--PrimaryColor)] to-[var(--PrimaryColor)] rounded-lg flex items-center justify-center mr-3">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -876,7 +799,6 @@ const HotelBooking = () => {
               </div>
               
               <div className="space-y-6">
-                {/* Hotel Information */}
                 <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
                   <div className="flex items-start space-x-3">
                     <div className="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center flex-shrink-0">
@@ -899,7 +821,6 @@ const HotelBooking = () => {
                   </div>
                 </div>
                 
-                {/* Dates Section */}
                 <div className="bg-gray-50 rounded-xl p-6">
                   <h5 className="font-semibold text-gray-900 mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -919,7 +840,6 @@ const HotelBooking = () => {
                   </div>
                 </div>
                 
-                {/* Room Details */}
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
                   <h5 className="font-semibold text-gray-900 mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -967,7 +887,6 @@ const HotelBooking = () => {
                   </div>
                 </div>
                 
-                {/* Room Features */}
                 <div className="bg-white border border-gray-200 rounded-xl p-6">
                   <h5 className="font-semibold text-gray-900 mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1011,7 +930,6 @@ const HotelBooking = () => {
                   </div>
                 </div>
                 
-                {/* Pricing Section */}
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
                   <h5 className="font-semibold text-gray-900 mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1043,7 +961,7 @@ const HotelBooking = () => {
                     <div className="border-t border-green-200 pt-3 mt-4">
                       <div className="flex justify-between items-center">
                         <span className="text-lg font-bold text-gray-900">Total Amount</span>
-                        <span className="text-2xl font-bold text-green-600">₹{selectedRoom?.totalRate?.toLocaleString() || '0'}</span>
+                        <span className="text-2xl font-bold text-green-600">₹{(selectedRoom?.recommendationTotal || selectedRoom?.totalRate || '0').toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
@@ -1054,7 +972,6 @@ const HotelBooking = () => {
         </div>
       </div>
       
-      {/* Modals */}
       <ContactInfoModal
         isOpen={isContactModalOpen}
         setIsOpen={setIsContactModalOpen}
@@ -1066,20 +983,18 @@ const HotelBooking = () => {
         isOpen={isGuestModalOpen}
         setIsOpen={setIsGuestModalOpen}
         onApply={handleGuestDetailsSubmit}
-        roomCount={1}
+        roomCount={searchData?.rooms || 1}
         adults={searchData?.adults || 1}
         children={searchData?.children || 0}
+        roomData={searchData?.roomData || null}
       />
       
-      {/* Payment Processing Loading Popup */}
       {isPaymentProcessing && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md mx-4 shadow-xl">
             <div className="text-center">
-              {/* Loading Spinner */}
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[var(--PrimaryColor)] mx-auto mb-4"></div>
               
-              {/* Hotel Icon */}
               <div className="mb-4">
                 <div className="w-12 h-12 mx-auto bg-indigo-100 rounded-full flex items-center justify-center">
                   <svg className="w-6 h-6 text-[var(--PrimaryColor)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1093,7 +1008,6 @@ const HotelBooking = () => {
                 Processing Your Hotel Booking
               </h3>
               
-              {/* Status Message */}
               <p className="text-gray-600 mb-4">
                 {paymentStatus}
               </p>
@@ -1103,7 +1017,6 @@ const HotelBooking = () => {
                 <div className="bg-[var(--PrimaryColor)] h-2 rounded-full animate-pulse" style={{width: '60%'}}></div>
               </div>
               
-              {/* Additional Info */}
               <div className="text-sm text-gray-500">
                 <p>Please don't close this window</p>
                 <p>This may take a few moments...</p>
@@ -1113,12 +1026,10 @@ const HotelBooking = () => {
         </div>
       )}
       
-      {/* Error Popup */}
       {showErrorPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md mx-4 shadow-xl">
             <div className="text-center">
-              {/* Error Icon */}
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
@@ -1130,12 +1041,10 @@ const HotelBooking = () => {
                 Session Timeout
               </h3>
               
-              {/* Error Message */}
               <p className="text-gray-600 mb-6">
                 {errorMessage}
               </p>
               
-              {/* Countdown */}
               <div className="text-sm text-gray-500 mb-4">
                 <p>Redirecting to home page in 3 seconds...</p>
               </div>

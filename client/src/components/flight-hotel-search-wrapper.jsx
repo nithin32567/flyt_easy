@@ -36,7 +36,7 @@ const FlightHotelWearchWrapper = () => {
   return (
     <div>
       <section>
-        <div className="container">
+        <div style={{ zIndex: 1 }} className="container">
           <div className="booking-tabs-wrapper">
             <TabNavigation 
               isActiveFlightTab={isActiveFlightTab} 

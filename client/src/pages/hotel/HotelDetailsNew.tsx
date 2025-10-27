@@ -588,15 +588,13 @@ const HotelDetailsNew: React.FC = () => {
         )}
 
         {/* Raw Data for Debugging */}
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-bold mb-4">Raw API Response</h2>
-          <pre className="bg-gray-100 p-4 rounded-lg overflow-auto text-sm">
-            {JSON.stringify(hotelData, null, 2)}
-          </pre>
-        </div>
+    
       </div>
     </div>
   );
 };
 
 export default HotelDetailsNew;
+
+
+

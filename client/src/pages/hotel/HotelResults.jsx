@@ -1359,8 +1359,8 @@ const HotelResults = () => {
           style={{ top: `${headerHeight + 20}px` }}
           aria-label="Toggle filters"
         >
-          {isMobile ? <Menu className="w-5 h-5" /> : <Filter className="w-5 h-5" />}
-          <span className="text-sm font-medium">
+          {isMobile ? <Menu className="w-4 h-4 sm:w-5 sm:h-5" /> : <Filter className="w-4 h-4 sm:w-5 sm:h-5" />}
+          <span className="text-xs sm:text-sm font-medium">
             {isMobile ? 'Filters' : 'Show Filters'}
           </span>
         </button>
@@ -1394,54 +1394,36 @@ const HotelResults = () => {
         className={`hotel-list-content transition-all duration-300 ${sidebarOpen && !isMobile ? 'sidebar-open' : ''}`}
         style={{ paddingTop: `${Math.max(headerHeight - 40, 20)}px` }}
       >
-        {/* Header */}
-      
-
         {/* Content Container */}
-        <div className=" mx-auto  ">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
 
           {/* Results Header */}
-          <div className="bg-white rounded-lg p-2 flex justify-center items-center text-center">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {totalHotels > 0 ? totalHotels : filteredHotels.length} hotels found
-                </h2>
-                <p className="text-gray-600">
-                  Showing results for {searchParams.location}
-                </p>
-              </div>
+          <div className="bg-white rounded-lg p-4 sm:p-6 mb-6 shadow-sm">
+            <div className="text-center">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                {totalHotels > 0 ? totalHotels : filteredHotels.length} hotels found
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600">
+                Showing results for {searchParams.location}
+              </p>
             </div>
 
             {/* Sort and View Options */}
-            <div className="flex items-center justify-between">
-              {/* <div className="flex items-center space-x-4">
-                <select
-                  value={sortBy}
-                  onChange={(e) => handleSortChange(e.target.value)}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div> */}
-              <div className="flex items-center space-x-2 ml-auto">
+            <div className="flex items-center justify-center mt-4">
+              <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-lg ${viewMode === 'grid' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400'
+                  className={`p-2 sm:p-3 rounded-md transition-all min-h-[44px] flex items-center justify-center ${viewMode === 'grid' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'
                     }`}
                 >
-                  <Grid className="w-5 h-5" />
+                  <Grid className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400'
+                  className={`p-2 sm:p-3 rounded-md transition-all min-h-[44px] flex items-center justify-center ${viewMode === 'list' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'
                     }`}
                 >
-                  <List className="w-5 h-5" />
+                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             </div>
@@ -1485,8 +1467,8 @@ const HotelResults = () => {
             {/* Hotel Results */}
             {!loading && (
               <div className={`${viewMode === 'grid'
-                  ? 'grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch'
-                  : 'space-y-4'
+                  ? 'grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6 items-stretch'
+                  : 'space-y-4 sm:space-y-6'
                 }`}>
                 {filteredHotels.map((hotel, index) => (
                   <HotelCard
@@ -1515,32 +1497,33 @@ const HotelResults = () => {
 
             {/* Pagination */}
             {filteredHotels.length > 0 && totalPages > 1 && (
-              <div className="flex justify-center mt-8 bg-white p-6 rounded-lg shadow-sm">
+              <div className="flex justify-center mt-6 sm:mt-8 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
                 {loading ? (
                   <div className="flex items-center justify-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    <span className="ml-2 text-gray-600">Loading page...</span>
+                    <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-indigo-600"></div>
+                    <span className="ml-2 text-gray-600 text-sm">Loading page...</span>
                   </div>
                 ) : (
                   <>
                     {/* Custom Pagination */}
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1 sm:space-x-2">
                       <button
                         onClick={() => handlePageChange(null, Math.max(1, currentPage - 1))}
                         disabled={currentPage === 1}
-                        className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-2 sm:px-3 py-2 border border-gray-300 rounded-md text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
                       >
-                        Previous
+                        <span className="hidden sm:inline">Previous</span>
+                        <span className="sm:hidden">Prev</span>
                       </button>
 
                       <div className="flex items-center space-x-1">
-                        {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
                           const pageNum = Math.max(1, Math.min(totalPages, currentPage - 2 + i));
                           return (
                             <button
                               key={`page-${pageNum}-${i}`}
                               onClick={() => handlePageChange(null, pageNum)}
-                              className={`px-3 py-2 border rounded-md text-sm font-medium ${currentPage === pageNum
+                              className={`px-2 sm:px-3 py-2 border rounded-md text-xs sm:text-sm font-medium min-h-[44px] flex items-center justify-center ${currentPage === pageNum
                                   ? 'bg-indigo-600 text-white border-indigo-600'
                                   : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
                                 }`}
@@ -1554,14 +1537,15 @@ const HotelResults = () => {
                       <button
                         onClick={() => handlePageChange(null, Math.min(totalPages, currentPage + 1))}
                         disabled={currentPage === totalPages}
-                        className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-2 sm:px-3 py-2 border border-gray-300 rounded-md text-xs sm:text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
                       >
-                        Next
+                        <span className="hidden sm:inline">Next</span>
+                        <span className="sm:hidden">Next</span>
                       </button>
                     </div>
 
                     {/* Material-UI Pagination (fallback) */}
-                    <div className="ml-4">
+                    <div className="ml-2 sm:ml-4 hidden sm:block">
                       <Pagination
                         count={totalPages}
                         page={currentPage}
@@ -1601,10 +1585,10 @@ const HotelResults = () => {
 
             {/* Pagination Info */}
             {!loading && filteredHotels.length > 0 && (
-              <div className="text-center mt-4 text-sm text-gray-600">
+              <div className="text-center mt-4 text-xs sm:text-sm text-gray-600 space-y-1">
                 <p>Showing {filteredHotels.length} hotels on page {currentPage} of {totalPages}</p>
-                <p>Total hotels: {totalHotels}</p>
-                <p>Displaying {((currentPage - 1) * 50) + 1} - {Math.min(currentPage * 50, totalHotels)} of {totalHotels} hotels</p>
+                <p className="hidden sm:block">Total hotels: {totalHotels}</p>
+                <p className="hidden sm:block">Displaying {((currentPage - 1) * 50) + 1} - {Math.min(currentPage * 50, totalHotels)} of {totalHotels} hotels</p>
               </div>
             )}
         </div>

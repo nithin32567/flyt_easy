@@ -81,7 +81,7 @@ const UnveilMagicCarousal = () => {
 
   return (
     <div>
-      <section className="magicofindia-wrap">
+      <section  className="magicofindia-wrap">
         <div className="container">
           <div className="row home-headings">
             <div className="col-lg-9 col-md-9">

@@ -128,7 +128,7 @@ const FilterSidebar = ({
               return (
                 <label
                   key={index}
-                  className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 cursor-pointer text-sm"
+                  className="flex items-center gap-2 p-3 sm:p-2 rounded-md hover:bg-gray-50 cursor-pointer text-sm min-h-[44px]"
                 >
                   <input
                     type="checkbox"
@@ -151,10 +151,10 @@ const FilterSidebar = ({
                         handleFilterChange(filter.category, rangeValue, 'range');
                       }
                     }}
-                    className="accent-blue-600 w-4 h-4"
+                    className="accent-blue-600 w-4 h-4 flex-shrink-0"
                   />
-                  <span className="text-gray-700">{option.label}</span>
-                  <span className="ml-auto text-xs text-gray-500">({option.count})</span>
+                  <span className="text-gray-700 flex-1 text-xs sm:text-sm">{option.label}</span>
+                  <span className="ml-auto text-xs text-gray-500 flex-shrink-0">({option.count})</span>
                 </label>
               );
             })}
@@ -167,16 +167,16 @@ const FilterSidebar = ({
             {filter.options.map((option, index) => (
               <label
                 key={index}
-                className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-50 cursor-pointer text-sm"
+                className="flex items-center gap-2 p-3 sm:p-2 rounded-md hover:bg-gray-50 cursor-pointer text-sm min-h-[44px]"
               >
                 <input
                   type="checkbox"
                   checked={selectedFilters[filter.category]?.includes(option.value || option.label) || false}
                   onChange={() => handleFilterChange(filter.category, option.value || option.label, 'list')}
-                  className="accent-blue-600 w-4 h-4"
+                  className="accent-blue-600 w-4 h-4 flex-shrink-0"
                 />
-                <span className="text-gray-700">{option.label}</span>
-                <span className="ml-auto text-xs text-gray-500">({option.count})</span>
+                <span className="text-gray-700 flex-1 text-xs sm:text-sm">{option.label}</span>
+                <span className="ml-auto text-xs text-gray-500 flex-shrink-0">({option.count})</span>
               </label>
             ))}
           </div>
@@ -192,7 +192,7 @@ const FilterSidebar = ({
                 placeholder={`Search ${filter.name.toLowerCase()}...`}
                 value={searchTexts[filter.category] || ''}
                 onChange={(e) => handleTextSearch(filter.category, e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-3 py-3 sm:py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[44px]"
               />
             </div>
           </div>
@@ -231,18 +231,18 @@ const FilterSidebar = ({
 
   // Local Section Component
   const FilterSection = ({ title, icon: Icon, sectionKey, children }) => (
-    <div className="border-b border-gray-200 pb-4">
+    <div className="border-b border-gray-200 pb-3 sm:pb-4">
       <button
         onClick={() => toggleSection(sectionKey)}
-        className="flex items-center justify-between w-full py-3 px-3 hover:bg-gray-50 rounded-lg transition-all"
+        className="flex items-center justify-between w-full py-3 px-2 sm:px-3 hover:bg-gray-50 rounded-lg transition-all min-h-[44px]"
       >
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-[var(--PrimaryColor)] text-[15px]">{title}</span>
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span className="font-semibold text-[var(--PrimaryColor)] text-sm sm:text-[15px] truncate">{title}</span>
         </div>
         {expandedSections[sectionKey] ? (
-          <ChevronUp className="w-5 h-5 text-gray-500" />
+          <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
         ) : (
-          <ChevronDown className="w-5 h-5 text-gray-500" />
+          <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500 flex-shrink-0" />
         )}
       </button>
 
@@ -253,31 +253,29 @@ const FilterSidebar = ({
             : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="pt-2 px-3">{children}</div>
+        <div className="pt-2 px-2 sm:px-3">{children}</div>
       </div>
     </div>
   );
 
   return (
     <div
-      className="flex flex-col h-full bg-white shadow-xl rounded-lg overflow-y-auto"
+      className="flex flex-col h-full bg-white shadow-xl rounded-lg overflow-y-auto w-full max-w-full sm:max-w-[340px]"
       style={{
-        width: '100%',
-        maxWidth: '340px',
         border: '1px solid #e5e7eb',
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-[var(--PrimaryColor)]">
-        <div className="flex items-center gap-2">
-          <h6 className="text-sm font-semibold text-white">
+      <div className="flex items-center justify-between px-3 sm:px-4 py-3 border-b border-gray-200 bg-[var(--PrimaryColor)]">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <h6 className="text-xs sm:text-sm font-semibold text-white truncate">
             Available Hotels ({getTotalFilteredCount()} / {getTotalCount()})
           </h6>
         </div>
         {onToggle && (
           <button
             onClick={onToggle}
-            className="text-white hover:text-gray-200 transition-colors"
+            className="text-white hover:text-gray-200 transition-colors p-1 min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
             <X className="w-5 h-5" />
           </button>
@@ -286,23 +284,23 @@ const FilterSidebar = ({
 
       {/* Active Filters */}
       {getActiveFilterCount() > 0 && (
-        <div className="p-4 bg-blue-50 border-b border-blue-200">
-          <div className="flex justify-between mb-2 items-center">
-            <span className="font-medium text-blue-800 text-sm">
+        <div className="p-3 sm:p-4 bg-blue-50 border-b border-blue-200">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
+            <span className="font-medium text-blue-800 text-xs sm:text-sm">
               Active Filters ({getActiveFilterCount()})
             </span>
             <button
               onClick={clearAllFilters}
-              className="text-blue-600 text-sm font-medium hover:text-blue-800 underline"
+              className="text-blue-600 text-xs sm:text-sm font-medium hover:text-blue-800 underline min-h-[44px] flex items-center justify-center sm:justify-end"
             >
               Clear All
             </button>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
             {Object.entries(selectedFilters).map(([category, value]) => {
               if (Array.isArray(value) && value.length > 0) {
                 return (
-                  <span key={category} className="tag-chip bg-blue-100 text-blue-800">
+                  <span key={category} className="tag-chip bg-blue-100 text-blue-800 text-xs">
                     {category}: {value.join(', ')}
                   </span>
                 );
@@ -312,7 +310,7 @@ const FilterSidebar = ({
                   ? (value.label || `${value.min || 0} - ${value.max || '∞'}`)
                   : value;
                 return (
-                  <span key={category} className="tag-chip bg-green-100 text-green-800">
+                  <span key={category} className="tag-chip bg-green-100 text-green-800 text-xs">
                     {category}: {displayValue}
                   </span>
                 );
@@ -324,17 +322,17 @@ const FilterSidebar = ({
       )}
 
       {/* Content */}
-      <div className="flex-1 px-2 py-3 space-y-4 overflow-y-auto">
+      <div className="flex-1 px-2 sm:px-2 py-3 space-y-3 sm:space-y-4 overflow-y-auto">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Loading filters...</span>
+          <div className="flex items-center justify-center py-8 sm:py-12">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600 text-sm">Loading filters...</span>
           </div>
         ) : !filters || filters.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Filter className="w-12 h-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No filters available</h3>
-            <p className="text-gray-500 text-sm">Try searching for hotels first</p>
+          <div className="flex flex-col items-center justify-center py-8 sm:py-12">
+            <Filter className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mb-3 sm:mb-4" />
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No filters available</h3>
+            <p className="text-gray-500 text-xs sm:text-sm">Try searching for hotels first</p>
           </div>
         ) : (
           filters.map((filter, index) => (
@@ -354,7 +352,7 @@ const FilterSidebar = ({
       <div className="border-t border-gray-200 bg-gray-50 p-3">
         <button
           onClick={clearAllFilters}
-          className="w-full flex items-center justify-center gap-2 bg-[var(--PrimaryColor)] hover:bg-opacity-90 text-white font-semibold py-2 rounded-lg transition-transform hover:scale-[1.02]"
+          className="w-full flex items-center justify-center gap-2 bg-[var(--PrimaryColor)] hover:bg-opacity-90 text-white font-semibold py-3 sm:py-2 rounded-lg transition-transform hover:scale-[1.02] min-h-[44px] text-sm"
         >
           <RotateCcw className="w-4 h-4" />
           <span>Reset Filters</span>

@@ -296,6 +296,22 @@ const HotelSearch = ({
     setAdults(data.adults);
     setChildren(data.children);
     setChildAges(data.childAges || []);
+    
+    // Store room-specific data for booking flow
+    if (data.roomData) {
+      // Update the search data with room-specific information
+      const currentSearchData = JSON.parse(localStorage.getItem('hotelSearchData') || '{}');
+      const updatedSearchData = {
+        ...currentSearchData,
+        roomData: data.roomData,
+        rooms: data.rooms,
+        adults: data.adults,
+        children: data.children,
+        childAges: data.childAges
+      };
+      localStorage.setItem('hotelSearchData', JSON.stringify(updatedSearchData));
+    }
+    
     setIsRoomsModalOpen(false);
   };
 
@@ -313,7 +329,7 @@ const HotelSearch = ({
   };
 
   return (
-    <>
+    <div className="hotel_search_container">
       <HotelForm
         searchterm={searchterm}
         setSearchterm={setSearchterm}
@@ -372,7 +388,7 @@ const HotelSearch = ({
         searchTerm={searchterm}
         setSearchTerm={setSearchterm}
       />
-    </>
+    </div>
   );
 };
 

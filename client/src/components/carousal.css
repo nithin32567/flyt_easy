@@ -53,7 +53,7 @@
 
 .magicofindia-wrap .slick-prev,
 .magicofindia-wrap .slick-next {
-  z-index: 1;
+  z-index: 100;
   width: 40px;
   height: 40px;
 }

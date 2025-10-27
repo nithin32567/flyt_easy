@@ -7,7 +7,7 @@ export const generateToken = async (req, res) => {
       MerchantID: process.env.MERCHANT_ID,
       ApiKey: process.env.API_KEY,
       ClientID: process.env.CLIENT_ID.trim(),
-      Password:process.env.PASSWORD.trim(),
+      Password: process.env.PASSWORD.trim(),
       AgentCode: "",
       BrowserKey: process.env.BROWSER_KEY,
       Key: process.env.KEY,
