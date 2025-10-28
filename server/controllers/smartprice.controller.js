@@ -4,13 +4,13 @@ import { getPricer } from "./getpricer.controller.js";
 export const smartPricer = async (req, res) => {
   try {
     const { Trips, ClientID, Mode, Options, Source, TripType, token, TUI } = req.body;
-    
+
     if (!Trips || !Array.isArray(Trips) || Trips.length === 0) {
       return res.status(400).json({ Code: "400", Msg: "Invalid or missing Trips array" });
     }
 
     let tripsArray = [];
-    
+
     if (TripType === "RT") {
       tripsArray = [
         {
@@ -65,10 +65,10 @@ export const smartPricer = async (req, res) => {
       console.log("[SmartPricer] Response.data:", JSON.stringify(response.data, null, 2));
       return res.status(200).json(response.data)
     } catch (error) {
-      return res.status(500).json({ 
-        Code: "500", 
-        Msg: "SmartPricer API Error", 
-        error: error.message || "Unknown error occurred" 
+      return res.status(500).json({
+        Code: "500",
+        Msg: "SmartPricer API Error",
+        error: error.message || "Unknown error occurred"
       })
     }
 

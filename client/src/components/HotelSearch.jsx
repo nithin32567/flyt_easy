@@ -140,7 +140,18 @@ const HotelSearch = ({
       console.log('Payload:', JSON.stringify(payload, null, 2));
 
       // Step 1: Call init API
-      // console.log('=== FRONTEND: CALLING INIT API ===');
+      console.log('=== HOTEL SEARCH INIT API CALL ===');
+      console.log('Hotel Search Init Payload ===>');
+      console.log(JSON.stringify(payload, null, 2));
+      console.log('=== END HOTEL SEARCH INIT PAYLOAD ===');
+      
+      console.log('Hotel Search Init Headers ===>');
+      console.log(JSON.stringify({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }, null, 2));
+      console.log('=== END HOTEL SEARCH INIT HEADERS ===');
+      
       const initResponse = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/init`,
         payload,
@@ -152,9 +163,10 @@ const HotelSearch = ({
         }
       );
 
-      // console.log('=== FRONTEND: INIT API RESPONSE ===');
-      // console.log('Status:', initResponse.status);
-      // console.log('Data:', JSON.stringify(initResponse.data, null, 2));
+      console.log('=== HOTEL SEARCH INIT API RESPONSE ===');
+      console.log('Hotel Search Init Response JSON ===>');
+      console.log(JSON.stringify(initResponse.data, null, 2));
+      console.log('=== END HOTEL SEARCH INIT RESPONSE ===');
       
       const initData = initResponse.data;
       
@@ -180,7 +192,22 @@ const HotelSearch = ({
       // console.log('Storage verification successful:', storedSearchId === initData.searchId && storedSearchTracingKey === initData.searchTracingKey);
 
       // Step 2: Call content and rates APIs in parallel
-      // console.log('=== FRONTEND: CALLING CONTENT & RATES API ===');
+      console.log('=== HOTEL CONTENT API CALL ===');
+      console.log('Hotel Content Payload ===>');
+      console.log(JSON.stringify({
+        searchId: initData.searchId,
+        searchTracingKey: initData.searchTracingKey
+      }, null, 2));
+      console.log('=== END HOTEL CONTENT PAYLOAD ===');
+      
+      console.log('Hotel Content Headers ===>');
+      console.log(JSON.stringify({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'search-tracing-key': initData.searchTracingKey || ''
+      }, null, 2));
+      console.log('=== END HOTEL CONTENT HEADERS ===');
+      
       const contentRatesResponse = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/content-rates/${initData.searchId}`,
         {
@@ -192,9 +219,32 @@ const HotelSearch = ({
         }
       );
 
-      // console.log('=== FRONTEND: CONTENT & RATES API RESPONSE ===');
-      // console.log('Status:', contentRatesResponse.status);
-      // console.log('Data:', JSON.stringify(contentRatesResponse.data, null, 2));
+      console.log('=== HOTEL CONTENT API RESPONSE ===');
+      console.log('Hotel Content Response JSON ===>');
+      console.log(JSON.stringify(contentRatesResponse.data, null, 2));
+      console.log('=== END HOTEL CONTENT RESPONSE ===');
+      
+      // Separate console for rates data
+      console.log('=== HOTEL RATES API CALL ===');
+      console.log('Hotel Rates Payload ===>');
+      console.log(JSON.stringify({
+        searchId: initData.searchId,
+        searchTracingKey: initData.searchTracingKey
+      }, null, 2));
+      console.log('=== END HOTEL RATES PAYLOAD ===');
+      
+      console.log('Hotel Rates Headers ===>');
+      console.log(JSON.stringify({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'search-tracing-key': initData.searchTracingKey || ''
+      }, null, 2));
+      console.log('=== END HOTEL RATES HEADERS ===');
+      
+      console.log('=== HOTEL RATES API RESPONSE ===');
+      console.log('Hotel Rates Response JSON ===>');
+      console.log(JSON.stringify(contentRatesResponse.data.rates, null, 2));
+      console.log('=== END HOTEL RATES RESPONSE ===');
 
       // Combine the responses
       const combinedResponse = {
@@ -237,6 +287,28 @@ const HotelSearch = ({
         searchTracingKey: initData.searchTracingKey,
         timestamp: Date.now() // Add timestamp for staleness detection
       };
+      
+      // Separate console for filter data
+      console.log('=== HOTEL FILTER DATA API CALL ===');
+      console.log('Hotel Filter Data Payload ===>');
+      console.log(JSON.stringify({
+        searchId: initData.searchId,
+        searchTracingKey: initData.searchTracingKey
+      }, null, 2));
+      console.log('=== END HOTEL FILTER DATA PAYLOAD ===');
+      
+      console.log('Hotel Filter Data Headers ===>');
+      console.log(JSON.stringify({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'search-tracing-key': initData.searchTracingKey || ''
+      }, null, 2));
+      console.log('=== END HOTEL FILTER DATA HEADERS ===');
+      
+      console.log('=== HOTEL FILTER DATA API RESPONSE ===');
+      console.log('Hotel Filter Data Response JSON ===>');
+      console.log(JSON.stringify(combinedResponse.filterData, null, 2));
+      console.log('=== END HOTEL FILTER DATA RESPONSE ===');
       
       localStorage.setItem('hotelSearchData', JSON.stringify(searchData));
       localStorage.setItem('hotelSearchResults', JSON.stringify(combinedResponse));

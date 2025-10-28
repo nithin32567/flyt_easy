@@ -3,10 +3,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // API Endpoints Configuration
-const HOTEL_UTILS_URL = 'https://b2bapiutils.benzyinfotech.com';
-const HOTEL_SEARCH_URL = 'https://travelportalapi.benzyinfotech.com';
-const HOTEL_ITINERARY_URL = 'https://b2bapihotels.benzyinfotech.com';
-const HOTEL_BOOKING_URL = 'https://b2bapiflights.benzyinfotech.com';
+const HOTEL_UTILS_URL = process.env.HOTEL_UTILS_URL || 'https://b2bapiutils.benzyinfotech.com';
+const HOTEL_SEARCH_URL = process.env.HOTEL_SEARCH_URL || 'https://travelportalapi.benzyinfotech.com';
+const HOTEL_ITINERARY_URL = process.env.HOTEL_ITINERARY_URL || 'https://b2bapihotels.benzyinfotech.com';
+const HOTEL_BOOKING_URL = process.env.HOTEL_BOOKING_URL || 'https://b2bapiflights.benzyinfotech.com';
 
 export const autosuggest = async (req, res) => {
   try {
@@ -244,25 +244,61 @@ export const fetchHotelContentAndRates = async (req, res) => {
     console.log('Search Tracing Key:', searchTracingKey);
     console.log('Page:', page, 'Limit:', limit);
 
-    // Using HOTEL_SEARCH_URL constant
-    const [ratesResponse, contentResponse] = await Promise.allSettled([
-      axios.get(`${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}/rate`, {
-        headers: headers
-      }),
+    // Poll Rate API until search status is completed
+    const pollRateAPI = async (searchId, headers, maxAttempts = 10, delayMs = 2000) => {
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          console.log(`=== RATE API POLLING ATTEMPT ${attempt}/${maxAttempts} ===`);
+          const response = await axios.get(`${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}/rate`, {
+            headers: headers
+          });
+          
+          const ratesData = response.data;
+          console.log(`Rate API Response - Search Status: ${ratesData.searchStatus}`);
+          
+          if (ratesData.searchStatus === 'completed' || ratesData.searchStatus === 'success') {
+            console.log('=== RATE API COMPLETED ===');
+            return { success: true, data: ratesData };
+          }
+          
+          if (attempt < maxAttempts) {
+            console.log(`Search still in progress, waiting ${delayMs}ms before next attempt...`);
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+          }
+        } catch (error) {
+          console.error(`Rate API polling attempt ${attempt} failed:`, error.message);
+          if (attempt === maxAttempts) {
+            return { success: false, error: error.message };
+          }
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+      }
+      
+      console.warn('Rate API polling reached maximum attempts without completion');
+      return { success: false, error: 'Maximum polling attempts reached' };
+    };
+
+    // Poll rates API and get content in parallel
+    const [ratesPollResult, contentResponse] = await Promise.allSettled([
+      pollRateAPI(searchId, headers),
       axios.get(`${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}/content?limit=${limit}&offset=${(page - 1) * limit}&filterdata=false`, {
         headers: headers
       })
     ]);
 
     let ratesData = null;
-    if (ratesResponse.status === 'fulfilled') {
-      ratesData = ratesResponse.value.data;
-      // console.log('=== RATES API RESPONSE ===');
-      // console.log('Status:', ratesResponse.value.status);
-      // console.log('Data: ratesData', JSON.stringify(ratesData, null, 2));
+    if (ratesPollResult.status === 'fulfilled' && ratesPollResult.value.success) {
+      ratesData = ratesPollResult.value.data;
+      console.log('=== RATES API RESPONSE (POLLED) ===');
+      console.log('Status:', ratesData.searchStatus);
+      console.log('Total Hotels:', ratesData.hotels?.length || 0);
     } else {
-      console.error('=== RATES API ERROR ===');
-      console.error('Error:', ratesResponse.reason?.message);
+      console.error('=== RATES API POLLING ERROR ===');
+      if (ratesPollResult.status === 'fulfilled') {
+        console.error('Polling failed:', ratesPollResult.value.error);
+      } else {
+        console.error('Polling error:', ratesPollResult.reason?.message);
+      }
     }
 
     let contentData = null;
@@ -277,14 +313,14 @@ export const fetchHotelContentAndRates = async (req, res) => {
     }
 
     let filterData = null;
-    if (ratesResponse.status === 'fulfilled') {
+    if (ratesPollResult.status === 'fulfilled' && ratesPollResult.value.success) {
       try {
         const filterResponse = await axios.get(`${HOTEL_SEARCH_URL}/api/hotels/search/result/${searchId}/filterdata`, {
           headers: headers
         });
         filterData = filterResponse.data;
-        // console.log('=== FILTER DATA RESPONSE ===');
-        // console.log(JSON.stringify(filterData, null, 2));
+        console.log('=== FILTER DATA RESPONSE ===');
+        console.log('Filter data retrieved successfully');
       } catch (filterError) {
         console.error('Filter data error:', filterError.message);
       }
@@ -1347,7 +1383,7 @@ export const createItineraryForHotelRoom = async (req, res) => {
         console.log('Making Create Itinerary API call...');
 
         itineraryResponse = await axios.post(
-          `https://b2bapihotels.benzyinfotech.com/Hotel/CreateItinerary`,
+          `${HOTEL_ITINERARY_URL}/Hotel/CreateItinerary`,
           transformedPayload,
           { headers }
         );

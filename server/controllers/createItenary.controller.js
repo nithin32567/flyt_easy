@@ -266,16 +266,14 @@ export const getExistingItinerary = async (req, res) => {
             ClientID: ClientID,
         }
 
-        const response = await fetch(`${process.env.FLIGHT_URL}/Utils/RetrieveBooking`, {
-            method: "POST",
+        const response = await axios.post(`${process.env.FLIGHT_URL}/Utils/RetrieveBooking`, payload, {
             headers: {
                 "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
+            }
         });
 
-        const data = await response.json();
+        const data = response.data;
         return res.status(200).json({
             success: true,
             data: data,

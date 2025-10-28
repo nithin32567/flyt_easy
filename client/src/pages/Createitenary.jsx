@@ -509,6 +509,19 @@ const Createitenary = () => {
       // console.log("Payload being sent:", JSON.stringify(hotelItineraryPayload, null, 2));
       // console.log("=== END PAYLOAD ===");
 
+      console.log('=== HOTEL CREATE ITINERARY API CALL ===');
+      console.log('Hotel Create Itinerary Payload ===>');
+      console.log(JSON.stringify(hotelItineraryPayload, null, 2));
+      console.log('=== END HOTEL CREATE ITINERARY PAYLOAD ===');
+      
+      console.log('Hotel Create Itinerary Headers ===>');
+      console.log(JSON.stringify({
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        "search-tracing-key": hotelSearchTracingKey
+      }, null, 2));
+      console.log('=== END HOTEL CREATE ITINERARY HEADERS ===');
+
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/create-itinerary`,
         hotelItineraryPayload,
@@ -520,6 +533,11 @@ const Createitenary = () => {
           }
         }
       );
+
+      console.log('=== HOTEL CREATE ITINERARY API RESPONSE ===');
+      console.log('Hotel Create Itinerary Response JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END HOTEL CREATE ITINERARY RESPONSE ===');
 
       // console.log("=== HOTEL CREATE ITINERARY RESPONSE ===");
       // console.log("Response Status:", response.status);

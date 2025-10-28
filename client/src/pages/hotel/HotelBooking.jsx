@@ -146,7 +146,7 @@ const HotelBooking = () => {
           IsGuest: contactInfo.isGuest || false,
           CountryCode: contactInfo.countryCode || "IN",
           MobileCountryCode: contactInfo.mobileCountryCode || "+91",
-          NetAmount: selectedRoom.recommendationTotal?.toString() || selectedRoom.totalRate?.toString() || "0",
+          NetAmount:"",
           DestMobCountryCode: "",
           DestMob: ""
         },
@@ -267,6 +267,19 @@ const HotelBooking = () => {
       };
       
       
+      console.log('=== HOTEL CREATE ITINERARY API CALL ===');
+      console.log('Hotel Create Itinerary Payload ===>');
+      console.log(JSON.stringify(hotelItineraryPayload, null, 2));
+      console.log('=== END HOTEL CREATE ITINERARY PAYLOAD ===');
+      
+      console.log('Hotel Create Itinerary Headers ===>');
+      console.log(JSON.stringify({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'search-tracing-key': searchTracingKey || ''
+      }, null, 2));
+      console.log('=== END HOTEL CREATE ITINERARY HEADERS ===');
+
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/create-itinerary`,
         hotelItineraryPayload,
@@ -278,6 +291,11 @@ const HotelBooking = () => {
           }
         }
       );
+
+      console.log('=== HOTEL CREATE ITINERARY API RESPONSE ===');
+      console.log('Hotel Create Itinerary Response JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END HOTEL CREATE ITINERARY RESPONSE ===');
       
       
       if (response.data.status === 'success') {
@@ -331,6 +349,21 @@ const HotelBooking = () => {
         return;
       }
       
+      console.log('=== HOTEL CREATE RAZORPAY ORDER API CALL ===');
+      console.log('Hotel Create Razorpay Order Payload ===>');
+      console.log(JSON.stringify({
+        amount: selectedRoom.recommendationTotal || selectedRoom.totalRate,
+        currency: 'INR',
+        receipt: `hotel_${Date.now()}`,
+        notes: {
+          hotel: hotelData?.content?.hotel?.name || hotelData?.hotel?.name,
+          checkIn: searchData?.checkIn,
+          checkOut: searchData?.checkOut,
+          transactionId: itineraryData.TransactionID
+        }
+      }, null, 2));
+      console.log('=== END HOTEL CREATE RAZORPAY ORDER PAYLOAD ===');
+
       const orderResponse = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/create-razorpay-order`,
         {
@@ -345,6 +378,11 @@ const HotelBooking = () => {
           }
         }
       );
+
+      console.log('=== HOTEL CREATE RAZORPAY ORDER API RESPONSE ===');
+      console.log('Hotel Create Razorpay Order Response JSON ===>');
+      console.log(JSON.stringify(orderResponse.data, null, 2));
+      console.log('=== END HOTEL CREATE RAZORPAY ORDER RESPONSE ===');
 
       if (!orderResponse.data.success) {
         throw new Error('Failed to create payment order');
@@ -361,6 +399,15 @@ const HotelBooking = () => {
         handler: async function (response) {
           try {
 
+            console.log('=== HOTEL VERIFY PAYMENT API CALL ===');
+            console.log('Hotel Verify Payment Payload ===>');
+            console.log(JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            }, null, 2));
+            console.log('=== END HOTEL VERIFY PAYMENT PAYLOAD ===');
+
             const verifyResponse = await axios.post(
               `${import.meta.env.VITE_BASE_URL}/api/hotel/verify-payment`,
               {
@@ -369,6 +416,11 @@ const HotelBooking = () => {
                 razorpay_signature: response.razorpay_signature
               }
             );
+
+            console.log('=== HOTEL VERIFY PAYMENT API RESPONSE ===');
+            console.log('Hotel Verify Payment Response JSON ===>');
+            console.log(JSON.stringify(verifyResponse.data, null, 2));
+            console.log('=== END HOTEL VERIFY PAYMENT RESPONSE ===');
 
             if (verifyResponse.data.success) {
               
@@ -414,10 +466,16 @@ const HotelBooking = () => {
       const token = localStorage.getItem('token');
       const searchTracingKey = localStorage.getItem('searchTracingKey');
       
+      console.log('=== NETAMOUNT DEBUG ===');
+      console.log('ItineraryData.NetAmount:', itineraryData.NetAmount);
+      console.log('SelectedRoom.totalRate:', selectedRoom.totalRate);
+      console.log('Using NetAmount from itinerary response for payment');
+      console.log('=== END NETAMOUNT DEBUG ===');
+      
       const startPayPayload = {
         TransactionID: itineraryData.TransactionID,
-        PaymentAmount: selectedRoom.totalRate,
-        NetAmount: selectedRoom.totalRate,
+        PaymentAmount: itineraryData.NetAmount,
+        NetAmount: itineraryData.NetAmount,
         ClientID: localStorage.getItem("ClientID") || "FVI6V120g22Ei5ztGK0FIQ==",
         TUI: searchTracingKey,
         Hold: false,
@@ -464,6 +522,18 @@ const HotelBooking = () => {
       };
 
 
+      console.log('=== HOTEL START PAY API CALL ===');
+      console.log('Hotel Start Pay Payload ===>');
+      console.log(JSON.stringify(startPayPayload, null, 2));
+      console.log('=== END HOTEL START PAY PAYLOAD ===');
+      
+      console.log('Hotel Start Pay Headers ===>');
+      console.log(JSON.stringify({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }, null, 2));
+      console.log('=== END HOTEL START PAY HEADERS ===');
+
       const startPayResponse = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/hotel/start-pay`,
         startPayPayload,
@@ -474,6 +544,11 @@ const HotelBooking = () => {
           }
         }
       );
+
+      console.log('=== HOTEL START PAY API RESPONSE ===');
+      console.log('Hotel Start Pay Response JSON ===>');
+      console.log(JSON.stringify(startPayResponse.data, null, 2));
+      console.log('=== END HOTEL START PAY RESPONSE ===');
 
 
       if (startPayResponse.data.success) {
@@ -516,6 +591,22 @@ const HotelBooking = () => {
       const pollStatus = async () => {
         attempts++;
         
+        console.log('=== HOTEL GET ITINERARY STATUS API CALL ===');
+        console.log('Hotel Get Itinerary Status Payload ===>');
+        console.log(JSON.stringify({
+          TUI: itineraryData.TUI,
+          TransactionID: itineraryData.TransactionID,
+          ClientID: localStorage.getItem("ClientID") || "FVI6V120g22Ei5ztGK0FIQ=="
+        }, null, 2));
+        console.log('=== END HOTEL GET ITINERARY STATUS PAYLOAD ===');
+        
+        console.log('Hotel Get Itinerary Status Headers ===>');
+        console.log(JSON.stringify({
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }, null, 2));
+        console.log('=== END HOTEL GET ITINERARY STATUS HEADERS ===');
+
         const statusResponse = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/hotel/get-itinerary-status`,
           {
@@ -530,6 +621,11 @@ const HotelBooking = () => {
             }
           }
         );
+
+        console.log('=== HOTEL GET ITINERARY STATUS API RESPONSE ===');
+        console.log('Hotel Get Itinerary Status Response JSON ===>');
+        console.log(JSON.stringify(statusResponse.data, null, 2));
+        console.log('=== END HOTEL GET ITINERARY STATUS RESPONSE ===');
 
 
         if (statusResponse.data.success && statusResponse.data.status === "SUCCESS") {

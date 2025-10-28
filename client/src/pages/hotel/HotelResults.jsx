@@ -301,10 +301,22 @@ const HotelResults = () => {
         const token = localStorage.getItem('token');
         const searchTracingKey = localStorage.getItem('searchTracingKey');
 
-        // console.log('=== FRONTEND: FETCHING HOTEL PAGE ===');
-        // console.log('Search ID:', searchId);
-        // console.log('Page:', page, 'Limit:', limit);
-        // console.log('Search Tracing Key:', searchTracingKey);
+        console.log('=== HOTEL PAGE API CALL ===');
+        console.log('Hotel Page Payload ===>');
+        console.log(JSON.stringify({
+          searchId: searchId,
+          page: page,
+          limit: limit,
+          searchTracingKey: searchTracingKey
+        }, null, 2));
+        console.log('=== END HOTEL PAGE PAYLOAD ===');
+        
+        console.log('Hotel Page Headers ===>');
+        console.log(JSON.stringify({
+          Authorization: `Bearer ${token}`,
+          'search-tracing-key': searchTracingKey || ''
+        }, null, 2));
+        console.log('=== END HOTEL PAGE HEADERS ===');
 
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/hotel/page`, {
           params: { searchId, page, limit },
@@ -314,9 +326,10 @@ const HotelResults = () => {
           }
         });
 
-        // console.log('=== FRONTEND: HOTEL PAGE RESPONSE ===');
-        // console.log('Status:', response.status);
-        // console.log('Data:', JSON.stringify(response.data, null, 2));
+        console.log('=== HOTEL PAGE API RESPONSE ===');
+        console.log('Hotel Page Response JSON ===>');
+        console.log(JSON.stringify(response.data, null, 2));
+        console.log('=== END HOTEL PAGE RESPONSE ===');
 
         const { hotels, total, totalPages } = handleApiResponse(response);
 
@@ -455,9 +468,20 @@ const HotelResults = () => {
         const token = localStorage.getItem('token');
         const searchTracingKey = localStorage.getItem('searchTracingKey');
 
-        // console.log('=== FRONTEND: FETCHING FILTER DATA ===');
-        // console.log('Search ID:', searchId);
-        // console.log('Search Tracing Key:', searchTracingKey);
+        console.log('=== HOTEL FILTER DATA API CALL ===');
+        console.log('Hotel Filter Data Payload ===>');
+        console.log(JSON.stringify({
+          searchId: searchId,
+          searchTracingKey: searchTracingKey
+        }, null, 2));
+        console.log('=== END HOTEL FILTER DATA PAYLOAD ===');
+        
+        console.log('Hotel Filter Data Headers ===>');
+        console.log(JSON.stringify({
+          Authorization: `Bearer ${token}`,
+          'search-tracing-key': searchTracingKey || ''
+        }, null, 2));
+        console.log('=== END HOTEL FILTER DATA HEADERS ===');
 
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/hotel/filterdata/${searchId}`,
@@ -469,9 +493,10 @@ const HotelResults = () => {
           }
         );
 
-        // console.log('=== FRONTEND: FILTER DATA RESPONSE ===');
-        // console.log('Status:', response.status);
-        // console.log('Data:', JSON.stringify(response.data, null, 2));
+        console.log('=== HOTEL FILTER DATA API RESPONSE ===');
+        console.log('Hotel Filter Data Response JSON ===>');
+        console.log(JSON.stringify(response.data, null, 2));
+        console.log('=== END HOTEL FILTER DATA RESPONSE ===');
 
         // Handle the API response structure
         if (response.data.filterData?.filters) {
@@ -780,10 +805,22 @@ const HotelResults = () => {
       const token = localStorage.getItem('token');
       const searchTracingKey = localStorage.getItem('searchTracingKey');
 
-      // console.log('=== FRONTEND: CALLING FILTER API ===');
-      // console.log('Search ID:', searchId);
-      // console.log('Filters:', JSON.stringify(cleanedFilters, null, 2));
-      // console.log('API Endpoint:', `${import.meta.env.VITE_BASE_URL}/api/hotel/filter/${searchId}`);
+      console.log('=== HOTEL FILTER API CALL ===');
+      console.log('Hotel Filter Payload ===>');
+      console.log(JSON.stringify({
+        searchId: searchId,
+        filters: cleanedFilters,
+        searchTracingKey: searchTracingKey
+      }, null, 2));
+      console.log('=== END HOTEL FILTER PAYLOAD ===');
+      
+      console.log('Hotel Filter Headers ===>');
+      console.log(JSON.stringify({
+        Authorization: `Bearer ${token}`,
+        'search-tracing-key': searchTracingKey || '',
+        'Content-Type': 'application/json'
+      }, null, 2));
+      console.log('=== END HOTEL FILTER HEADERS ===');
       
       // Special logging for pricing filters
       if (cleanedFilters.PriceGroup) {
@@ -816,9 +853,10 @@ const HotelResults = () => {
         }
       );
 
-      // console.log('=== FRONTEND: FILTER API RESPONSE ===');
-      // console.log('Status:', response.status);
-      // console.log('Data:', JSON.stringify(response.data, null, 2));
+      console.log('=== HOTEL FILTER API RESPONSE ===');
+      console.log('Hotel Filter Response JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END HOTEL FILTER RESPONSE ===');
 
       // Debug the response structure (based on Postman collection)
       // console.log('=== RESPONSE STRUCTURE DEBUG ===');
