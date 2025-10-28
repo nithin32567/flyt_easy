@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
 
   // Check authentication status on app load
   useEffect(() => {
-    checkAuthStatus();
+    // checkAuthStatus();
   }, [checkAuthStatus]);
 
   const login = useCallback(async (userData) => {
