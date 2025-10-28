@@ -206,7 +206,7 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div className="flex flex-col sm:flex-1">
             <p className="text-xl sm:text-2xl font-bold text-gray-800">{From || 'N/A'}</p>
-            <p className="text-xs text-gray-500">{FromName}</p>
+            {/* <p className="text-xs text-gray-500">{FromName}</p> */}
             <div className="flex items-center gap-1 mt-1">
              
               <p className="text-sm font-bold text-gray-600 flex items-center gap-1">
@@ -246,8 +246,8 @@ const FlightCard = ({ flight, setSelectedFlight, isSelected = false, tripType = 
           </div>
           
           <div className="flex flex-col text-right sm:flex-1">
-            <p className="text-xl sm:text-2xl font-bold text-gray-800">{To || 'N/A'}</p>
-            <p className="text-xs text-gray-500">{ToName}</p>
+            <p className="text-xl  sm:text-2xl font-bold text-gray-800">{To || 'N/A'}</p>
+            {/* <p className="text-xs text-gray-500">{ToName}</p> */}
             <div className="flex items-center gap-1 mt-1 justify-end">
               <p className="text-sm font-bold text-gray-600 flex items-center gap-1 "> 
               <span> <Clock className="w-4 h-4 text-gray-500 flex-shrink-0" /></span>  {ArrivalTime ? formatTime(ArrivalTime) : 'N/A'}
