@@ -178,6 +178,27 @@ const HotelBookingConfirmation = () => {
           }
 
           // Call retrieve booking API
+          console.log('=== HOTEL RETRIEVE BOOKING API CALL ===');
+          console.log('Hotel Retrieve Booking Payload ===>');
+          console.log(JSON.stringify({
+            TUI: null,
+            ReferenceType: "T",
+            ReferenceNumber: transactionId,
+            ServiceType: null,
+            ClientID: clientId,
+            RequestMode: "RB",
+            Contact: null,
+            Name: null
+          }, null, 2));
+          console.log('=== END HOTEL RETRIEVE BOOKING PAYLOAD ===');
+          
+          console.log('Hotel Retrieve Booking Headers ===>');
+          console.log(JSON.stringify({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }, null, 2));
+          console.log('=== END HOTEL RETRIEVE BOOKING HEADERS ===');
+
           const response = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/api/hotel/retrieve-booking`,
             {
@@ -197,6 +218,11 @@ const HotelBookingConfirmation = () => {
               }
             }
           );
+
+          console.log('=== HOTEL RETRIEVE BOOKING API RESPONSE ===');
+          console.log('Hotel Retrieve Booking Response JSON ===>');
+          console.log(JSON.stringify(response.data, null, 2));
+          console.log('=== END HOTEL RETRIEVE BOOKING RESPONSE ===');
 
           if (response.data.Code === "200" && response.data.Msg?.includes("Success")) {
             setBookingData(response.data);

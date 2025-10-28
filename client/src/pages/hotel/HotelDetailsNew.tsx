@@ -169,7 +169,23 @@ const HotelDetailsNew: React.FC = () => {
 
       // Step 1: Fetch hotel details (content + rooms) with retry
       const detailsUrl = `${baseUrl}/api/hotel/details/${context.searchId}/${hotelId}`;
-      // console.log('Details API URL:', detailsUrl);
+      
+      console.log('=== HOTEL DETAILS CONTENT API CALL ===');
+      console.log('Hotel Details Content Payload ===>');
+      console.log(JSON.stringify({
+        searchId: context.searchId,
+        hotelId: hotelId,
+        searchTracingKey: context.searchTracingKey
+      }, null, 2));
+      console.log('=== END HOTEL DETAILS CONTENT PAYLOAD ===');
+      
+      console.log('Hotel Details Content Headers ===>');
+      console.log(JSON.stringify({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'search-tracing-key': context.searchTracingKey || ''
+      }, null, 2));
+      console.log('=== END HOTEL DETAILS CONTENT HEADERS ===');
       
       const detailsResult = await fetchWithAxiosRetries(
         axiosInstance,
@@ -197,8 +213,33 @@ const HotelDetailsNew: React.FC = () => {
         return;
       }
 
-      // console.log('=== HOTEL DETAILS API SUCCESS ===');
-      // console.log('Response:', JSON.stringify(detailsResult.body, null, 2));
+      console.log('=== HOTEL DETAILS CONTENT API RESPONSE ===');
+      console.log('Hotel Details Content Response JSON ===>');
+      console.log(JSON.stringify(detailsResult.body.content, null, 2));
+      console.log('=== END HOTEL DETAILS CONTENT RESPONSE ===');
+      
+      // Separate console for rooms API
+      console.log('=== HOTEL ROOMS API CALL ===');
+      console.log('Hotel Rooms Payload ===>');
+      console.log(JSON.stringify({
+        searchId: context.searchId,
+        hotelId: hotelId,
+        searchTracingKey: context.searchTracingKey
+      }, null, 2));
+      console.log('=== END HOTEL ROOMS PAYLOAD ===');
+      
+      console.log('Hotel Rooms Headers ===>');
+      console.log(JSON.stringify({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'search-tracing-key': context.searchTracingKey || ''
+      }, null, 2));
+      console.log('=== END HOTEL ROOMS HEADERS ===');
+      
+      console.log('=== HOTEL ROOMS API RESPONSE ===');
+      console.log('Hotel Rooms Response JSON ===>');
+      console.log(JSON.stringify(detailsResult.body.rooms, null, 2));
+      console.log('=== END HOTEL ROOMS RESPONSE ===');
 
       // Check if rooms API failed with specific error
       // console.log('=== ROOMS API STATUS CHECK ===');
@@ -258,7 +299,25 @@ const HotelDetailsNew: React.FC = () => {
             
             if (priceProvider && roomRecommendationId) {
               const pricingUrl = `${baseUrl}/api/hotel/pricing/${context.searchId}/${hotelId}/${priceProvider}/${roomRecommendationId}`;
-              // console.log('Pricing API URL:', pricingUrl);
+              
+              console.log('=== HOTEL PRICING API CALL ===');
+              console.log('Hotel Pricing Payload ===>');
+              console.log(JSON.stringify({
+                searchId: context.searchId,
+                hotelId: hotelId,
+                priceProvider: priceProvider,
+                roomRecommendationId: roomRecommendationId,
+                searchTracingKey: context.searchTracingKey
+              }, null, 2));
+              console.log('=== END HOTEL PRICING PAYLOAD ===');
+              
+              console.log('Hotel Pricing Headers ===>');
+              console.log(JSON.stringify({
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'search-tracing-key': context.searchTracingKey || ''
+              }, null, 2));
+              console.log('=== END HOTEL PRICING HEADERS ===');
               
               const pricingResult = await fetchWithAxiosRetries(
                 axiosInstance,
@@ -270,8 +329,10 @@ const HotelDetailsNew: React.FC = () => {
               if (pricingResult.ok) {
                 pricingData = pricingResult.body;
                 pricingSuccess = true;
-                // console.log('=== PRICING API SUCCESS ===');
-                // console.log('Pricing data:', JSON.stringify(pricingData, null, 2));
+                console.log('=== HOTEL PRICING API RESPONSE ===');
+                console.log('Hotel Pricing Response JSON ===>');
+                console.log(JSON.stringify(pricingData, null, 2));
+                console.log('=== END HOTEL PRICING RESPONSE ===');
                 
                 // Store pricing data
                 localStorage.setItem('hotelPricingData', JSON.stringify(pricingData));

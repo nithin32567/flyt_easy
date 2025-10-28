@@ -12,8 +12,24 @@ export const createHotelRazorpayOrder = async (req, res) => {
   const { amount, currency, receipt, notes } = req.body;
 
   try {
+    if (!amount || isNaN(amount) || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid amount is required"
+      });
+    }
+
+    const amountInPaise = Math.round(parseFloat(amount) * 100);
+    
+    if (!Number.isInteger(amountInPaise)) {
+      return res.status(400).json({
+        success: false,
+        message: "Amount must be convertible to integer paise"
+      });
+    }
+
     const order = await razorpay.orders.create({
-      amount: amount * 100,
+      amount: amountInPaise,
       currency: currency || "INR",
       receipt: receipt || `hotel_${Date.now()}`,
       notes: notes || {},
@@ -96,6 +112,12 @@ export const startHotelPay = async (req, res) => {
       AgentInfo
     } = req.body;
 
+    console.log('=== START HOTEL PAY NETAMOUNT DEBUG ===');
+    console.log('Received PaymentAmount:', PaymentAmount);
+    console.log('Received NetAmount:', NetAmount);
+    console.log('Using NetAmount for PaymentAmount:', NetAmount);
+    console.log('=== END START HOTEL PAY NETAMOUNT DEBUG ===');
+
     const finalPayload = {
       SID: null,
       TUI: TUI,
@@ -107,7 +129,7 @@ export const startHotelPay = async (req, res) => {
       BankCode: BankCode || "",
       GateWayCode: GateWayCode || "",
       MerchantID: MerchantID || 0,
-      PaymentAmount: PaymentAmount || NetAmount,
+      PaymentAmount: NetAmount,
       PaymentCharge: PaymentCharge || 0,
       Card: {
         Number: Card?.Number || "",

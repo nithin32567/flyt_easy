@@ -12,17 +12,28 @@ export const bookFlight = async (req, res) => {
     try {
         const { amount } = req.body;
 
-        if (!amount) {
-            return res.status(400).json({ success: false, message: "Amount is required" });
+        if (!amount || isNaN(amount) || amount <= 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Valid amount is required" 
+            });
+        }
+
+        const amountInPaise = Math.round(parseFloat(amount) * 100);
+        
+        if (!Number.isInteger(amountInPaise)) {
+            return res.status(400).json({
+                success: false,
+                message: "Amount must be convertible to integer paise"
+            });
         }
 
         const order = await razorpay.orders.create({
-            amount: amount * 100, // Convert to paise
+            amount: amountInPaise,
             currency: "INR",
             receipt: `receipt_${Date.now()}`,
             payment_capture: 1,
         });
-
 
         res.json({ success: true, order });
     } catch (error) {
@@ -44,7 +55,6 @@ export const verifyPayment = async (req, res) => {
             .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
             .update(sign)
             .digest("hex");
-
 
         if (expectedSign === razorpay_signature) {
             return res.json({
@@ -209,17 +219,150 @@ export const startPay = async (req, res) => {
     }
 }
 
+/**
+ * Polls the GetItineraryStatus API until CurrentStatus is either "Success" or "Failed"
+ * @param {string} TUI - Transaction Unique Identifier
+ * @param {number} TransactionID - Transaction ID
+ * @param {string} ClientID - Client ID
+ * @param {string} token - Authorization token
+ * @param {string} userId - User ID for booking details
+ * @param {object} bookingData - Booking data to save
+ * @param {number} maxAttempts - Maximum polling attempts (default: 30)
+ * @param {number} intervalMs - Polling interval in milliseconds (default: 2000)
+ * @returns {object} Result object with success status and data
+ */
+const pollItineraryStatus = async (TUI, TransactionID, ClientID, token, userId, bookingData, maxAttempts = 30, intervalMs = 2000) => {
+    let attempts = 0;
+    
+    while (attempts < maxAttempts) {
+        try {
+            const payload = {
+                TUI: TUI,
+                TransactionID: TransactionID,
+                ClientID: ClientID || "FVI6V120g22Ei5ztGK0FIQ=="
+            };
+
+            console.log(`Polling attempt ${attempts + 1}/${maxAttempts}`, payload, "get itinerary status payload=======================");
+            
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+                "Accept": "application/json"
+            };
+
+            const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/GetItineraryStatus`, payload, { headers });
+            const responseData = response.data;
+            
+            console.log(responseData, "get itinerary status response data=======================");
+            
+            const currentStatus = responseData.CurrentStatus || responseData.currentStatus;
+            const paymentStatus = responseData.PaymentStatus || responseData.paymentStatus;
+            
+            const isCurrentStatusSuccess = currentStatus === "Success" || currentStatus === "success";
+            const isCurrentStatusFailed = currentStatus === "Failed" || currentStatus === "failed";
+            
+            if (isCurrentStatusSuccess) {
+                if (userId && bookingData) {
+                    try {
+                        const bookingDetails = new BookingDetails({
+                            userId,
+                            bookingData,
+                            transactionId: TransactionID,
+                            tui: TUI,
+                            totalAmount: bookingData.NetAmount || bookingData.GrossAmount || 0,
+                            status: 'current',
+                            paymentStatus: 'success'
+                        });
+                        
+                        await bookingDetails.save();
+                        console.log('Booking details saved successfully');
+                    } catch (saveError) {
+                        console.error('Error saving booking details:', saveError);
+                    }
+                }
+                
+                return {
+                    success: true,
+                    data: responseData,
+                    message: "Booking completed successfully",
+                    status: "SUCCESS",
+                    shouldPoll: false,
+                    attempts: attempts + 1
+                };
+            } else if (isCurrentStatusFailed) {
+                return {
+                    success: false,
+                    data: responseData,
+                    message: `Booking failed. ${responseData.Msg ? responseData.Msg.join(' ') : 'Unknown error'}`,
+                    status: "FAILED",
+                    shouldPoll: false,
+                    errorCode: responseData.Code,
+                    errorDetails: responseData.Msg,
+                    attempts: attempts + 1
+                };
+            }
+            
+            attempts++;
+            
+            if (attempts < maxAttempts) {
+                console.log(`CurrentStatus: "${currentStatus}" - Polling again in ${intervalMs}ms...`);
+                await new Promise(resolve => setTimeout(resolve, intervalMs));
+            }
+            
+        } catch (error) {
+            console.error(`Polling attempt ${attempts + 1} failed:`, error.message);
+            
+            if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || !process.env.FLIGHT_URL) {
+                return {
+                    success: true,
+                    data: {
+                        TUI: TUI,
+                        TransactionID: TransactionID,
+                        CurrentStatus: "Success",
+                        PaymentStatus: "Success",
+                        Code: "200",
+                        Msg: ["Success"]
+                    },
+                    message: "Booking completed successfully",
+                    status: "SUCCESS",
+                    shouldPoll: false,
+                    attempts: attempts + 1
+                };
+            }
+            
+            attempts++;
+            
+            if (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, intervalMs));
+            }
+        }
+    }
+    
+    return {
+        success: false,
+        message: `Polling timeout after ${maxAttempts} attempts`,
+        status: "TIMEOUT",
+        shouldPoll: false,
+        attempts: maxAttempts
+    };
+};
+
 export const getItineraryStatus = async (req, res) => {
     const token = req.headers.authorization.split(" ")[1];
     
     try {
-        const { TUI, TransactionID, ClientID, userId, bookingData } = req.body;
+        const { TUI, TransactionID, ClientID, userId, bookingData, enablePolling = true } = req.body;
         
         if (!TUI || !TransactionID) {
             return res.status(400).json({
                 success: false,
                 message: "TUI and TransactionID are required"
             });
+        }
+
+        if (enablePolling) {
+            const result = await pollItineraryStatus(TUI, TransactionID, ClientID, token, userId, bookingData);
+            return res.status(200).json(result);
         }
 
         const payload = {
@@ -243,11 +386,8 @@ export const getItineraryStatus = async (req, res) => {
         const currentStatus = responseData.CurrentStatus || responseData.currentStatus;
         const paymentStatus = responseData.PaymentStatus || responseData.paymentStatus;
         
-        
         const isCurrentStatusSuccess = currentStatus === "Success" || currentStatus === "success";
         const isCurrentStatusFailed = currentStatus === "Failed" || currentStatus === "failed";
-        const hasDefinitiveStatus = isCurrentStatusSuccess || isCurrentStatusFailed;
-        
         
         if (isCurrentStatusSuccess) {
             if (userId && bookingData) {
@@ -277,10 +417,6 @@ export const getItineraryStatus = async (req, res) => {
                 shouldPoll: false
             });
         } else if (isCurrentStatusFailed) {
-            
-            if (responseData.PaymentStatus === "Success" && responseData.Code === "200") {
-            }
-            
             return res.status(200).json({
                 success: false,
                 data: responseData,
@@ -291,7 +427,6 @@ export const getItineraryStatus = async (req, res) => {
                 errorDetails: responseData.Msg,
             });
         } else {
-            
             return res.status(200).json({
                 success: true,
                 data: responseData,
@@ -302,7 +437,6 @@ export const getItineraryStatus = async (req, res) => {
         }
         
     } catch (error) {
-        
         if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || !process.env.FLIGHT_URL) {
             return res.status(200).json({
                 success: true,
@@ -327,3 +461,26 @@ export const getItineraryStatus = async (req, res) => {
     }
 }
 
+export const pollItineraryStatusEndpoint = async (req, res) => {
+    const token = req.headers.authorization.split(" ")[1];
+    
+    try {
+        const { TUI, TransactionID, ClientID, userId, bookingData, maxAttempts = 30, intervalMs = 2000 } = req.body;
+        
+        if (!TUI || !TransactionID) {
+            return res.status(400).json({
+                success: false,
+                message: "TUI and TransactionID are required"
+            });
+        }
+
+        const result = await pollItineraryStatus(TUI, TransactionID, ClientID, token, userId, bookingData, maxAttempts, intervalMs);
+        return res.status(200).json(result);
+        
+    } catch (error) {
+        return res.status(500).json({ 
+            success: false, 
+            message: error?.response?.data || error.message 
+        });
+    }
+}

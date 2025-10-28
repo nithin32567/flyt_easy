@@ -1,5 +1,6 @@
 // controllers/flightController.js
 import dotenv from "dotenv";
+import axios from 'axios';
 
 dotenv.config();
 import fs from 'fs';
@@ -88,18 +89,17 @@ export const expressSearchFlights = async (req, res) => {
       "express search payload======================="
     );
 
-    const response = await fetch(
+    const response = await axios.post(
       `${process.env.FLIGHT_URL}/flights/ExpressSearch`,
+      payload,
       {
-        body: JSON.stringify(payload),
-        method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       }
     );
-    const data = await response.json();
+    const data = response.data;
     console.log(data, "express search response data=======================");
     return res.status(200).json({
       success: true,
@@ -156,13 +156,11 @@ export const getExpSearchFlights = async (req, res) => {
 
   try {
     const pollExpSearch = async (retries = 0) => {
-      const response = await fetch(`${process.env.FLIGHT_URL}/flights/GetExpSearch`, {
-        method: "POST",
+      const response = await axios.post(`${process.env.FLIGHT_URL}/flights/GetExpSearch`, payload, {
         headers: headers,
-        body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (data.Completed === "True") {
         return data;
@@ -186,15 +184,15 @@ export const getExpSearchFlights = async (req, res) => {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const filename = `getExpSearch_${TUI}_${timestamp}.json`;
         const filepath = path.join(process.cwd(), 'api_request_response', filename);
-        
+
         const dir = path.dirname(filepath);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, { recursive: true });
         }
-        
+
         fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
-        
-        
+
+
         return res.status(200).json({
           success: true,
           message: "GETExpSearch fetched successfully and saved to file",
