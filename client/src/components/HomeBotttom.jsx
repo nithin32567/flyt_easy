@@ -3,7 +3,7 @@ import React from 'react'
 const HomeBotttom = () => {
   return (
     <div className="homebottom-text">
-   <section className="homebottom-text">
+      <section className="homebottom-text">
         <div className="container">
           <h4>Flyteasy</h4>
           <p>
@@ -95,7 +95,7 @@ const HomeBotttom = () => {
           </p>
         </div>
       </section>
-</div>
+    </div>
   )
 }
 

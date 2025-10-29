@@ -18,7 +18,7 @@ const Home = () => {
   useEffect(() => {
     // Check if user is coming from a completed booking or starting fresh
     const isNewSearch = !localStorage.getItem('trips') || localStorage.getItem('bookingSuccess');
-    
+
     if (isNewSearch) {
       clearSearchData();
       // console.log('✅ Cleared search data on home page load (new search)');
@@ -41,7 +41,7 @@ const Home = () => {
     <>
       {/* <AuthStatus /> */}
       <BannerWrapper />
-      <FlightHotelWearchWrapper/>
+      <FlightHotelWearchWrapper />
       <UnveilMagicCarousal />
       <FlightLogosCarousal />
       <div className="container">
@@ -81,7 +81,7 @@ const Home = () => {
         </div>
       </div>
       <HomeBotttom />
-      
+
       {/* Debug buttons - remove in production */}
       <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 9999, background: 'white', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}>
         {/* <button onClick={handleDebugLocalStorage} style={{ margin: '5px', padding: '5px 10px', background: '#007bff', color: 'white', border: 'none', borderRadius: '3px' }}>

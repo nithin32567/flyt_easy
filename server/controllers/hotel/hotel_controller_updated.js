@@ -1248,9 +1248,9 @@ export const createItineraryForHotelRoom = async (req, res) => {
         }
       ],
       Rooms: itineraryData.Rooms?.map((room, index) => {
-        // Use the GuestCode from client if available, otherwise generate one
-        let guestCode = room.GuestCode;
-        if (!guestCode && room.Guests && room.Guests.length > 0) {
+        // Always regenerate GuestCode to ensure proper sorting of child ages
+        let guestCode;
+        if (room.Guests && room.Guests.length > 0) {
           // Group guests by PaxType (A for Adult, C for Child)
           const adults = room.Guests.filter(guest => guest.PaxType === 'A');
           const children = room.Guests.filter(guest => guest.PaxType === 'C');
@@ -1266,12 +1266,12 @@ export const createItineraryForHotelRoom = async (req, res) => {
 
           // Add children occupancy
           if (children.length > 0) {
-            const childAges = children.map(guest => guest.Age || '5').join(':');
+            const childAges = children.map(guest => guest.Age || '5').sort((a, b) => parseInt(a) - parseInt(b)).join(':');
             occupancyParts.push(`|${children.length}:C:${childAges}`);
           }
 
           guestCode = occupancyParts.join('') + '|';
-        } else if (!guestCode) {
+        } else {
           // Default fallback for single adult
           guestCode = `|${index + 1}|1:A:25|`;
         }

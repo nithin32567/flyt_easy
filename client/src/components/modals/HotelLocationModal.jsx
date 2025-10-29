@@ -150,13 +150,7 @@ export default function HotelLocationModal({
                 }
               }}
             />
-            {isAutosuggestLoading && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <div className="spinner-border spinner-border-sm text-primary" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
-            )}
+          
           </div>
         </div>
 
