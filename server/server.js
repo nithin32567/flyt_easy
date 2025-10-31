@@ -7,7 +7,7 @@ import morgan from "morgan";
 import path from "path";
 import cookieParser from "cookie-parser";
 
-import passport from "passport";
+// import passport from "passport";
 
 
 dotenv.config();
@@ -29,7 +29,7 @@ const allowedOrigins = [
   "http://127.0.0.1:5174",
   "http://127.0.0.1:3000",
   "http://147.93.18.244",
-  "https://your-domain.com",
+  "https://flyteasy.com",
 ];
 
 const corsOptions = {
