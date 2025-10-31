@@ -59,7 +59,8 @@ const corsOptions = {
   ],
 };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors("*"));
 
 // Add request logging middleware
 app.use((req, res, next) => {
