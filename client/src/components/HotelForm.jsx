@@ -136,43 +136,7 @@ const HotelForm = ({
           </div>
         </div>
       </div>
-      {selectedHotelLocation && (
-                <div className="col-12 mt-3 ">
-                  <div className="selected-location-card">
-                    <div className="selected-location-content">
-                      <div className="selected-location-icon">
-                        <i className="fas fa-map-marker-alt"></i>
-                      </div>
-                      <div className="selected-location-details">
-                        <div className="selected-location-title">
-                          {selectedHotelLocation.name}
-                        </div>
-                        <div className="selected-location-subtitle">
-                          {selectedHotelLocation.fullName}
-                        </div>
-                        <div className="selected-location-badge">
-                          {selectedHotelLocation.type}
-                        </div>
-                      </div>
-                      <div className="selected-location-actions">
-                        <button 
-                          className="selected-location-change-btn"
-                          onClick={handleLocationSelect}
-                          title="Change Location"
-                        >
-                          <i className="fas fa-edit"></i>
-                        </button>
-                      </div>
-                    </div>
-                    <div className="selected-location-footer">
-                      <div className="selected-location-status">
-                        <i className="fas fa-check-circle"></i>
-                        <span>Location Selected</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+   
     </div>
   );
 };

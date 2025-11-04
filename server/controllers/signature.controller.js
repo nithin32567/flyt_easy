@@ -13,20 +13,9 @@ export const generateToken = async (req, res) => {
       Key: process.env.KEY,
     };
 
-    console.log(process.env.SIGNATURE_API, "signature api");
-    console.log(process.env.MERCHANT_ID, "merchant id");
-    console.log(process.env.API_KEY, "api key");
-    console.log(process.env.CLIENT_ID, "client id");
-    console.log(process.env.PASSWORD, "password");
-  
-    console.log(process.env.BROWSER_KEY, "browser key");
-    console.log(process.env.KEY, "key");
 
-    console.log(payload, "payload");
-    
-    
 
-    // console.log(payload, "payload signature");
+ 
     const response = await fetch(process.env.SIGNATURE_API, {
       method: "POST",
       body: JSON.stringify(payload),

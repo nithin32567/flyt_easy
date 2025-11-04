@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 export default function TravellerAddModal({
@@ -29,15 +30,21 @@ export default function TravellerAddModal({
     }
   };
 
-  if (!isOpen) return null;
-  return (
+  const handleModalContentClick = (e) => {
+    e.stopPropagation();
+  };
+
+  const modalContent = (
     <div 
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] p-4"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center p-4"
+      style={{ zIndex: 999999 }}
       onClick={handleBackdropClick}
     >
-      <div className="relative bg-white rounded-lg border max-w-sm w-full mx-4">
-
-        
+      <div 
+        className="relative bg-white rounded-lg border max-w-sm w-full mx-4"
+        onClick={handleModalContentClick}
+        style={{ zIndex: 999999 }}
+      >
         <div className="p-4">
           <div className="flex justify-between items-center mb-4">
             <span className="font-semibold text-base">TRAVELLERS & CLASS</span>
@@ -139,4 +146,6 @@ export default function TravellerAddModal({
       </div>
     </div>
   );
+
+  return isOpen ? createPortal(modalContent, document.body) : null;
 }

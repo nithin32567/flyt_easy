@@ -9,6 +9,7 @@ const ProtectedRoute = ({ children }) => {
   // Show loading spinner while checking authentication
   if (loading) {
     return (
+      
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -18,13 +19,10 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // If not authenticated, redirect to login with return URL
-  // Temporarily allow access to hotel-results for testing
-  // if (!isAuthenticated && location.pathname !== '/hotel-results') {
-  //   return <Navigate to="/login" state={{ from: location }} replace />;
-  // }
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-  // If authenticated, render the protected component
   return children;
 };
 

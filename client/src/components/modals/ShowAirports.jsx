@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 const ShowAirports = ({ isOpen, setIsOpen, airports, label, onSelect }) => {
@@ -25,12 +26,25 @@ const ShowAirports = ({ isOpen, setIsOpen, airports, label, onSelect }) => {
 
   if (!isOpen) return null;
 
-  return (
+  const handleModalContentClick = (e) => {
+    e.stopPropagation();
+  };
+
+  const handleInputClick = (e) => {
+    e.stopPropagation();
+  };
+
+  const modalContent = (
     <div 
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9999] p-4"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center p-4"
+      style={{ zIndex: 999999 }}
       onClick={handleBackdropClick}
     >
-      <div className="relative bg-white rounded-lg border max-w-sm w-full mx-4">
+      <div 
+        className="relative bg-white rounded-lg border max-w-sm w-full mx-4"
+        onClick={handleModalContentClick}
+        style={{ zIndex: 999999 }}
+      >
         <div className="p-4">
           <div className="flex justify-between items-center mb-3">
             <span className="font-semibold text-base">{label}</span>
@@ -46,6 +60,8 @@ const ShowAirports = ({ isOpen, setIsOpen, airports, label, onSelect }) => {
             placeholder="Enter city or airport"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onClick={handleInputClick}
+            onFocus={handleInputClick}
           />
           <div className="text-xs text-green-700 mb-2">Important airports</div>
           <div className="max-h-64 overflow-y-auto">
@@ -70,6 +86,8 @@ const ShowAirports = ({ isOpen, setIsOpen, airports, label, onSelect }) => {
       </div>
     </div>
   );
+
+  return isOpen ? createPortal(modalContent, document.body) : null;
 };
 
 export default ShowAirports;
