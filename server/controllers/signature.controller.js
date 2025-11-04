@@ -24,6 +24,8 @@ export const generateToken = async (req, res) => {
 
     const data = await response.json();
     const token = data?.Token;
+
+    console.log(data, "data signature================================================");
     
     if (token) {
       res.cookie("token", token, {
