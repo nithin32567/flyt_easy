@@ -14,8 +14,12 @@ export const generateToken = async (req, res) => {
     };
 
 
+    const signatureUrl = process.env.SIGNATURE_API;
+    console.log("signatureUrl ==============================================>", signatureUrl);
+    console.log("full payload ==============================================>", payload);
 
- 
+
+    
     const response = await fetch(process.env.SIGNATURE_API, {
       method: "POST",
       body: JSON.stringify(payload),
@@ -26,7 +30,7 @@ export const generateToken = async (req, res) => {
     const token = data?.Token;
 
     console.log(data, "data signature================================================");
-    
+
     if (token) {
       res.cookie("token", token, {
         httpOnly: true,
@@ -34,7 +38,7 @@ export const generateToken = async (req, res) => {
         sameSite: "lax",
         maxAge: 24 * 60 * 60 * 1000,
       });
-      
+
       return res.status(200).json({
         success: true,
         token: token,
