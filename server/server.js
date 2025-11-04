@@ -30,13 +30,15 @@ const allowedOrigins = [
   "http://127.0.0.1:3000",
   "http://147.93.18.244",
   "https://flyteasy.com",
+  "https://www.flyteasy.com",
+  
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    console.log("CORS Origin:", origin);
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      return callback(null, true);
+    }
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -61,12 +63,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Add request logging middleware
 app.use((req, res, next) => {
+  const origin = req.headers.origin || 'same-origin';
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Headers:', req.headers);
-  console.log('Origin:', req.headers.origin);
-  console.log('CORS preflight:', req.method === 'OPTIONS');
+  console.log(`Origin: ${origin}`);
   next();
 });
 

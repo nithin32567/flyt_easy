@@ -22,28 +22,41 @@ export const generateToken = async (req, res) => {
       headers: { "Content-Type": "application/json" },
     });
 
-    // console.log(response, "response");
     const data = await response.json();
-    console.log(data, "data");
     const token = data?.Token;
-    console.log(token, "token");
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
-    if (!token) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Token not received" });
+    
+    if (token) {
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+      
+      return res.status(200).json({
+        success: true,
+        token: token,
+        ClientID: data?.ClientID,
+        TUI: data?.TUI,
+        message: "Token generated successfully",
+      });
     }
 
-    return res.status(200).json({
-      success: true,
-      token: token,
-      ClientID: data?.ClientID,
-      TUI: data?.TUI, // Include TUI from signature response
-      message: "Token generated successfully",
+    if (data?.Code === "5501" && data?.Msg) {
+      return res.status(200).json({
+        success: false,
+        code: data.Code,
+        message: Array.isArray(data.Msg) ? data.Msg.join(" ") : data.Msg,
+        requiresOTP: true,
+        ClientID: data?.ClientID,
+        TUI: data?.TUI,
+      });
+    }
+
+    return res.status(401).json({
+      success: false,
+      message: "Token not received",
+      data: data,
     });
   } catch (err) {
     console.log(err, "error");
