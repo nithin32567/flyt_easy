@@ -27,10 +27,14 @@ export const autosuggest = async (req, res) => {
   }
 };
 export const initHotelSearch = async (req, res) => {
+  console.log('=== BACKEND: HOTEL INIT REQUEST ===');
+  console.log('Hotel Init Payload ===>');
+  console.log(JSON.stringify(req.body, null, 2));
+  console.log('=== END HOTEL INIT PAYLOAD ===');
+  
   try {
     const payload = req.body;
     const authHeader = req.headers.authorization;
-    console.log(payload, "payload ============================================> init payload")
 
     if (!authHeader) {
       return res.status(401).json({
@@ -122,9 +126,10 @@ export const initHotelSearch = async (req, res) => {
       }
     });
 
-    console.log('=== INIT API RESPONSE ===');
-    console.log('Status:', initResponse.status);
-    console.log('Data: initResponse.data', JSON.stringify(initResponse.data, null, 2));
+    console.log('=== BACKEND: HOTEL INIT RESPONSE ===');
+    console.log('Hotel Init Response JSON ===>');
+    console.log(JSON.stringify(initResponse.data, null, 2));
+    console.log('=== END HOTEL INIT RESPONSE ===');
 
     const initData = initResponse.data;
 
@@ -147,8 +152,10 @@ export const initHotelSearch = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log('=== INIT API FINAL RESPONSE ===');
+    console.log('=== BACKEND: HOTEL INIT RESPONSE TO CLIENT ===');
+    console.log('Hotel Init Response to Client JSON ===>');
     console.log(JSON.stringify(response, null, 2));
+    console.log('=== END HOTEL INIT RESPONSE TO CLIENT ===');
 
     res.status(200).json(response);
 
@@ -208,13 +215,21 @@ export const initHotelSearch = async (req, res) => {
   }
 };
 export const fetchHotelContentAndRates = async (req, res) => {
+  console.log('=== BACKEND: HOTEL CONTENT AND RATES REQUEST ===');
+  console.log('Hotel Content and Rates Payload ===>');
+  console.log(JSON.stringify({
+    searchId: req.params.searchId,
+    page: req.query.page,
+    limit: req.query.limit,
+    searchTracingKey: req.headers['search-tracing-key']
+  }, null, 2));
+  console.log('=== END HOTEL CONTENT AND RATES PAYLOAD ===');
+  
   try {
     const { searchId } = req.params;
     const authHeader = req.headers.authorization;
-    console.log(searchId, "searchId ============================================> fetchHotelContentAndRates searchId")
     const { page = 1, limit = 50 } = req.query;
     const searchTracingKey = req.headers['search-tracing-key'];
-    console.log(searchTracingKey, "searchTracingKey ============================================> fetchHotelContentAndRates searchTracingKey")
 
     if (!authHeader) {
       return res.status(401).json({
@@ -342,8 +357,10 @@ export const fetchHotelContentAndRates = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    // console.log('=== CONTENT & RATES FINAL RESPONSE ===');
-    // console.log(JSON.stringify(combinedResponse, null, 2));
+    console.log('=== BACKEND: HOTEL CONTENT AND RATES RESPONSE TO CLIENT ===');
+    console.log('Hotel Content and Rates Response to Client JSON ===>');
+    console.log(JSON.stringify(combinedResponse, null, 2));
+    console.log('=== END HOTEL CONTENT AND RATES RESPONSE TO CLIENT ===');
 
     res.status(200).json(combinedResponse);
 
@@ -372,6 +389,16 @@ export const fetchHotelContentAndRates = async (req, res) => {
   }
 };
 export const fetchHotelPage = async (req, res) => {
+  console.log('=== BACKEND: HOTEL PAGE REQUEST ===');
+  console.log('Hotel Page Payload ===>');
+  console.log(JSON.stringify({
+    searchId: req.query.searchId,
+    page: req.query.page,
+    limit: req.query.limit,
+    searchTracingKey: req.headers['search-tracing-key']
+  }, null, 2));
+  console.log('=== END HOTEL PAGE PAYLOAD ===');
+  
   try {
     const { searchId, page = 1, limit = 50 } = req.query;
     const authHeader = req.headers.authorization;
@@ -411,9 +438,10 @@ export const fetchHotelPage = async (req, res) => {
       { headers }
     );
 
-    console.log('=== HOTEL PAGE API RESPONSE ===');
-    console.log('Status:', contentResponse.status);
-    console.log('Data:', JSON.stringify(contentResponse.data, null, 2));
+    console.log('=== BACKEND: HOTEL PAGE RESPONSE ===');
+    console.log('Hotel Page Response JSON ===>');
+    console.log(JSON.stringify(contentResponse.data, null, 2));
+    console.log('=== END HOTEL PAGE RESPONSE ===');
 
     const contentData = contentResponse.data;
 
@@ -429,8 +457,10 @@ export const fetchHotelPage = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    // console.log('=== HOTEL PAGE FINAL RESPONSE ===');
+    console.log('=== BACKEND: HOTEL PAGE RESPONSE TO CLIENT ===');
+    console.log('Hotel Page Response to Client JSON ===>');
     console.log(JSON.stringify(response, null, 2));
+    console.log('=== END HOTEL PAGE RESPONSE TO CLIENT ===');
 
     res.status(200).json(response);
 
@@ -459,10 +489,19 @@ export const fetchHotelPage = async (req, res) => {
   }
 };
 export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
+  console.log('=== BACKEND: HOTEL DETAILS REQUEST ===');
+  console.log('Hotel Details Payload ===>');
+  console.log(JSON.stringify({
+    searchId: req.params.searchId,
+    hotelId: req.params.hotelId,
+    priceProvider: req.query.priceProvider,
+    searchTracingKey: req.headers['search-tracing-key']
+  }, null, 2));
+  console.log('=== END HOTEL DETAILS PAYLOAD ===');
+  
   try {
     const { searchId, hotelId } = req.params;
     const { priceProvider } = req.query;
-    console.log(searchId, hotelId, "searchId and hotelId {{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -627,8 +666,11 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
     console.log('Content data hotel exists:', !!contentData?.hotel);
     console.log('Content data hotel name:', contentData?.hotel?.name);
 
-    console.log('Combined hotel details response prepared');
-    console.log('Final combined response structure:', JSON.stringify(combinedResponse, null, 2));
+    console.log('=== BACKEND: HOTEL DETAILS RESPONSE TO CLIENT ===');
+    console.log('Hotel Details Response to Client JSON ===>');
+    console.log(JSON.stringify(combinedResponse, null, 2));
+    console.log('=== END HOTEL DETAILS RESPONSE TO CLIENT ===');
+    
     res.status(200).json(combinedResponse);
 
   } catch (error) {
@@ -652,11 +694,20 @@ export const fetchHotelDetailsWithContentAndRooms = async (req, res) => {
   }
 };
 export const fetchHotelPricing = async (req, res) => {
+  console.log('=== BACKEND: HOTEL PRICING REQUEST ===');
+  console.log('Hotel Pricing Payload ===>');
+  console.log(JSON.stringify({
+    searchId: req.params.searchId,
+    hotelId: req.params.hotelId,
+    priceProvider: req.params.priceProvider,
+    roomRecommendationId: req.params.roomRecommendationId,
+    searchTracingKey: req.headers['search-tracing-key']
+  }, null, 2));
+  console.log('=== END HOTEL PRICING PAYLOAD ===');
+  
   try {
     const { searchId, hotelId, priceProvider, roomRecommendationId } = req.params;
     const authHeader = req.headers.authorization;
-
-    console.log('=== HOTEL PRICING API CALL ===');
     console.log('Search ID:', searchId);
     console.log('Hotel ID:', hotelId);
     console.log('Price Provider:', priceProvider);
@@ -721,8 +772,10 @@ export const fetchHotelPricing = async (req, res) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log('=== PRICING API FINAL RESPONSE ===');
-    // console.log(JSON.stringify(response, null, 2));
+    console.log('=== BACKEND: HOTEL PRICING RESPONSE TO CLIENT ===');
+    console.log('Hotel Pricing Response to Client JSON ===>');
+    console.log(JSON.stringify(response, null, 2));
+    console.log('=== END HOTEL PRICING RESPONSE TO CLIENT ===');
 
     res.status(200).json(response);
 
@@ -1119,6 +1172,11 @@ export const fetchHotelSearchWorkflow = async (req, res) => {
 };
 
 export const createItineraryForHotelRoom = async (req, res) => {
+  console.log('=== BACKEND: HOTEL CREATE ITINERARY REQUEST ===');
+  console.log('Hotel Create Itinerary Payload ===>');
+  console.log(JSON.stringify(req.body, null, 2));
+  console.log('=== END HOTEL CREATE ITINERARY PAYLOAD ===');
+  
   try {
     const itineraryData = req.body;
     const authHeader = req.headers.authorization;
@@ -1407,11 +1465,10 @@ export const createItineraryForHotelRoom = async (req, res) => {
       }
     }
 
-    console.log('=== CREATE ITINERARY API RESPONSE ===');
-    console.log('Status:', itineraryResponse.status);
-    console.log('Status Text:', itineraryResponse.statusText);
-    console.log('Response Headers:', JSON.stringify(itineraryResponse.headers, null, 2));
-    console.log('Data:', JSON.stringify(itineraryResponse.data, null, 2));
+    console.log('=== BACKEND: HOTEL CREATE ITINERARY RESPONSE ===');
+    console.log('Hotel Create Itinerary Response JSON ===>');
+    console.log(JSON.stringify(itineraryResponse.data, null, 2));
+    console.log('=== END HOTEL CREATE ITINERARY RESPONSE ===');
 
     const itineraryResult = itineraryResponse.data;
 
@@ -1455,12 +1512,19 @@ export const createItineraryForHotelRoom = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    const responseToSend = {
       status: 'success',
       itinerary: itineraryResult,
       searchTracingKey: searchTracingKey,
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    console.log('=== BACKEND: HOTEL CREATE ITINERARY RESPONSE TO CLIENT ===');
+    console.log('Hotel Create Itinerary Response to Client JSON ===>');
+    console.log(JSON.stringify(responseToSend, null, 2));
+    console.log('=== END HOTEL CREATE ITINERARY RESPONSE TO CLIENT ===');
+    
+    res.status(200).json(responseToSend);
 
   } catch (error) {
     console.error('=== CREATE ITINERARY API ERROR ===');

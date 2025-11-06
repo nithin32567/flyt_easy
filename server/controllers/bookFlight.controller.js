@@ -69,6 +69,11 @@ export const verifyPayment = async (req, res) => {
 };
 
 export const startPay = async (req, res) => {
+    console.log('=== BACKEND: FLIGHT START PAY REQUEST ===');
+    console.log('Flight Start Pay Payload ===>');
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log('=== END FLIGHT START PAY PAYLOAD ===');
+    
     const token = req.headers.authorization.split(" ")[1];
     try {
         const {
@@ -144,11 +149,14 @@ export const startPay = async (req, res) => {
             "Accept": "application/json"
         }
         
-        console.log(finalPayload, "start pay payload=======================");
         const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/StartPay`, finalPayload, { headers });
         
         const responseData = response.data;
-        console.log(responseData, "start pay response data=======================");
+        
+        console.log('=== BACKEND: FLIGHT START PAY RESPONSE ===');
+        console.log('Flight Start Pay Response JSON ===>');
+        console.log(JSON.stringify(responseData, null, 2));
+        console.log('=== END FLIGHT START PAY RESPONSE ===');
         
         if (!responseData || Object.keys(responseData).length === 0) {
             return res.status(500).json({
@@ -170,47 +178,72 @@ export const startPay = async (req, res) => {
             const message = responseData.Msg[0];
             
             if (message.includes("BOOKING INPROGRESS") || message.includes("BOOKING  INPROGRESS")) {
-                return res.status(200).json({
+                const responseToSend = {
                     success: true,
                     data: responseData,
                     message: "Booking in progress",
                     status: "IN_PROGRESS",
                     shouldPoll: true
-                });
+                };
+                console.log('=== BACKEND: FLIGHT START PAY RESPONSE TO CLIENT ===');
+                console.log('Flight Start Pay Response to Client JSON ===>');
+                console.log(JSON.stringify(responseToSend, null, 2));
+                console.log('=== END FLIGHT START PAY RESPONSE TO CLIENT ===');
+                return res.status(200).json(responseToSend);
             } else if (message.includes("BOOKING FAILED")) {
-                return res.status(400).json({
+                const responseToSend = {
                     success: false,
                     data: responseData,
                     message: "Booking failed",
                     status: "FAILED"
-                });
+                };
+                console.log('=== BACKEND: FLIGHT START PAY RESPONSE TO CLIENT ===');
+                console.log('Flight Start Pay Response to Client JSON ===>');
+                console.log(JSON.stringify(responseToSend, null, 2));
+                console.log('=== END FLIGHT START PAY RESPONSE TO CLIENT ===');
+                return res.status(400).json(responseToSend);
             } else if (message.includes("Please provide valid reference number")) {
-                return res.status(400).json({
+                const responseToSend = {
                     success: false,
                     data: responseData,
                     message: "Invalid reference number. Please ensure the itinerary was created successfully before proceeding to payment.",
                     status: "INVALID_REFERENCE",
                     errorCode: "6019"
-                });
+                };
+                console.log('=== BACKEND: FLIGHT START PAY RESPONSE TO CLIENT ===');
+                console.log('Flight Start Pay Response to Client JSON ===>');
+                console.log(JSON.stringify(responseToSend, null, 2));
+                console.log('=== END FLIGHT START PAY RESPONSE TO CLIENT ===');
+                return res.status(400).json(responseToSend);
             }
         }
         
         if (responseData.Code === "6033" || responseData.Code === 6033) {
-            return res.status(200).json({
+            const responseToSend = {
                 success: true,
                 data: responseData,
                 message: "Booking in progress (Code 6033)",
                 status: "IN_PROGRESS",
                 shouldPoll: true
-            });
+            };
+            console.log('=== BACKEND: FLIGHT START PAY RESPONSE TO CLIENT ===');
+            console.log('Flight Start Pay Response to Client JSON ===>');
+            console.log(JSON.stringify(responseToSend, null, 2));
+            console.log('=== END FLIGHT START PAY RESPONSE TO CLIENT ===');
+            return res.status(200).json(responseToSend);
         }
         
-        return res.status(200).json({
+        const responseToSend = {
             success: true,
             data: responseData,
             message: "Payment processed successfully",
             status: "SUCCESS"
-        });
+        };
+        console.log('=== BACKEND: FLIGHT START PAY RESPONSE TO CLIENT ===');
+        console.log('Flight Start Pay Response to Client JSON ===>');
+        console.log(JSON.stringify(responseToSend, null, 2));
+        console.log('=== END FLIGHT START PAY RESPONSE TO CLIENT ===');
+        return res.status(200).json(responseToSend);
     } catch (error) {
         return res.status(500).json({ 
             success: false, 
@@ -348,6 +381,11 @@ const pollItineraryStatus = async (TUI, TransactionID, ClientID, token, userId, 
 };
 
 export const getItineraryStatus = async (req, res) => {
+    console.log('=== BACKEND: FLIGHT GET ITINERARY STATUS REQUEST ===');
+    console.log('Flight Get Itinerary Status Payload ===>');
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log('=== END FLIGHT GET ITINERARY STATUS PAYLOAD ===');
+    
     const token = req.headers.authorization.split(" ")[1];
     
     try {
@@ -371,7 +409,6 @@ export const getItineraryStatus = async (req, res) => {
             ClientID: ClientID || "FVI6V120g22Ei5ztGK0FIQ=="
         };
 
-        console.log(payload, "get itinerary status payload=======================");
         const headers = {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`,
@@ -381,7 +418,11 @@ export const getItineraryStatus = async (req, res) => {
         const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/GetItineraryStatus`, payload, { headers });
         
         const responseData = response.data;
-        console.log(responseData, "get itinerary status response data=======================");
+        
+        console.log('=== BACKEND: FLIGHT GET ITINERARY STATUS RESPONSE ===');
+        console.log('Flight Get Itinerary Status Response JSON ===>');
+        console.log(JSON.stringify(responseData, null, 2));
+        console.log('=== END FLIGHT GET ITINERARY STATUS RESPONSE ===');
         
         const currentStatus = responseData.CurrentStatus || responseData.currentStatus;
         const paymentStatus = responseData.PaymentStatus || responseData.paymentStatus;
@@ -409,15 +450,20 @@ export const getItineraryStatus = async (req, res) => {
                 }
             }
             
-            return res.status(200).json({
+            const responseToSend = {
                 success: true,
                 data: responseData,
                 message: "Booking completed successfully",
                 status: "SUCCESS",
                 shouldPoll: false
-            });
+            };
+            console.log('=== BACKEND: FLIGHT GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+            console.log('Flight Get Itinerary Status Response to Client JSON ===>');
+            console.log(JSON.stringify(responseToSend, null, 2));
+            console.log('=== END FLIGHT GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+            return res.status(200).json(responseToSend);
         } else if (isCurrentStatusFailed) {
-            return res.status(200).json({
+            const responseToSend = {
                 success: false,
                 data: responseData,
                 message: `Booking failed. ${responseData.Msg ? responseData.Msg.join(' ') : 'Unknown error'}`,
@@ -425,15 +471,25 @@ export const getItineraryStatus = async (req, res) => {
                 shouldPoll: false,
                 errorCode: responseData.Code,
                 errorDetails: responseData.Msg,
-            });
+            };
+            console.log('=== BACKEND: FLIGHT GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+            console.log('Flight Get Itinerary Status Response to Client JSON ===>');
+            console.log(JSON.stringify(responseToSend, null, 2));
+            console.log('=== END FLIGHT GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+            return res.status(200).json(responseToSend);
         } else {
-            return res.status(200).json({
+            const responseToSend = {
                 success: true,
                 data: responseData,
                 message: `Booking status: ${currentStatus || 'In Progress - waiting for CurrentStatus'}`,
                 status: "IN_PROGRESS",
                 shouldPoll: true
-            });
+            };
+            console.log('=== BACKEND: FLIGHT GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+            console.log('Flight Get Itinerary Status Response to Client JSON ===>');
+            console.log(JSON.stringify(responseToSend, null, 2));
+            console.log('=== END FLIGHT GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+            return res.status(200).json(responseToSend);
         }
         
     } catch (error) {

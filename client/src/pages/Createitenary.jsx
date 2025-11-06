@@ -302,8 +302,10 @@ const Createitenary = () => {
         Amount: netAmountNumber // Pass the NetAmount from GetSPricer
       };
       
-      // console.log("=== SSR API CALL (fetchSSRServices) ===");
-      // console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
+      console.log('=== FRONTEND: FLIGHT GET SSR SERVICES API CALL (fetchSSRServices) ===');
+      console.log('Flight Get SSR Services Payload ===>');
+      console.log(JSON.stringify(ssrPayload, null, 2));
+      console.log('=== END FLIGHT GET SSR SERVICES PAYLOAD ===');
       
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
@@ -316,8 +318,10 @@ const Createitenary = () => {
         }
       );
       
-      // console.log("SSR Response Data:", JSON.stringify(response.data, null, 2));
-      // console.log("=====================================");
+      console.log('=== FRONTEND: FLIGHT GET SSR SERVICES API RESPONSE ===');
+      console.log('Flight Get SSR Services Response JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END FLIGHT GET SSR SERVICES RESPONSE ===');
 
       if (response.data.success) {
         const services = response.data.data.services || [];
@@ -623,9 +627,10 @@ const Createitenary = () => {
             ClientID: localStorage.getItem("ClientID")
           };
           
-          // console.log("=== GET PRICER API CALL (CreateItinerary) ===");
-          // console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
-          // console.log("=============================================");
+          console.log('=== FRONTEND: FLIGHT GET PRICER API CALL (CreateItinerary) ===');
+          console.log('Flight Get Pricer Payload ===>');
+          console.log(JSON.stringify(payload, null, 2));
+          console.log('=== END FLIGHT GET PRICER PAYLOAD ===');
           
           const pricingResponse = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`,
@@ -638,12 +643,10 @@ const Createitenary = () => {
             }
           );
 
-          // console.log("=== GET PRICER API RESPONSE (CreateItinerary) ===");
-          // console.log("Response Status:", pricingResponse.status);
-          // console.log("Response Headers:", pricingResponse.headers);
-          // console.log("Response Data:", JSON.stringify(pricingResponse.data, null, 2));
-          // console.log("Full Response Object:", pricingResponse);
-          // console.log("===============================================");
+          console.log('=== FRONTEND: FLIGHT GET PRICER API RESPONSE (CreateItinerary) ===');
+          console.log('Flight Get Pricer Response JSON ===>');
+          console.log(JSON.stringify(pricingResponse.data, null, 2));
+          console.log('=== END FLIGHT GET PRICER RESPONSE ===');
           
           if (pricingResponse.data.Code === "200" && pricingResponse.data.data) {
             finalNetAmount = Number(pricingResponse.data.data.NetAmount) || netAmountNumber;
@@ -670,12 +673,21 @@ const Createitenary = () => {
             ClientID: localStorage.getItem("ClientID")
           };
           
+          console.log('=== FRONTEND: FLIGHT GET TRAVEL CHECK LIST API CALL ===');
+          console.log('Flight Get Travel Check List Payload ===>');
+          console.log(JSON.stringify(checkListPayload, null, 2));
+          console.log('=== END FLIGHT GET TRAVEL CHECK LIST PAYLOAD ===');
           
           const checkListResponse = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/api/flights/get-travel-check-list`,
             checkListPayload,
             { headers }
           );
+          
+          console.log('=== FRONTEND: FLIGHT GET TRAVEL CHECK LIST API RESPONSE ===');
+          console.log('Flight Get Travel Check List Response JSON ===>');
+          console.log(JSON.stringify(checkListResponse.data, null, 2));
+          console.log('=== END FLIGHT GET TRAVEL CHECK LIST RESPONSE ===');
           
           
           if (checkListResponse.data.success) {
@@ -709,8 +721,10 @@ const Createitenary = () => {
               Amount: finalNetAmount
             };
             
-            // console.log("=== SSR API CALL (handleSubmit - refresh SSR) ===");
-            // console.log("SSR Payload:", JSON.stringify(ssrPayload, null, 2));
+            console.log('=== FRONTEND: FLIGHT GET SSR SERVICES API CALL (handleSubmit) ===');
+            console.log('Flight Get SSR Services Payload ===>');
+            console.log(JSON.stringify(ssrPayload, null, 2));
+            console.log('=== END FLIGHT GET SSR SERVICES PAYLOAD ===');
             
             const ssrResponse = await axios.post(
               `${import.meta.env.VITE_BASE_URL}/api/flights/get-ssr-services`,
@@ -723,8 +737,10 @@ const Createitenary = () => {
               }
             );
             
-            // console.log("SSR Response Data:", JSON.stringify(ssrResponse.data, null, 2));
-            // console.log("==================================================");
+            console.log('=== FRONTEND: FLIGHT GET SSR SERVICES API RESPONSE ===');
+            console.log('Flight Get SSR Services Response JSON ===>');
+            console.log(JSON.stringify(ssrResponse.data, null, 2));
+            console.log('=== END FLIGHT GET SSR SERVICES RESPONSE ===');
 
             if (ssrResponse.data.success) {
               const freshServices = ssrResponse.data.data.services || [];
@@ -826,21 +842,17 @@ const Createitenary = () => {
           CrossSellAmount: 0
         };
 
-        // console.log("=== CREATE ITINERARY FINAL PAYLOAD (FRONTEND) ===");
-        // console.log("Using Fresh TUI:", freshTUI);
-        // console.log("Using Fresh NetAmount:", finalNetAmount);
-        // console.log("Cleared Transaction ID to avoid duplicates");
-        // console.log("Final Payload being sent:", JSON.stringify(payload, null, 2));
-        // console.log("=============================================");
+        console.log('=== FRONTEND: FLIGHT CREATE ITINERARY API CALL ===');
+        console.log('Flight Create Itinerary Payload ===>');
+        console.log(JSON.stringify(payload, null, 2));
+        console.log('=== END FLIGHT CREATE ITINERARY PAYLOAD ===');
         
         const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/create-itinerary`, payload, { headers });
         
-        // console.log("=== CREATE ITINERARY RESPONSE (FRONTEND) ===");
-        // console.log("Response Status:", response.status);
-        // console.log("Response Headers:", response.headers);
-        // console.log("Response Data:", JSON.stringify(response.data, null, 2));
-        // console.log("Full Response Object:", response);
-        // console.log("==========================================");
+        console.log('=== FRONTEND: FLIGHT CREATE ITINERARY API RESPONSE ===');
+        console.log('Flight Create Itinerary Response JSON ===>');
+        console.log(JSON.stringify(response.data, null, 2));
+        console.log('=== END FLIGHT CREATE ITINERARY RESPONSE ===');
         
         
         if (response.data.success) {

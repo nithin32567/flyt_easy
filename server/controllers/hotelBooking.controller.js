@@ -77,6 +77,11 @@ export const verifyHotelPayment = async (req, res) => {
 };
 
 export const startHotelPay = async (req, res) => {
+  console.log('=== BACKEND: HOTEL START PAY REQUEST ===');
+  console.log('Hotel Start Pay Payload ===>');
+  console.log(JSON.stringify(req.body, null, 2));
+  console.log('=== END HOTEL START PAY PAYLOAD ===');
+  
   const token = req.headers.authorization.split(" ")[1];
   
   try {
@@ -182,9 +187,11 @@ export const startHotelPay = async (req, res) => {
     const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/StartPay`, finalPayload, { headers });
     
     const responseData = response.data;
-    console.log("=== HOTEL STARTPAY RESPONSE ===");
+    
+    console.log('=== BACKEND: HOTEL START PAY RESPONSE ===');
+    console.log('Hotel Start Pay Response JSON ===>');
     console.log(JSON.stringify(responseData, null, 2));
-    console.log("=== END HOTEL STARTPAY RESPONSE ===");
+    console.log('=== END HOTEL START PAY RESPONSE ===');
     
     if (!responseData || Object.keys(responseData).length === 0) {
       return res.status(500).json({
@@ -242,21 +249,31 @@ export const startHotelPay = async (req, res) => {
     }
     
     if (responseData.Code === "200" && responseData.Msg && responseData.Msg.includes("Success")) {
-      return res.status(200).json({
+      const responseToSend = {
         success: true,
         data: responseData,
         message: "Hotel payment processed successfully",
         status: "SUCCESS",
         shouldPoll: false
-      });
+      };
+      console.log('=== BACKEND: HOTEL START PAY RESPONSE TO CLIENT ===');
+      console.log('Hotel Start Pay Response to Client JSON ===>');
+      console.log(JSON.stringify(responseToSend, null, 2));
+      console.log('=== END HOTEL START PAY RESPONSE TO CLIENT ===');
+      return res.status(200).json(responseToSend);
     }
     
-    return res.status(200).json({
+    const responseToSend = {
       success: true,
       data: responseData,
       message: "Hotel payment processed successfully",
       status: "SUCCESS"
-    });
+    };
+    console.log('=== BACKEND: HOTEL START PAY RESPONSE TO CLIENT ===');
+    console.log('Hotel Start Pay Response to Client JSON ===>');
+    console.log(JSON.stringify(responseToSend, null, 2));
+    console.log('=== END HOTEL START PAY RESPONSE TO CLIENT ===');
+    return res.status(200).json(responseToSend);
   } catch (error) {
     console.error("Hotel StartPay error:", error);
     return res.status(500).json({ 
@@ -267,6 +284,11 @@ export const startHotelPay = async (req, res) => {
 };
 
 export const getHotelItineraryStatus = async (req, res) => {
+  console.log('=== BACKEND: HOTEL GET ITINERARY STATUS REQUEST ===');
+  console.log('Hotel Get Itinerary Status Payload ===>');
+  console.log(JSON.stringify(req.body, null, 2));
+  console.log('=== END HOTEL GET ITINERARY STATUS PAYLOAD ===');
+  
   const token = req.headers.authorization.split(" ")[1];
   
   try {
@@ -298,9 +320,11 @@ export const getHotelItineraryStatus = async (req, res) => {
     const response = await axios.post(`${process.env.FLIGHT_URL}/Payment/GetItineraryStatus`, payload, { headers });
     
     const responseData = response.data;
-    console.log("=== HOTEL ITINERARY STATUS RESPONSE ===");
+    
+    console.log('=== BACKEND: HOTEL GET ITINERARY STATUS RESPONSE ===');
+    console.log('Hotel Get Itinerary Status Response JSON ===>');
     console.log(JSON.stringify(responseData, null, 2));
-    console.log("=== END HOTEL ITINERARY STATUS RESPONSE ===");
+    console.log('=== END HOTEL GET ITINERARY STATUS RESPONSE ===');
     
     const currentStatus = responseData.CurrentStatus || responseData.currentStatus;
     const paymentStatus = responseData.PaymentStatus || responseData.paymentStatus;
@@ -309,15 +333,20 @@ export const getHotelItineraryStatus = async (req, res) => {
     const isCurrentStatusFailed = currentStatus === "Failed" || currentStatus === "failed";
     
     if (isCurrentStatusSuccess) {
-      return res.status(200).json({
+      const responseToSend = {
         success: true,
         data: responseData,
         message: "Hotel booking completed successfully",
         status: "SUCCESS",
         shouldPoll: false
-      });
+      };
+      console.log('=== BACKEND: HOTEL GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+      console.log('Hotel Get Itinerary Status Response to Client JSON ===>');
+      console.log(JSON.stringify(responseToSend, null, 2));
+      console.log('=== END HOTEL GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+      return res.status(200).json(responseToSend);
     } else if (isCurrentStatusFailed) {
-      return res.status(200).json({
+      const responseToSend = {
         success: false,
         data: responseData,
         message: `Hotel booking failed. ${responseData.Msg ? responseData.Msg.join(' ') : 'Unknown error'}`,
@@ -325,15 +354,25 @@ export const getHotelItineraryStatus = async (req, res) => {
         shouldPoll: false,
         errorCode: responseData.Code,
         errorDetails: responseData.Msg,
-      });
+      };
+      console.log('=== BACKEND: HOTEL GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+      console.log('Hotel Get Itinerary Status Response to Client JSON ===>');
+      console.log(JSON.stringify(responseToSend, null, 2));
+      console.log('=== END HOTEL GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+      return res.status(200).json(responseToSend);
     } else {
-      return res.status(200).json({
+      const responseToSend = {
         success: true,
         data: responseData,
         message: `Hotel booking status: ${currentStatus || 'In Progress - waiting for CurrentStatus'}`,
         status: "IN_PROGRESS",
         shouldPoll: true
-      });
+      };
+      console.log('=== BACKEND: HOTEL GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+      console.log('Hotel Get Itinerary Status Response to Client JSON ===>');
+      console.log(JSON.stringify(responseToSend, null, 2));
+      console.log('=== END HOTEL GET ITINERARY STATUS RESPONSE TO CLIENT ===');
+      return res.status(200).json(responseToSend);
     }
     
   } catch (error) {
@@ -364,6 +403,11 @@ export const getHotelItineraryStatus = async (req, res) => {
 };
 
 export const retrieveHotelBooking = async (req, res) => {
+  console.log('=== BACKEND: HOTEL RETRIEVE BOOKING REQUEST ===');
+  console.log('Hotel Retrieve Booking Payload ===>');
+  console.log(JSON.stringify(req.body, null, 2));
+  console.log('=== END HOTEL RETRIEVE BOOKING PAYLOAD ===');
+  
   const token = req.headers.authorization.split(" ")[1];
   
   try {
@@ -388,10 +432,6 @@ export const retrieveHotelBooking = async (req, res) => {
       Contact: Contact || null,
       Name: Name || null
     };
-
-    console.log("=== HOTEL RETRIEVE BOOKING PAYLOAD ===");
-    console.log(JSON.stringify(payload, null, 2));
-    console.log("=== END HOTEL RETRIEVE BOOKING PAYLOAD ===");
     
     const headers = {
       "Content-Type": "application/json",
@@ -402,14 +442,16 @@ export const retrieveHotelBooking = async (req, res) => {
     const response = await axios.post(`${process.env.FLIGHT_URL}/Utils/RetrieveBooking`, payload, { headers });
     
     const responseData = response.data;
-    console.log("=== HOTEL RETRIEVE BOOKING RESPONSE ===");
+    
+    console.log('=== BACKEND: HOTEL RETRIEVE BOOKING RESPONSE ===');
+    console.log('Hotel Retrieve Booking Response JSON ===>');
     console.log(JSON.stringify(responseData, null, 2));
-    console.log("=== END HOTEL RETRIEVE BOOKING RESPONSE ===");
+    console.log('=== END HOTEL RETRIEVE BOOKING RESPONSE ===');
     
             if (responseData.Code === "200" && responseData.Msg && responseData.Msg.includes("Success")) {
               // Store booking data in database
               try {
-                const userId = req.user?.id; // Assuming user ID is available in req.user
+                const userId = req.user?.id;
                 
                 if (userId) {
                   const hotelBookingData = {
@@ -425,7 +467,6 @@ export const retrieveHotelBooking = async (req, res) => {
                     bookingConfirmationId: responseData.BookingConfirmationId
                   };
 
-                  // Check if booking already exists
                   const existingBooking = await HotelBooking.findOne({ 
                     transactionId: responseData.TransactionId?.toString() 
                   });
@@ -433,30 +474,29 @@ export const retrieveHotelBooking = async (req, res) => {
                   if (!existingBooking) {
                     const hotelBooking = new HotelBooking(hotelBookingData);
                     await hotelBooking.save();
-                    console.log("=== HOTEL BOOKING SAVED TO DATABASE ===");
-                    console.log("Booking ID:", hotelBooking._id);
-                    console.log("Transaction ID:", hotelBooking.transactionId);
-                    console.log("=== END HOTEL BOOKING SAVED ===");
-                  } else {
-                    console.log("=== HOTEL BOOKING ALREADY EXISTS ===");
-                    console.log("Existing Booking ID:", existingBooking._id);
-                    console.log("=== END HOTEL BOOKING EXISTS ===");
                   }
-                } else {
-                  console.log("=== NO USER ID FOUND - SKIPPING DATABASE STORAGE ===");
                 }
               } catch (dbError) {
                 console.error("Database storage error:", dbError);
-                // Don't fail the request if database storage fails
               }
 
+              console.log('=== BACKEND: HOTEL RETRIEVE BOOKING RESPONSE TO CLIENT ===');
+              console.log('Hotel Retrieve Booking Response to Client JSON ===>');
+              console.log(JSON.stringify(responseData, null, 2));
+              console.log('=== END HOTEL RETRIEVE BOOKING RESPONSE TO CLIENT ===');
+              
               return res.status(200).json(responseData);
             } else {
-              return res.status(400).json({
+              const responseToSend = {
                 success: false,
                 message: responseData.Msg?.join(' ') || 'Failed to retrieve booking',
                 data: responseData
-              });
+              };
+              console.log('=== BACKEND: HOTEL RETRIEVE BOOKING RESPONSE TO CLIENT ===');
+              console.log('Hotel Retrieve Booking Response to Client JSON ===>');
+              console.log(JSON.stringify(responseToSend, null, 2));
+              console.log('=== END HOTEL RETRIEVE BOOKING RESPONSE TO CLIENT ===');
+              return res.status(400).json(responseToSend);
             }
     
   } catch (error) {

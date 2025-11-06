@@ -10,7 +10,7 @@ export const generateToken = async (req, res) => {
       Password: process.env.PASSWORD.trim() || "SUB@743#92995",
       AgentCode: "",
       BrowserKey: process.env.BROWSER_KEY,
-      Key: process.env.KEY,
+      Key: process.env.KEY || "",
     };
 
 
@@ -19,7 +19,7 @@ export const generateToken = async (req, res) => {
     console.log("full payload ==============================================>", payload);
 
 
-    
+
     const response = await fetch(process.env.SIGNATURE_API, {
       method: "POST",
       body: JSON.stringify(payload),

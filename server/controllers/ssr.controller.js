@@ -1,6 +1,11 @@
 import axios from 'axios';
 
 export const getSSRServices = async (req, res) => {
+    console.log('=== BACKEND: FLIGHT GET SSR SERVICES REQUEST ===');
+    console.log('Flight Get SSR Services Payload ===>');
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log('=== END FLIGHT GET SSR SERVICES PAYLOAD ===');
+    
     const token = req.headers.authorization?.split(" ")[1];
 
     try {
@@ -45,8 +50,11 @@ export const getSSRServices = async (req, res) => {
         });
 
         const data = response.data;
-        console.log("[SSR] Payload:", JSON.stringify(payload, null, 2));
-        console.log("[SSR] Response.data:", JSON.stringify(data, null, 2));
+        
+        console.log('=== BACKEND: FLIGHT GET SSR SERVICES RESPONSE ===');
+        console.log('Flight Get SSR Services Response JSON ===>');
+        console.log(JSON.stringify(data, null, 2));
+        console.log('=== END FLIGHT GET SSR SERVICES RESPONSE ===');
 
         if (data.Code === "200") {
             const ssrServices = [];
@@ -82,7 +90,7 @@ export const getSSRServices = async (req, res) => {
                 )
             );
 
-            return res.status(200).json({
+            const responseToSend = {
                 success: true,
                 data: {
                     services: uniqueServices,
@@ -92,7 +100,14 @@ export const getSSRServices = async (req, res) => {
                     hasPaidServices: uniqueServices.length > 0
                 },
                 message: uniqueServices.length > 0 ? "SSR services retrieved successfully" : "No paid SSR services available"
-            });
+            };
+            
+            console.log('=== BACKEND: FLIGHT GET SSR SERVICES RESPONSE TO CLIENT ===');
+            console.log('Flight Get SSR Services Response to Client JSON ===>');
+            console.log(JSON.stringify(responseToSend, null, 2));
+            console.log('=== END FLIGHT GET SSR SERVICES RESPONSE TO CLIENT ===');
+            
+            return res.status(200).json(responseToSend);
         } else {
             return res.status(400).json({
                 success: false,

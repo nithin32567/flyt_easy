@@ -60,15 +60,26 @@ const SearchForm = () => {
   }, []);
 
   const getExpSearch = async (TUI) => {
+    const payload = {
+      TUI,
+      token,
+    };
+    
+    console.log('=== FRONTEND: FLIGHT GET EXP SEARCH API CALL ===');
+    console.log('Flight Get Exp Search Payload ===>');
+    console.log(JSON.stringify(payload, null, 2));
+    console.log('=== END FLIGHT GET EXP SEARCH PAYLOAD ===');
+    
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/flights/get-exp-search`,
-        {
-          TUI,
-
-          token,
-        }
+        payload
       );
+      
+      console.log('=== FRONTEND: FLIGHT GET EXP SEARCH API RESPONSE ===');
+      console.log('Flight Get Exp Search Response JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END FLIGHT GET EXP SEARCH RESPONSE ===');
 
       // console.log("=== GET EXP SEARCH RESPONSE ===");
       // console.log("Payload sent to API:", response.data.payload);
@@ -87,14 +98,19 @@ const SearchForm = () => {
         // Call WebSettings after ExpressSearch completes with the ExpressSearch TUI
         try {
           const { fetchWebSettings } = await import('../contexts/WebSettingsContext');
-          // We need to get the context instance, but since we're in a component,
-          // we'll call WebSettings via the API directly
+          const webSettingsPayload = {
+            ClientID: localStorage.getItem("ClientID"),
+            TUI: TUI
+          };
+          
+          console.log('=== FRONTEND: FLIGHT WEB SETTINGS API CALL ===');
+          console.log('Flight Web Settings Payload ===>');
+          console.log(JSON.stringify(webSettingsPayload, null, 2));
+          console.log('=== END FLIGHT WEB SETTINGS PAYLOAD ===');
+          
           const webSettingsResponse = await axios.post(
             `${import.meta.env.VITE_BASE_URL}/api/flights/web-settings`,
-            {
-              ClientID: localStorage.getItem("ClientID"),
-              TUI: TUI // Use the ExpressSearch TUI
-            },
+            webSettingsPayload,
             {
               headers: {
                 "Content-Type": "application/json",
@@ -102,6 +118,11 @@ const SearchForm = () => {
               }
             }
           );
+          
+          console.log('=== FRONTEND: FLIGHT WEB SETTINGS API RESPONSE ===');
+          console.log('Flight Web Settings Response JSON ===>');
+          console.log(JSON.stringify(webSettingsResponse.data, null, 2));
+          console.log('=== END FLIGHT WEB SETTINGS RESPONSE ===');
           // console.log("WebSettings called with ExpressSearch TUI:", webSettingsResponse.data);
         } catch (webSettingsError) {
           // console.error("Error calling WebSettings:", webSettingsError);
@@ -170,6 +191,12 @@ const SearchForm = () => {
     // Clear previous search data to prevent conflicts
     clearSearchData();
     localStorage.setItem("searchPayload", JSON.stringify(payload));
+    
+    console.log('=== FRONTEND: FLIGHT EXPRESS SEARCH API CALL ===');
+    console.log('Flight Express Search Payload ===>');
+    console.log(JSON.stringify(payload, null, 2));
+    console.log('=== END FLIGHT EXPRESS SEARCH PAYLOAD ===');
+    
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/api/flights/express-search`,
@@ -184,6 +211,11 @@ const SearchForm = () => {
         }
       );
       const data = await response.json();
+      
+      console.log('=== FRONTEND: FLIGHT EXPRESS SEARCH API RESPONSE ===');
+      console.log('Flight Express Search Response JSON ===>');
+      console.log(JSON.stringify(data, null, 2));
+      console.log('=== END FLIGHT EXPRESS SEARCH RESPONSE ===');
       // console.log("=== EXPRESS SEARCH RESPONSE ===");
       // console.log("Payload sent to API:", data.payload);
       // console.log("Response from API:", data.response);

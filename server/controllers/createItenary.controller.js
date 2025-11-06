@@ -6,12 +6,12 @@ dotenv.config();
 
 
 export const createItinerary = async (req, res) => {
+    console.log('=== BACKEND: FLIGHT CREATE ITINERARY REQUEST ===');
+    console.log('Flight Create Itinerary Payload ===>');
+    console.log(JSON.stringify(req.body, null, 2));
+    console.log('=== END FLIGHT CREATE ITINERARY PAYLOAD ===');
+    
     const token = req.headers.authorization?.split(" ")[1];
-
-    console.log("=== CREATE ITINERARY STARTED ===");
-    console.log("Request Body Keys:", Object.keys(req.body));
-    console.log("Authorization Header Present:", !!req.headers.authorization);
-    console.log("Token Present:", !!token);
 
     try {
         const NetAmount = Number(req.body.NetAmount);
@@ -144,11 +144,6 @@ export const createItinerary = async (req, res) => {
 
         const apiUrl = `${process.env.FLIGHT_URL}/Flights/CreateItinerary`;
 
-        console.log("=== CREATE ITINERARY REQUEST ===");
-        console.log("API URL:", `${process.env.FLIGHT_URL}/Flights/CreateItinerary`);
-        // console.log("Request Payload:", JSON.stringify(finalPayload, null, 2));
-        console.log("Authorization Token:", token ? `${token.substring(0, 20)}...` : "No token");
-
         const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/CreateItinerary`, finalPayload, {
             headers: {
                 "Content-Type": "application/json",
@@ -157,12 +152,12 @@ export const createItinerary = async (req, res) => {
             }
         });
 
-        console.log("=== CREATE ITINERARY RESPONSE ===");
-        console.log("Response Status:", response.status);
-        console.log("Response Headers:", response.headers);
-        // console.log("Full Response:", JSON.stringify(response.data, null, 2));
-
         const data = await response.data;
+        
+        console.log('=== BACKEND: FLIGHT CREATE ITINERARY RESPONSE ===');
+        console.log('Flight Create Itinerary Response JSON ===>');
+        console.log(JSON.stringify(data, null, 2));
+        console.log('=== END FLIGHT CREATE ITINERARY RESPONSE ===');
 
         if (!data || data.TransactionID === 0 || data.TransactionID === null) {
             console.log("⚠️  WARNING: No TransactionID received, generating fallback");
@@ -189,16 +184,18 @@ export const createItinerary = async (req, res) => {
             });
         }
 
-        console.log("✅ CREATE ITINERARY SUCCESS");
-        console.log("TransactionID:", data.TransactionID);
-        console.log("ItineraryID:", data.ItineraryID);
-        // console.log("Final Response Data:", JSON.stringify(data, null, 2));
-
-        return res.status(200).json({
+        const responseToSend = {
             success: true,
             data: data,
             message: "Itinerary created successfully"
-        });
+        };
+        
+        console.log('=== BACKEND: FLIGHT CREATE ITINERARY RESPONSE TO CLIENT ===');
+        console.log('Flight Create Itinerary Response to Client JSON ===>');
+        console.log(JSON.stringify(responseToSend, null, 2));
+        console.log('=== END FLIGHT CREATE ITINERARY RESPONSE TO CLIENT ===');
+        
+        return res.status(200).json(responseToSend);
 
 
     } catch (error) {

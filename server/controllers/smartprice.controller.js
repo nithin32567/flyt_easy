@@ -2,6 +2,11 @@ import axios from "axios";
 import { getPricer } from "./getpricer.controller.js";
 
 export const smartPricer = async (req, res) => {
+  console.log('=== BACKEND: FLIGHT SMART PRICE REQUEST ===');
+  console.log('Flight Smart Price Payload ===>');
+  console.log(JSON.stringify(req.body, null, 2));
+  console.log('=== END FLIGHT SMART PRICE PAYLOAD ===');
+  
   try {
     const { Trips, ClientID, Mode, Options, Source, TripType, token, TUI } = req.body;
 
@@ -60,10 +65,19 @@ export const smartPricer = async (req, res) => {
 
 
     try {
-      console.log("[SmartPricer] Payload:", JSON.stringify(payload, null, 2));
-      const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/SmartPricer`, payload, { headers })
-      console.log("[SmartPricer] Response.data:", JSON.stringify(response.data, null, 2));
-      return res.status(200).json(response.data)
+      const response = await axios.post(`${process.env.FLIGHT_URL}/Flights/SmartPricer`, payload, { headers });
+      
+      console.log('=== BACKEND: FLIGHT SMART PRICE RESPONSE ===');
+      console.log('Flight Smart Price Response JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END FLIGHT SMART PRICE RESPONSE ===');
+      
+      console.log('=== BACKEND: FLIGHT SMART PRICE RESPONSE TO CLIENT ===');
+      console.log('Flight Smart Price Response to Client JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END FLIGHT SMART PRICE RESPONSE TO CLIENT ===');
+      
+      return res.status(200).json(response.data);
     } catch (error) {
       return res.status(500).json({
         Code: "500",

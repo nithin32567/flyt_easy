@@ -181,8 +181,17 @@ const ListFlights = () => {
         TripType: tripType
       };
 
+      console.log('=== FRONTEND: FLIGHT SMART PRICE API CALL ===');
+      console.log('Flight Smart Price Payload ===>');
+      console.log(JSON.stringify(payload, null, 2));
+      console.log('=== END FLIGHT SMART PRICE PAYLOAD ===');
 
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, payload)
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/smart-price`, payload);
+      
+      console.log('=== FRONTEND: FLIGHT SMART PRICE API RESPONSE ===');
+      console.log('Flight Smart Price Response JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END FLIGHT SMART PRICE RESPONSE ===');
 
 
       if (response.status === 200) {
@@ -214,8 +223,17 @@ const ListFlights = () => {
         ClientID: localStorage.getItem("ClientID")
       };
 
+      console.log('=== FRONTEND: FLIGHT GET PRICER API CALL ===');
+      console.log('Flight Get Pricer Payload ===>');
+      console.log(JSON.stringify(payload, null, 2));
+      console.log('=== END FLIGHT GET PRICER PAYLOAD ===');
 
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`, payload)
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-pricer`, payload);
+      
+      console.log('=== FRONTEND: FLIGHT GET PRICER API RESPONSE ===');
+      console.log('Flight Get Pricer Response JSON ===>');
+      console.log(JSON.stringify(response.data, null, 2));
+      console.log('=== END FLIGHT GET PRICER RESPONSE ===');
 
 
       if (response.status === 200) {

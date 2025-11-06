@@ -107,7 +107,10 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             ServiceType: "ITI"
         }
         
-        // Enhanced logging for StartPay
+        console.log('=== FRONTEND: FLIGHT START PAY API CALL ===');
+        console.log('Flight Start Pay Payload ===>');
+        console.log(JSON.stringify(payload, null, 2));
+        console.log('=== END FLIGHT START PAY PAYLOAD ===');
         
         try {
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/startpay`, payload, {
@@ -116,6 +119,10 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             });
             
+            console.log('=== FRONTEND: FLIGHT START PAY API RESPONSE ===');
+            console.log('Flight Start Pay Response JSON ===>');
+            console.log(JSON.stringify(response.data, null, 2));
+            console.log('=== END FLIGHT START PAY RESPONSE ===');
             
             return response.data;
         } catch (error) {
@@ -128,10 +135,13 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
             const payload = {
                 TUI: TUI,
                 TransactionID: TransactionID,
-                ClientID: clientID // Add ClientID
+                ClientID: clientID
             };
             
-            // Enhanced logging for GetItineraryStatus
+            console.log('=== FRONTEND: FLIGHT GET ITINERARY STATUS API CALL ===');
+            console.log('Flight Get Itinerary Status Payload ===>');
+            console.log(JSON.stringify(payload, null, 2));
+            console.log('=== END FLIGHT GET ITINERARY STATUS PAYLOAD ===');
             
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/get-itinerary-status`, payload, {
                 headers: {
@@ -139,9 +149,11 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             });
             
-            // Enhanced logging for GetItineraryStatus response
+            console.log('=== FRONTEND: FLIGHT GET ITINERARY STATUS API RESPONSE ===');
+            console.log('Flight Get Itinerary Status Response JSON ===>');
+            console.log(JSON.stringify(response.data, null, 2));
+            console.log('=== END FLIGHT GET ITINERARY STATUS RESPONSE ===');
             
-            // Return the response data which contains the status information
             return response.data;
         } catch (error) {
             // console.error('=== GET ITINERARY STATUS ERROR ===');
@@ -165,14 +177,10 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 ClientID: clientID
             };
             
-            // Enhanced logging for RetrieveBooking
-            // console.log('=== RETRIEVE BOOKING REQUEST ===');
-            // console.log('Endpoint:', `${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`);
-            // console.log('Request Payload:', JSON.stringify(payload, null, 2));
-            // console.log('Request Headers:', JSON.stringify({
-            //     "Authorization": `Bearer ${token}`
-            // }, null, 2));
-            // console.log('=================================');
+            console.log('=== FRONTEND: FLIGHT RETRIEVE BOOKING API CALL ===');
+            console.log('Flight Retrieve Booking Payload ===>');
+            console.log(JSON.stringify(payload, null, 2));
+            console.log('=== END FLIGHT RETRIEVE BOOKING PAYLOAD ===');
             
             const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/flights/retrieve-booking`, payload, {
                 headers: {
@@ -180,14 +188,11 @@ const PaymentButton = ({ amount, name, email, contact, TUI }) => {
                 },
             });
             
-            // Enhanced logging for RetrieveBooking response
-            // console.log('=== RETRIEVE BOOKING RESPONSE ===');
-            // console.log('Response Status:', response.status);
-            // console.log('Response Headers:', JSON.stringify(response.headers, null, 2));
-            // console.log('Response Data:', JSON.stringify(response.data, null, 2));
-            // console.log('=================================');
+            console.log('=== FRONTEND: FLIGHT RETRIEVE BOOKING API RESPONSE ===');
+            console.log('Flight Retrieve Booking Response JSON ===>');
+            console.log(JSON.stringify(response.data, null, 2));
+            console.log('=== END FLIGHT RETRIEVE BOOKING RESPONSE ===');
             
-            // Return the response data which contains the booking details
             return response.data;
         } catch (error) {
             // console.error('=== RETRIEVE BOOKING ERROR ===');

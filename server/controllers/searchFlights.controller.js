@@ -8,6 +8,10 @@ import path from 'path';
 
 
 export const expressSearchFlights = async (req, res) => {
+  console.log('=== BACKEND: FLIGHT EXPRESS SEARCH REQUEST ===');
+  console.log('Flight Express Search Payload ===>');
+  console.log(JSON.stringify(req.body, null, 2));
+  console.log('=== END FLIGHT EXPRESS SEARCH PAYLOAD ===');
 
   try {
     const {
@@ -100,15 +104,27 @@ export const expressSearchFlights = async (req, res) => {
       }
     );
     const data = response.data;
-    console.log(data, "express search response data=======================");
-    return res.status(200).json({
+    
+    console.log('=== BACKEND: FLIGHT EXPRESS SEARCH RESPONSE ===');
+    console.log('Flight Express Search Response JSON ===>');
+    console.log(JSON.stringify(data, null, 2));
+    console.log('=== END FLIGHT EXPRESS SEARCH RESPONSE ===');
+    
+    const responseToSend = {
       success: true,
       message: "Express Search Results Retrieved",
       payload: payload,
       response: data,
       data: data,
       TUI: data.TUI,
-    });
+    };
+    
+    console.log('=== BACKEND: FLIGHT EXPRESS SEARCH RESPONSE TO CLIENT ===');
+    console.log('Flight Express Search Response to Client JSON ===>');
+    console.log(JSON.stringify(responseToSend, null, 2));
+    console.log('=== END FLIGHT EXPRESS SEARCH RESPONSE TO CLIENT ===');
+    
+    return res.status(200).json(responseToSend);
   } catch (error) {
 
     return res.status(500).json({
@@ -125,6 +141,11 @@ export const expressSearchFlights = async (req, res) => {
 };
 
 export const getExpSearchFlights = async (req, res) => {
+  console.log('=== BACKEND: FLIGHT GET EXP SEARCH REQUEST ===');
+  console.log('Flight Get Exp Search Payload ===>');
+  console.log(JSON.stringify(req.body, null, 2));
+  console.log('=== END FLIGHT GET EXP SEARCH PAYLOAD ===');
+  
   const { token, TUI, saveToFile, ClientID } = req.body;
 
   if (!token || !TUI) {
@@ -144,15 +165,14 @@ export const getExpSearchFlights = async (req, res) => {
     "Content-Type": "application/json",
   };
 
-  const maxRetries = 20;      // Total attempts
-  const delayMs = 1000;       // 1 second between attempts
+  const maxRetries = 20;
+  const delayMs = 1000;
 
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   const payload = {
     ClientID: ClientID || "",
     TUI: TUI
   };
-  console.log(payload, "get exp search payload=======================");
 
   try {
     const pollExpSearch = async (retries = 0) => {
@@ -177,7 +197,11 @@ export const getExpSearchFlights = async (req, res) => {
 
 
     const data = await pollExpSearch();
-    console.log(data, "get exp search response data=======================");
+    
+    console.log('=== BACKEND: FLIGHT GET EXP SEARCH RESPONSE ===');
+    console.log('Flight Get Exp Search Response JSON ===>');
+    console.log(JSON.stringify(data, null, 2));
+    console.log('=== END FLIGHT GET EXP SEARCH RESPONSE ===');
 
     if (saveToFile) {
       try {
@@ -193,26 +217,40 @@ export const getExpSearchFlights = async (req, res) => {
         fs.writeFileSync(filepath, JSON.stringify(data, null, 2));
 
 
-        return res.status(200).json({
+        const responseToSend = {
           success: true,
           message: "GETExpSearch fetched successfully and saved to file",
           payload: payload,
           response: data,
           data: data,
           savedFile: filename
-        });
+        };
+        
+        console.log('=== BACKEND: FLIGHT GET EXP SEARCH RESPONSE TO CLIENT ===');
+        console.log('Flight Get Exp Search Response to Client JSON ===>');
+        console.log(JSON.stringify(responseToSend, null, 2));
+        console.log('=== END FLIGHT GET EXP SEARCH RESPONSE TO CLIENT ===');
+        
+        return res.status(200).json(responseToSend);
       } catch (fileError) {
         console.error("Error saving file:", fileError);
       }
     }
 
-    return res.status(200).json({
+    const responseToSend = {
       success: true,
       message: "GETExpSearch fetched successfully",
       payload: payload,
       response: data,
       data: data,
-    });
+    };
+    
+    console.log('=== BACKEND: FLIGHT GET EXP SEARCH RESPONSE TO CLIENT ===');
+    console.log('Flight Get Exp Search Response to Client JSON ===>');
+    console.log(JSON.stringify(responseToSend, null, 2));
+    console.log('=== END FLIGHT GET EXP SEARCH RESPONSE TO CLIENT ===');
+    
+    return res.status(200).json(responseToSend);
 
   } catch (error) {
     return res.status(500).json({
