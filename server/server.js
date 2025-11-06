@@ -29,9 +29,12 @@ const allowedOrigins = [
   "http://127.0.0.1:5174",
   "http://127.0.0.1:3000",
   "http://147.93.18.244",
+  "http://preview.flyteasy.com",
+
   "https://flyteasy.com",
   "https://www.flyteasy.com",
-  
+  "https://www.preview.flyteasy.com",
+  "https://preview.flyteasy.com",
 ];
 
 const corsOptions = {
