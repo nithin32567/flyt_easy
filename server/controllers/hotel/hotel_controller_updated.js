@@ -14,7 +14,7 @@ export const autosuggest = async (req, res) => {
 
     // Using HOTEL_SEARCH_URL constant
 
-    const response = await axios.get(`https://travelportalapi.benzyinfotech.com/api/content/autosuggest`, {
+    const response = await axios.get(`https://travelportal.akbartravels.com/api/content/autosuggest`, {
       
       params: { term },
     });
