@@ -14,13 +14,14 @@ export const autosuggest = async (req, res) => {
 
     // Using HOTEL_SEARCH_URL constant
 
-    const response = await axios.get(`${HOTEL_SEARCH_URL}/api/content/autosuggest`, {
+    const response = await axios.get(`https://travelportalapi.benzyinfotech.com/api/content/autosuggest`, {
+      
       params: { term },
     });
-
+    console.log(term,"term ============================================> term")
     // console.log(response.data);
     const data = response.data;
-
+    console.log(data, "data ============================================> autosuggest data")
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: error.message });
